@@ -15,6 +15,8 @@ public:
     color operator*(float rhs) const;
     color operator/(float rhs) const;
     color &operator+=(const color &rhs);
+
+    void clamp();
     
     std::uint32_t to_rgba() const;
     std::uint32_t to_ffrgb() const;
