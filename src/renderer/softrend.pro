@@ -28,6 +28,4 @@ SOURCES += animation_clock.cpp \
            scenes/dnahelix.cpp \
            scenes/icosa.cpp \
            scenes/touareg.cpp \
-           scenes/teapot.cpp \
-           scenes/texture_breakup.cpp
-        
+           scenes/teapot.cpp

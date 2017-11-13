@@ -69,8 +69,7 @@ SOURCES       = animation_clock.cpp \
 		scenes/dnahelix.cpp \
 		scenes/icosa.cpp \
 		scenes/touareg.cpp \
-		scenes/teapot.cpp \
-		scenes/texture_breakup.cpp moc_window.cpp
+		scenes/teapot.cpp moc_window.cpp
 OBJECTS       = animation_clock.o \
 		benchmark.o \
 		color.o \
@@ -91,7 +90,6 @@ OBJECTS       = animation_clock.o \
 		icosa.o \
 		touareg.o \
 		teapot.o \
-		texture_breakup.o \
 		moc_window.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -147,6 +145,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
@@ -184,8 +183,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		scenes/dnahelix.cpp \
 		scenes/icosa.cpp \
 		scenes/touareg.cpp \
-		scenes/teapot.cpp \
-		scenes/texture_breakup.cpp
+		scenes/teapot.cpp
 QMAKE_TARGET  = softrend
 DESTDIR       = 
 TARGET        = softrend
@@ -251,6 +249,7 @@ Makefile: softrend.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf \
@@ -328,6 +327,7 @@ Makefile: softrend.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/qt_config.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/exclusive_builds.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/toolchain.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/default_pre.prf:
@@ -366,7 +366,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents window.h $(DISTDIR)/
-	$(COPY_FILE) --parents animation_clock.cpp benchmark.cpp color.cpp framebuffer.cpp importer.cpp lodepng.cpp main.cpp material.cpp material_library.cpp mesh.cpp scene.cpp texture.cpp triangle.cpp util.cpp vertex.cpp window.cpp scenes/dnahelix.cpp scenes/icosa.cpp scenes/touareg.cpp scenes/teapot.cpp scenes/texture_breakup.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents animation_clock.cpp benchmark.cpp color.cpp framebuffer.cpp importer.cpp lodepng.cpp main.cpp material.cpp material_library.cpp mesh.cpp scene.cpp texture.cpp triangle.cpp util.cpp vertex.cpp window.cpp scenes/dnahelix.cpp scenes/icosa.cpp scenes/touareg.cpp scenes/teapot.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -499,7 +499,6 @@ main.o: main.cpp window.h \
 		triangle.h \
 		scenes/icosa.h \
 		scenes/teapot.h \
-		scenes/texture_breakup.h \
 		scenes/touareg.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
@@ -692,27 +691,6 @@ teapot.o: scenes/teapot.cpp scenes/teapot.h \
 		framebuffer.h \
 		importer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o teapot.o scenes/teapot.cpp
-
-texture_breakup.o: scenes/texture_breakup.cpp scenes/texture_breakup.h \
-		color.h \
-		mesh.h \
-		../math/matrix.h \
-		../math/vector.h \
-		../math/vector.cpp.h \
-		../math/math_detail.h \
-		../math/vector_typedefs.h \
-		../math/matrix.cpp.h \
-		../math/matrix_typedefs.h \
-		triangle.h \
-		texture.h \
-		vertex.h \
-		scene.h \
-		animation_clock.h \
-		material_library.h \
-		material.h \
-		framebuffer.h \
-		importer.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o texture_breakup.o scenes/texture_breakup.cpp
 
 moc_window.o: moc_window.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_window.o moc_window.cpp
