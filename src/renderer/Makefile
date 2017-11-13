@@ -53,13 +53,16 @@ OBJECTS_DIR   = ./
 SOURCES       = animation_clock.cpp \
 		benchmark.cpp \
 		color.cpp \
+		directional_light.cpp \
 		framebuffer.cpp \
 		importer.cpp \
+		light.cpp \
 		lodepng.cpp \
 		main.cpp \
 		material.cpp \
 		material_library.cpp \
 		mesh.cpp \
+		point_light.cpp \
 		scene.cpp \
 		texture.cpp \
 		triangle.cpp \
@@ -73,13 +76,16 @@ SOURCES       = animation_clock.cpp \
 OBJECTS       = animation_clock.o \
 		benchmark.o \
 		color.o \
+		directional_light.o \
 		framebuffer.o \
 		importer.o \
+		light.o \
 		lodepng.o \
 		main.o \
 		material.o \
 		material_library.o \
 		mesh.o \
+		point_light.o \
 		scene.o \
 		texture.o \
 		triangle.o \
@@ -167,13 +173,16 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		softrend.pro window.h animation_clock.cpp \
 		benchmark.cpp \
 		color.cpp \
+		directional_light.cpp \
 		framebuffer.cpp \
 		importer.cpp \
+		light.cpp \
 		lodepng.cpp \
 		main.cpp \
 		material.cpp \
 		material_library.cpp \
 		mesh.cpp \
+		point_light.cpp \
 		scene.cpp \
 		texture.cpp \
 		triangle.cpp \
@@ -366,7 +375,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents window.h $(DISTDIR)/
-	$(COPY_FILE) --parents animation_clock.cpp benchmark.cpp color.cpp framebuffer.cpp importer.cpp lodepng.cpp main.cpp material.cpp material_library.cpp mesh.cpp scene.cpp texture.cpp triangle.cpp util.cpp vertex.cpp window.cpp scenes/dnahelix.cpp scenes/icosa.cpp scenes/touareg.cpp scenes/teapot.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents animation_clock.cpp benchmark.cpp color.cpp directional_light.cpp framebuffer.cpp importer.cpp light.cpp lodepng.cpp main.cpp material.cpp material_library.cpp mesh.cpp point_light.cpp scene.cpp texture.cpp triangle.cpp util.cpp vertex.cpp window.cpp scenes/dnahelix.cpp scenes/icosa.cpp scenes/touareg.cpp scenes/teapot.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -411,6 +420,8 @@ moc_window.cpp: framebuffer.h \
 		benchmark.h \
 		scene.h \
 		animation_clock.h \
+		directional_light.h \
+		light.h \
 		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
@@ -446,6 +457,15 @@ color.o: color.cpp color.h \
 		../math/math_util.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o color.o color.cpp
 
+directional_light.o: directional_light.cpp directional_light.h \
+		light.h \
+		color.h \
+		../math/vector.h \
+		../math/vector.cpp.h \
+		../math/math_detail.h \
+		../math/vector_typedefs.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o directional_light.o directional_light.cpp
+
 framebuffer.o: framebuffer.cpp framebuffer.h \
 		color.h \
 		../math/vector.h \
@@ -474,6 +494,9 @@ importer.o: importer.cpp importer.h \
 		util.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o importer.o importer.cpp
 
+light.o: light.cpp light.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o light.o light.cpp
+
 lodepng.o: lodepng.cpp lodepng.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o lodepng.o lodepng.cpp
 
@@ -488,6 +511,8 @@ main.o: main.cpp window.h \
 		benchmark.h \
 		scene.h \
 		animation_clock.h \
+		directional_light.h \
+		light.h \
 		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
@@ -531,24 +556,37 @@ mesh.o: mesh.cpp mesh.h \
 		../math/math_util.h \
 		scene.h \
 		animation_clock.h \
+		directional_light.h \
+		light.h \
 		material_library.h \
 		material.h \
 		util.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mesh.o mesh.cpp
 
+point_light.o: point_light.cpp point_light.h \
+		light.h \
+		color.h \
+		../math/vector.h \
+		../math/vector.cpp.h \
+		../math/math_detail.h \
+		../math/vector_typedefs.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o point_light.o point_light.cpp
+
 scene.o: scene.cpp scene.h \
 		animation_clock.h \
-		../math/matrix.h \
+		directional_light.h \
+		light.h \
+		color.h \
 		../math/vector.h \
 		../math/vector.cpp.h \
 		../math/math_detail.h \
 		../math/vector_typedefs.h \
+		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
 		material_library.h \
 		material.h \
 		texture.h \
-		color.h \
 		framebuffer.h \
 		vertex.h \
 		../math/viewport_transforms.h \
@@ -569,11 +607,17 @@ triangle.o: triangle.cpp triangle.h \
 		../math/vector_typedefs.h \
 		framebuffer.h \
 		vertex.h \
+		../math/math_util.h \
 		mesh.h \
 		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
-		util.h
+		scene.h \
+		animation_clock.h \
+		directional_light.h \
+		light.h \
+		material_library.h \
+		material.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o triangle.o triangle.cpp
 
 util.o: util.cpp util.h \
@@ -602,6 +646,8 @@ window.o: window.cpp window.h \
 		benchmark.h \
 		scene.h \
 		animation_clock.h \
+		directional_light.h \
+		light.h \
 		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
@@ -625,6 +671,8 @@ dnahelix.o: scenes/dnahelix.cpp scenes/dnahelix.h \
 		vertex.h \
 		scene.h \
 		animation_clock.h \
+		directional_light.h \
+		light.h \
 		material_library.h \
 		material.h \
 		framebuffer.h \
@@ -634,17 +682,19 @@ dnahelix.o: scenes/dnahelix.cpp scenes/dnahelix.h \
 icosa.o: scenes/icosa.cpp scenes/icosa.h \
 		scene.h \
 		animation_clock.h \
-		../math/matrix.h \
+		directional_light.h \
+		light.h \
+		color.h \
 		../math/vector.h \
 		../math/vector.cpp.h \
 		../math/math_detail.h \
 		../math/vector_typedefs.h \
+		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
 		material_library.h \
 		material.h \
 		texture.h \
-		color.h \
 		mesh.h \
 		triangle.h \
 		vertex.h \
@@ -654,17 +704,19 @@ icosa.o: scenes/icosa.cpp scenes/icosa.h \
 touareg.o: scenes/touareg.cpp scenes/touareg.h \
 		scene.h \
 		animation_clock.h \
-		../math/matrix.h \
+		directional_light.h \
+		light.h \
+		color.h \
 		../math/vector.h \
 		../math/vector.cpp.h \
 		../math/math_detail.h \
 		../math/vector_typedefs.h \
+		../math/matrix.h \
 		../math/matrix.cpp.h \
 		../math/matrix_typedefs.h \
 		material_library.h \
 		material.h \
 		texture.h \
-		color.h \
 		mesh.h \
 		triangle.h \
 		vertex.h \
@@ -686,6 +738,8 @@ teapot.o: scenes/teapot.cpp scenes/teapot.h \
 		vertex.h \
 		scene.h \
 		animation_clock.h \
+		directional_light.h \
+		light.h \
 		material_library.h \
 		material.h \
 		framebuffer.h \

@@ -12,13 +12,16 @@ HEADERS += window.h
 SOURCES += animation_clock.cpp \
            benchmark.cpp \
            color.cpp \
+           directional_light.cpp \
            framebuffer.cpp \
            importer.cpp \
+           light.cpp \
            lodepng.cpp \
            main.cpp \
            material.cpp \
            material_library.cpp \
            mesh.cpp \
+           point_light.cpp \
            scene.cpp \
            texture.cpp \
            triangle.cpp \
