@@ -16,10 +16,10 @@ color::color(float r, float g, float b, float a) :
 }
 
 color::color(const color &c1, const color &c2, float weight) :
-    r(math::clamp(0.0f, (1.0f - weight) * c1.r + weight * c2.r, 1.0f)),
-    g(math::clamp(0.0f, (1.0f - weight) * c1.g + weight * c2.g, 1.0f)),
-    b(math::clamp(0.0f, (1.0f - weight) * c1.b + weight * c2.b, 1.0f)),
-    a(math::clamp(0.0f, (1.0f - weight) * c1.a + weight * c2.a, 1.0f)) {
+    r(math::clamped(0.0f, (1.0f - weight) * c1.r + weight * c2.r, 1.0f)),
+    g(math::clamped(0.0f, (1.0f - weight) * c1.g + weight * c2.g, 1.0f)),
+    b(math::clamped(0.0f, (1.0f - weight) * c1.b + weight * c2.b, 1.0f)),
+    a(math::clamped(0.0f, (1.0f - weight) * c1.a + weight * c2.a, 1.0f)) {
 }
 
 color color::operator+(const color &rhs) const {
@@ -45,6 +45,13 @@ color &color::operator+=(const color &rhs) {
     a += rhs.a;
     
     return *this;
+}
+
+void color::clamp() {
+    math::clamp<float>(r, 0.0f, 1.0f);
+    math::clamp<float>(g, 0.0f, 1.0f);
+    math::clamp<float>(b, 0.0f, 1.0f);
+    math::clamp<float>(a, 0.0f, 1.0f);
 }
 
 uint32_t color::to_rgba() const {
