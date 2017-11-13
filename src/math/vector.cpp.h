@@ -173,6 +173,27 @@ namespace math {
         elements[dim - 1] = 1;
     }
 
+    template<typename float_t, int dim>
+    vector<float_t, dim + 1> vector<float_t, dim>::homo() const {
+        vector<float_t, dim + 1> result;
+            
+        for (int i = 0; i < dim; ++i)
+            result.elements[i] = elements[i];
+        
+        result.elements[dim] = 1;
+        return result;
+    }
+
+    template<typename float_t, int dim>
+    vector<float_t, dim - 1> vector<float_t, dim>::dehomo() const {
+        vector<float_t, dim - 1> result;
+            
+        for (int i = 0; i < dim - 1; ++i)
+            result.elements[i] = elements[i];
+
+        return result;
+    }
+    
     template<typename float_t, int dim> float_t vector<float_t, dim>::length() const {
         float_t sqr_sum = 0;
 

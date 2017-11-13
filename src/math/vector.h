@@ -46,6 +46,8 @@ namespace math {
 
         void normalize();
         void divide_by_h();
+        vector<float_t, dim + 1> homo() const;
+        vector<float_t, dim - 1> dehomo() const;
         
         float_t length() const;
         vector unit() const;
@@ -57,6 +59,7 @@ namespace math {
         friend vector operator*(float_t lhs, const vector& rhs) { return rhs * lhs; }
 
     public:
+        template<typename, int> friend class vector;
         friend class matrix<float_t, dim, dim>;
 
     private:
