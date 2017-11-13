@@ -1,0 +1,10 @@
+# Emacs
+*~
+# Binaries
+*.o src/renderer/softrend src/math_tests/math_tests
+# Crashes
+core core.*
+# Qt
+src/renderer/moc_window.cpp src/renderer/.qmake_stash
+# Assets
+*.obj *.mtl *.png
