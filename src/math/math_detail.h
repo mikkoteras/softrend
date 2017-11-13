@@ -1,0 +1,23 @@
+#ifndef MATH_DETAIL_H
+#define MATH_DETAIL_H
+
+#include <math.h>
+
+namespace math { namespace detail {
+    template<typename float_t> constexpr float_t sin(float_t t);
+    template<typename float_t> constexpr float_t cos(float_t t);
+    template<typename float_t> constexpr float_t asin(float_t t);
+    template<typename float_t> constexpr float_t acos(float_t t);
+        
+    template<> constexpr float sin<float>(float t)  { return ::sinf(t); }
+    template<> constexpr float cos<float>(float t)  { return ::cosf(t); }
+    template<> constexpr float asin<float>(float t) { return ::asinf(t); }
+    template<> constexpr float acos<float>(float t) { return ::acosf(t); }
+    
+    template<> constexpr double sin<double>(double t)  { return ::sin(t); }
+    template<> constexpr double cos<double>(double t)  { return ::cos(t); }
+    template<> constexpr double asin<double>(double t) { return ::asin(t); }
+    template<> constexpr double acos<double>(double t) { return ::acos(t); }
+} }
+
+#endif
