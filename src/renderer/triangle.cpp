@@ -1,6 +1,9 @@
 #include "triangle.h"
+#include "color.h"
 #include "framebuffer.h"
+#include "math_util.h"
 #include "mesh.h"
+#include "scene.h"
 
 using namespace math;
 
@@ -61,28 +64,38 @@ triangle &triangle::operator=(triangle &&rhs) {
 triangle::~triangle() {
 }
 
-#include <iostream>
-#include "util.h"
-
-void triangle::render(framebuffer &target, const mesh &parent) const {
+void triangle::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
     const vector4f *vertex_data = parent.projected_vertices();
 
     // Vertex winding test
-    vector4f v1 = vertex_data[vertex_index[0]];
-    vector4f v2 = vertex_data[vertex_index[1]];
-    vector4f v3 = vertex_data[vertex_index[2]];
+    vector3f v1 = vertex_data[vertex_index[0]].dehomo();
+    vector3f v2 = vertex_data[vertex_index[1]].dehomo();
+    vector3f v3 = vertex_data[vertex_index[2]].dehomo();
     
     float sum = (v2.x() - v1.x()) * (v2.y() + v1.y()) +
                 (v3.x() - v2.x()) * (v3.y() + v2.y()) +
                 (v1.x() - v3.x()) * (v1.y() + v3.y());
+    
     if (sum < 0.0f)
         return;
+
+    vector3f surface_normal = (v2 - v1).cross(v3 - v1).unit();
+    const std::vector<directional_light> &lights = grandparent.lights();
+    color shade(0.0f, 0.0f, 0.0f, 1.0f);
+
+    for (const auto &l: lights) {
+        float cos_incident_angle = surface_normal.dot(l.direction());
+        math::clamp(cos_incident_angle, 0.0f, 1.0f);
+        shade += cos_incident_angle * l.get_color();
+    }
+
+    shade.clamp();
 
     edge e[3] = { create_edge(0, 1, vertex_data), create_edge(1, 2, vertex_data), create_edge(0, 2, vertex_data) };
     int long_edge_index = find_long_edge(e, vertex_data);
 
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, vertex_data);
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, vertex_data);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, vertex_data, shade);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, vertex_data, shade);
 }
 
 triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
@@ -104,7 +117,8 @@ int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
 }
 
 void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
-                                  framebuffer &target, const vector4f *vertex_data) const {
+                                  framebuffer &target, const vector4f *vertex_data,
+                                  const color &shade) const {
 
     // TODO: which is these are just duplicates? Which should be ints?
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
@@ -134,7 +148,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float short_bottom_x = vertex_data[vertex_index[short_edge.bottom]].x();
     float short_bottom_z = vertex_data[vertex_index[short_edge.bottom]].z();
     
-    float y_offset = short_top_y - long_top_y; // 0 or rows already drawn
+    int y_offset = short_top_y - long_top_y; // 0 or rows already drawn
     float x1_delta = (long_bottom_x - long_top_x) / height_1;
     float x2_delta = (short_bottom_x - short_top_x) / height_2;
     float z1_delta = (long_bottom_z - long_top_z) / height_1;
@@ -185,7 +199,8 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
         // TODO: handle min_x<0, max_x>buffer
         for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
-            target.set_pixel(x, y, z, tex->at(u, v));
+            //target.set_pixel(x, y, z, tex->at(u, v));
+            target.set_pixel(x, y, z, shade);
 
         x1 += x1_delta;
         x2 += x2_delta;

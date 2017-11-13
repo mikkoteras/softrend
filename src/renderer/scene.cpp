@@ -38,6 +38,10 @@ material_library &scene::materials() {
     return mat_lib;
 }
 
+const std::vector<directional_light> &scene::lights() const {
+    return light_list;
+}
+
 void scene::set_eye_position(const vector3f &position) {
     eye_position = position;
     world_to_view_matrix_dirty = true;
@@ -61,4 +65,8 @@ void scene::set_eye_orientation(const vector3f &up_direction) {
 void scene::set_view_to_view_plane_distance(float d) {
     viewing_distance = d;
     world_to_view_matrix_dirty = true;
+}
+
+void scene::add_light(const directional_light &light) {
+    light_list.push_back(light);
 }

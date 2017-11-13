@@ -125,8 +125,6 @@ void mesh::set_position(float x, float y, float z) {
     position = linear_transforms::translate3<float>(x, y, z);
 }
 
-#include <iostream>
-
 void mesh::render(scene &sc, framebuffer &fb) {
     using namespace math::linear_transforms;
     float min_axis = fb.pixel_width() < fb.pixel_height() ? fb.pixel_width() : fb.pixel_height();
@@ -144,7 +142,7 @@ void mesh::render(scene &sc, framebuffer &fb) {
     }
 
     for (const triangle &t: triangles)
-        t.render(fb, *this);
+        t.render(fb, *this, sc);
 }
 
 void mesh::draw_texture_breakup(framebuffer &fb, int tex_width, int tex_height) const {
