@@ -7,7 +7,7 @@
 using namespace math;
 
 teapot::teapot() {
-    teapot_mesh = importer::load_3dmax_object("objects/teapot/tpot.obj", materials(), true);
+    teapot_mesh = importer::load_3dmax_object("assets/teapot/tpot.obj", materials(), true);
     
     teapot_mesh.set_scaling(.3f, .3f, .3f);
     teapot_mesh.set_position(0, 0, 0);

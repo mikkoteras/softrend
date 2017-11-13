@@ -7,7 +7,7 @@
 using namespace math;
 
 dnahelix::dnahelix() {
-    dnahelix_mesh = importer::load_3dmax_object("objects/dnahelix/DNA.obj", materials(), true);
+    dnahelix_mesh = importer::load_3dmax_object("assets/dnahelix/DNA.obj", materials(), true);
     
     dnahelix_mesh.set_scaling(1.f, 1.f, 1.f);
     dnahelix_mesh.set_position(0, 0, 0);

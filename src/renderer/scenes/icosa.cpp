@@ -5,7 +5,7 @@
 using namespace math;
 
 icosa::icosa() {
-    icosahedron = importer::load_3dmax_object("objects/icosa/icosa.obj", materials(), true);
+    icosahedron = importer::load_3dmax_object("assets/icosa/icosa.obj", materials(), true);
     
     icosahedron.set_scaling(1, 1, 1);
     

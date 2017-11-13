@@ -5,7 +5,7 @@
 using namespace math;
 
 touareg::touareg() {
-    car = importer::load_3dmax_object("objects/touareg/Touareg.obj", materials(), false);
+    car = importer::load_3dmax_object("assets/touareg/Touareg.obj", materials(), false);
 
     car.set_scaling(.02f, .02f, .02f);
     car.set_position(0, -1, 0);
