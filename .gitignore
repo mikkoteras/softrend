@@ -9,6 +9,7 @@ core
 core.*
 # Qt
 src/renderer/moc_window.cpp
+src/renderer/moc_predefs.*
 src/renderer/.qmake.stash
 # Assets
 src/renderer/assets
