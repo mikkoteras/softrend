@@ -12,6 +12,7 @@ triangle::triangle() {
 
 triangle::triangle(int vi1, int vi2, int vi3,
                    const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+                   int ni1, int ni2, int ni3,
                    const texture *t) :
     tex(t) {
     
@@ -21,12 +22,16 @@ triangle::triangle(int vi1, int vi2, int vi3,
     vertex_uv[0] = uv1;
     vertex_uv[1] = uv2;
     vertex_uv[2] = uv3;
+    normal_index[0] = ni1;
+    normal_index[1] = ni2;
+    normal_index[2] = ni3;
 }
 
 triangle::triangle(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
         vertex_uv[i] = rhs.vertex_uv[i];
+        normal_index[i] = rhs.normal_index[i];
     }
 
     tex = rhs.tex;
@@ -36,6 +41,7 @@ triangle::triangle(triangle &&rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
         vertex_uv[i] = rhs.vertex_uv[i];
+        normal_index[i] = rhs.normal_index[i];
     }
 
     tex = rhs.tex;
@@ -45,6 +51,7 @@ const triangle &triangle::operator=(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
         vertex_uv[i] = rhs.vertex_uv[i];
+        normal_index[i] = rhs.normal_index[i];
     }
 
     tex = rhs.tex;
@@ -55,6 +62,7 @@ triangle &triangle::operator=(triangle &&rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
         vertex_uv[i] = rhs.vertex_uv[i];
+        normal_index[i] = rhs.normal_index[i];
     }
 
     tex = rhs.tex;
@@ -65,12 +73,12 @@ triangle::~triangle() {
 }
 
 void triangle::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
-    const vector4f *vertex_data = parent.projected_vertices();
+    const vector4f *view_data = parent.view_coordinate_data();
 
     // Vertex winding test
-    vector3f v1 = vertex_data[vertex_index[0]].dehomo();
-    vector3f v2 = vertex_data[vertex_index[1]].dehomo();
-    vector3f v3 = vertex_data[vertex_index[2]].dehomo();
+    vector4f v1 = view_data[vertex_index[0]];
+    vector4f v2 = view_data[vertex_index[1]];
+    vector4f v3 = view_data[vertex_index[2]];
     
     float sum = (v2.x() - v1.x()) * (v2.y() + v1.y()) +
                 (v3.x() - v2.x()) * (v3.y() + v2.y()) +
@@ -79,23 +87,26 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
     if (sum < 0.0f)
         return;
 
-    vector3f surface_normal = (v2 - v1).cross(v3 - v1).unit();
+    // Shading
+    const vector4f *normals = parent.world_normal_data();
+    vector3f surface_normal = (normals[normal_index[0]] + normals[normal_index[1]] + normals[normal_index[2]]).dehomo().unit();
+    
     const std::vector<directional_light> &lights = grandparent.lights();
-    color shade(0.0f, 0.0f, 0.0f, 1.0f);
+    color shade(0.2f, 0.2f, 0.2f, 1.0f);
 
     for (const auto &l: lights) {
-        float cos_incident_angle = surface_normal.dot(l.direction());
+        float cos_incident_angle = surface_normal.dot(-l.direction());
         math::clamp(cos_incident_angle, 0.0f, 1.0f);
         shade += cos_incident_angle * l.get_color();
     }
 
     shade.clamp();
 
-    edge e[3] = { create_edge(0, 1, vertex_data), create_edge(1, 2, vertex_data), create_edge(0, 2, vertex_data) };
-    int long_edge_index = find_long_edge(e, vertex_data);
+    edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
+    int long_edge_index = find_long_edge(e, view_data);
 
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, vertex_data, shade);
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, vertex_data, shade);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, view_data, shade);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, view_data, shade);
 }
 
 triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
@@ -199,8 +210,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
         // TODO: handle min_x<0, max_x>buffer
         for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
-            //target.set_pixel(x, y, z, tex->at(u, v));
-            target.set_pixel(x, y, z, shade);
+            target.set_pixel(x, y, z, shade * tex->at(u, v));
 
         x1 += x1_delta;
         x2 += x2_delta;

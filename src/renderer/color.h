@@ -12,6 +12,7 @@ public:
 
     color operator+(const color &rhs) const;
     color operator-(const color &rhs) const;
+    color operator*(const color &rhs) const;
     color operator*(float rhs) const;
     color operator/(float rhs) const;
     color &operator+=(const color &rhs);

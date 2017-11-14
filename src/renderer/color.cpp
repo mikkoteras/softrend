@@ -30,6 +30,10 @@ color color::operator-(const color &rhs) const {
     return color(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a);
 }
 
+color color::operator*(const color &rhs) const {
+    return color(r * rhs.r, g * rhs.g, b * rhs.b, a * rhs.a);
+}
+
 color color::operator*(float rhs) const {
     return color(r * rhs, g * rhs, b * rhs, a * rhs);
 }

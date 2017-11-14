@@ -14,6 +14,7 @@ public:
     triangle();
     triangle(int vi1, int vi2, int vi3,
              const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+             int ni1, int ni2, int ni3,
              const texture *t);
     triangle(const triangle &rhs);
     triangle(triangle &&rhs);
@@ -33,8 +34,9 @@ private: // render helpers
                             const color &shade) const;
     
 private:
-    int vertex_index[3]; // indices to mesh vertex data
+    int vertex_index[3]; // indices to parent mesh's vertex data
     math::vector3f vertex_uv[3];
+    int normal_index[3]; // indices to parent mesh's normal data
     const texture *tex;
 };
 

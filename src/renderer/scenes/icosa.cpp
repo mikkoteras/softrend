@@ -13,7 +13,9 @@ icosa::icosa() {
     set_eye_reference_point(vector3f{0, 0, 0});
     set_view_to_view_plane_distance(2);
 
-    add_light(directional_light(vector3f{-1.0f, -1.0f, -1.0f}, color(1.0f, 0.0f, 0.0f, 1.0f)));
+    add_light(directional_light(vector3f{1, 0, 0}, color(0.8f, 0.2f, 0.2f, 1.0f)));
+    add_light(directional_light(vector3f{-1, 0, 0}, color(0.2f, 0.8f, 0.2f, 1.0f)));
+    add_light(directional_light(vector3f{0, 0, -1}, color(0.2f, 0.2f, 0.8f, 1.0f)));
 }
 
 icosa::~icosa() {
@@ -22,8 +24,8 @@ icosa::~icosa() {
 void icosa::render(framebuffer &fb) {
     float t = clock.seconds();
 
-    icosahedron.set_rotation(0, 0.3f * t, 0.005f * t);
-    icosahedron.set_position(sinf(0.1f * t), 0.2f * sinf(2.f * t), sinf(0.12f * t));
+    icosahedron.set_rotation(0, 0.3f * t, 0.1f * t);
+    //icosahedron.set_position(sinf(0.1f * t), 0.2f * sinf(2.f * t), sinf(0.12f * t));
 
     icosahedron.render(*this, fb);    
 }

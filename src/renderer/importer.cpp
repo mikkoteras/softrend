@@ -86,14 +86,10 @@ mesh importer::load_3dmax_object(const std::string &filename, material_library &
                                    texture_coordinates[texture_indices[0]], // FIXME can be bad index
                                    texture_coordinates[texture_indices[i - 1]], // FIXME can be bad index
                                    texture_coordinates[texture_indices[i]], // FIXME can be bad index
-                                   current_material->get_texture());
-                    
-
-                    /*
-                    m.connect_vertices(vertex_indices[0], vertex_indices[i - 1], vertex_indices[i],
-                                       normal_indices[0], normal_indices[i - 1], normal_indices[i],
-                                       texture_indices[0], texture_indices[i - 1], texture_indices[i],
-                                       current_material->get_texture());*/
+                                   normal_indices[0], // FIXME can be bad index
+                                   normal_indices[i - 1], // FIXME can be bad index
+                                   normal_indices[i], // FIXME can be bad index
+                                   current_material->get_texture());                    
                     ++polys;
                 }
             }
