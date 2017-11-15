@@ -51,10 +51,12 @@ line::~line() {
 }
 
 void line::render(framebuffer &target, const mesh &parent) const {
+    // TODO: handle x, y < 0, x_max, y_max > buffer
+    
     const vector4f *view_coordinates = parent.view_coordinate_data();
     vector3f v1 = view_coordinates[vertex_index[0]].dehomo();
     vector3f v2 = view_coordinates[vertex_index[1]].dehomo();
-    
+
     int width = fabs(v2.x() - v1.x());
     int height = fabs(v2.y() - v1.y());
 
@@ -73,7 +75,7 @@ void line::render(framebuffer &target, const mesh &parent) const {
             x = v1.x();
             x_max = v2.x();
             y = v1.y();
-            y_delta = (v2.y() - v1.y()) / width;
+            y_delta = (v2.y() - y) / width;
             z = v1.z();
             z_delta = (v2.z() - z) / width;
             c = endpoint_color[0];
@@ -83,7 +85,7 @@ void line::render(framebuffer &target, const mesh &parent) const {
             x = v2.x();
             x_max = v1.x();
             y = v2.y();
-            y_delta = (v1.y() - v2.y()) / width;
+            y_delta = (v1.y() - y) / width;
             z = v2.z();
             z_delta = (v1.z() - z) / width;
             c = endpoint_color[1];
@@ -107,7 +109,7 @@ void line::render(framebuffer &target, const mesh &parent) const {
             y = v1.y();
             y_max = v2.y();
             x = v1.x();
-            x_delta = (v2.x() - v1.x()) / height;
+            x_delta = (v2.x() - x) / height;
             z = v1.z();
             z_delta = (v2.z() - z) / height;
             c = endpoint_color[0];
@@ -117,15 +119,15 @@ void line::render(framebuffer &target, const mesh &parent) const {
             y = v2.y();
             y_max = v1.y();
             x = v2.x();
-            x_delta = (v1.x() - v2.x()) / height;
+            x_delta = (v1.x() - x) / height;
             z = v2.z();
             z_delta = (v1.z() - z) / height;
             c = endpoint_color[1];
-            c_delta = (endpoint_color[0]) / height;
+            c_delta = (endpoint_color[0] - c) / height;
         }
         
         for (; y <= y_max; ++y) {
-            target.set_pixel(x, y, c);
+            target.set_pixel(x, y, z, c);
             x += x_delta;
             c += c_delta;
             z += z_delta;
