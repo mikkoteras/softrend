@@ -1,9 +1,12 @@
 #include "scene.h"
+#include "ambient_light.h"
+#include "directional_light.h"
 #include "framebuffer.h"
 #include "material_library.h"
 #include "viewport_transforms.h"
 
 using namespace math;
+using namespace std;
 
 scene::scene() :
     eye_position{0, 0, 1},
@@ -38,8 +41,8 @@ material_library &scene::materials() {
     return mat_lib;
 }
 
-const std::vector<directional_light> &scene::lights() const {
-    return light_list;
+color scene::shade(const vector3f &surface_normal) const {
+    return lights.sum(surface_normal);
 }
 
 void scene::set_eye_position(const vector3f &position) {
@@ -67,6 +70,14 @@ void scene::set_view_to_view_plane_distance(float d) {
     world_to_view_matrix_dirty = true;
 }
 
-void scene::add_light(const directional_light &light) {
-    light_list.push_back(light);
+void scene::add_ambient_light(const color &light_color) {
+    lights.add(move(make_unique<ambient_light>(light_color)));
+}
+
+void scene::add_directional_light(const vector3f &direction, const color &light_color) {
+    lights.add(move(make_unique<directional_light>(direction, light_color)));
+}
+
+void scene::add_light(unique_ptr<light> l) {
+    lights.add(move(l));
 }

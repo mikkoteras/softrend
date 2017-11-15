@@ -1,44 +1,19 @@
 #include "directional_light.h"
 
-directional_light::directional_light() :
-    light() {
-}
-
 directional_light::directional_light(const math::vector3f &direction, const color &light_color) :
     light(),
-    dir(direction.unit()),
+    negative_direction(-direction.unit()), // Needed in opposite direction in compute
     col(light_color) {
-}
-
-directional_light::directional_light(const directional_light &rhs) {
-    dir = rhs.dir;
-    col = rhs.col;
-}
-
-directional_light::directional_light(directional_light &&rhs) {
-    dir = rhs.dir;
-    col = rhs.col;
-}
-
-const directional_light &directional_light::operator=(const directional_light &rhs) {
-    dir = rhs.dir;
-    col = rhs.col;
-    return *this;
-}
-
-directional_light &directional_light::operator=(directional_light &&rhs) {
-    dir = rhs.dir;
-    col = rhs.col;
-    return *this;
 }
 
 directional_light::~directional_light() {
 }
 
-const math::vector3f &directional_light::direction() const {
-    return dir;
-}
+void directional_light::sum(const math::vector3f &surface_normal, color &shade) const {
+    float cos_incident_angle = surface_normal.dot(negative_direction);
 
-const color &directional_light::get_color() const {
-    return col;
+    if (cos_incident_angle < 0.0f)
+        cos_incident_angle = 0.0f;
+    
+    shade += cos_incident_angle * col;
 }

@@ -9,13 +9,15 @@ LIBS = -lQt5Widgets
 HEADERS += window.h
 
 # Input
-SOURCES += animation_clock.cpp \
+SOURCES += ambient_light.cpp \
+           animation_clock.cpp \
            benchmark.cpp \
            color.cpp \
            directional_light.cpp \
            framebuffer.cpp \
            importer.cpp \
            light.cpp \
+           light_list.cpp \
            lodepng.cpp \
            main.cpp \
            material.cpp \

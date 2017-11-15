@@ -16,10 +16,11 @@ teapot::teapot() {
     set_eye_reference_point(vector3f{0, 0, 0});
     set_eye_orientation(vector3f{0, 1, 0});
     set_view_to_view_plane_distance(2);
-
+/*
     add_light(directional_light(vector3f{-1, 0, 0}, color(0.8f, 0.1f, 0.1f, 1.0f)));
     add_light(directional_light(vector3f{1, 0, 0}, color(0.1f, 0.8f, 0.1f, 1.0f)));
     add_light(directional_light(vector3f{0, 1, -1}, color(0.1f, 0.1f, 0.8f, 1.0f)));
+*/
 }
 
 teapot::~teapot() {

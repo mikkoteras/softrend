@@ -1,8 +1,11 @@
 #include "icosa.h"
+#include "ambient_light.h"
+#include "directional_light.h"
 #include "importer.h"
 #include "vector.h"
 
 using namespace math;
+using namespace std;
 
 icosa::icosa() {
     icosahedron = importer::load_3dmax_object("assets/icosa/icosa.obj", materials(), true);
@@ -13,9 +16,10 @@ icosa::icosa() {
     set_eye_reference_point(vector3f{0, 0, 0});
     set_view_to_view_plane_distance(2);
 
-    add_light(directional_light(vector3f{1, 0, 0}, color(0.8f, 0.2f, 0.2f, 1.0f)));
-    add_light(directional_light(vector3f{-1, 0, 0}, color(0.2f, 0.8f, 0.2f, 1.0f)));
-    add_light(directional_light(vector3f{0, 0, -1}, color(0.2f, 0.2f, 0.8f, 1.0f)));
+    add_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
+    add_directional_light(vector3f{1, 0, 0}, color(0.8f, 0.2f, 0.2f, 1.0f));
+    add_directional_light(vector3f{-1, 0, 0}, color(0.2f, 0.8f, 0.2f, 1.0f));
+    add_directional_light(vector3f{0, 1, -1}, color(0.2f, 0.2f, 0.8f, 1.0f));
 }
 
 icosa::~icosa() {

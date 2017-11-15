@@ -90,18 +90,7 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
     // Shading
     const vector4f *normals = parent.world_normal_data();
     vector3f surface_normal = (normals[normal_index[0]] + normals[normal_index[1]] + normals[normal_index[2]]).dehomo().unit();
-    
-    const std::vector<directional_light> &lights = grandparent.lights();
-    color shade(0.2f, 0.2f, 0.2f, 1.0f);
-
-    for (const auto &l: lights) {
-        float cos_incident_angle = surface_normal.dot(-l.direction());
-        math::clamp(cos_incident_angle, 0.0f, 1.0f);
-        shade += cos_incident_angle * l.get_color();
-    }
-
-    shade.clamp();
-
+    color shade = grandparent.shade(surface_normal);
     edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
     int long_edge_index = find_long_edge(e, view_data);
 

@@ -2,12 +2,14 @@
 #define SCENE_H
 
 #include "animation_clock.h"
-#include "directional_light.h"
+#include "light_list.h"
 #include "matrix.h"
 #include "material_library.h"
 #include "vector.h"
+#include <memory>
 #include <vector>
 
+class light;
 class framebuffer;
 
 class scene {
@@ -21,7 +23,7 @@ public:
 public:
     math::matrix4x4f world_to_view();
     material_library &materials();
-    const std::vector<directional_light> &lights() const;
+    color shade(const math::vector3f &surface_normal) const;
 
 protected:
     void set_eye_position(const math::vector3f &position);
@@ -29,7 +31,10 @@ protected:
     void set_eye_reference_point(const math::vector3f &look_at_point); // option 2
     void set_eye_orientation(const math::vector3f &up_direction);
     void set_view_to_view_plane_distance(float distance);
-    void add_light(const directional_light &light);
+
+    void add_ambient_light(const color &light_color);
+    void add_directional_light(const math::vector3f &direction, const color &light_color);
+    void add_light(std::unique_ptr<light> l);
     
 protected:
     animation_clock clock;
@@ -42,7 +47,7 @@ private:
     float viewing_distance;
     math::matrix4x4f world_to_view_matrix;
     bool world_to_view_matrix_dirty;
-    std::vector<directional_light> light_list;
+    light_list lights;
 };
 
 #endif
