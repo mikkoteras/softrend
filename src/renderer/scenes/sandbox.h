@@ -13,7 +13,6 @@ public:
     void render(framebuffer &fb);
 
 private:
-    mesh line_thing;
     mesh icosahedron;
     coordinate_system cs;
 };

@@ -5,9 +5,6 @@
 
 using namespace math;
 
-#include <iostream>
-#include "util.h"
-
 line::line() {
 }
 
@@ -54,12 +51,10 @@ line::~line() {
 }
 
 void line::render(framebuffer &target, const mesh &parent) const {
-    // TODO: handle x, y < 0, x_max, y_max > buffer
-    
     const vector4f *view_coordinates = parent.view_coordinate_data();
     vector3f v1 = view_coordinates[vertex_index[0]].dehomo();
     vector3f v2 = view_coordinates[vertex_index[1]].dehomo();
-
+    
     int width = fabs(v2.x() - v1.x());
     int height = fabs(v2.y() - v1.y());
 
@@ -101,9 +96,9 @@ void line::render(framebuffer &target, const mesh &parent) const {
             c += -x * c_delta;
             x = 0;
         }
-
+        
         if (x_max >= target.pixel_width())
-            x_max = target.pixel_width();
+            x_max = target.pixel_width() - 1;
         
         for (; x <= x_max; ++x) {
             target.set_pixel(x, y, z, c);
@@ -137,15 +132,6 @@ void line::render(framebuffer &target, const mesh &parent) const {
             z_delta = (v1.z() - z) / height;
             c = endpoint_color[1];
             c_delta = (endpoint_color[0] - c) / height;
-
-                        
-            c = color(1,1,1,1); c_delta=color(0,0,0,0);
-
-            if (height > 100 && width > 0)
-            std::cout << "Line from " << v1.x() << "," << v1.y() << " to "<< v2.x() << "," << v2.y()
-                      << ", x_min=" << x << ", y_min=" << y << ", y_max=" << y_max
-                      << ", x_delta=" << x_delta << std::endl;
-
         }
 
         if (y < 0) {
@@ -156,14 +142,13 @@ void line::render(framebuffer &target, const mesh &parent) const {
         }
 
         if (y_max >= target.pixel_height())
-            y_max = target.pixel_height();
-        
-                
+            y_max = target.pixel_height() - 1;
+
         for (; y <= y_max; ++y) {
             target.set_pixel(x, y, z, c);
             x += x_delta;
-            c += c_delta;
             z += z_delta;
+            c += c_delta;
         }
     }
 }
