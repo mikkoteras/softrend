@@ -13,6 +13,7 @@ SOURCES += ambient_light.cpp \
            animation_clock.cpp \
            benchmark.cpp \
            color.cpp \
+           coordinate_system.cpp \
            directional_light.cpp \
            framebuffer.cpp \
            importer.cpp \
@@ -32,5 +33,6 @@ SOURCES += ambient_light.cpp \
            window.cpp \
            scenes/dnahelix.cpp \
            scenes/icosa.cpp \
+           scenes/sandbox.cpp \
            scenes/touareg.cpp \
            scenes/teapot.cpp

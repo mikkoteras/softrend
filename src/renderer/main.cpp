@@ -1,6 +1,7 @@
 #include "window.h"
 #include "dnahelix.h"
 #include "icosa.h"
+#include "sandbox.h"
 #include "teapot.h"
 #include "touareg.h"
 #include <QtWidgets/QApplication>
@@ -20,6 +21,9 @@ int main(int argc, char *argv[]) {
             sc = unique_ptr<scene>(new icosa);
         else if (string(argv[1]) == "--scene=dnahelix")
             sc = unique_ptr<scene>(new dnahelix);
+        else if (string(argv[1]) == "--scene=sandbox")
+            sc = unique_ptr<scene>(new sandbox);
+
     }
     else
         sc = unique_ptr<scene>(new teapot);
