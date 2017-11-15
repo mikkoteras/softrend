@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "color.h"
 #include "linear_transforms.h"
 #include "framebuffer.h"
 #include "math_util.h"
@@ -19,7 +20,7 @@ mesh::mesh(const mesh &rhs) :
     local_coordinates(rhs.local_coordinates),
     local_normals(rhs.local_normals),
     triangles(rhs.triangles),
-    colors(rhs.colors),
+    lines(rhs.lines),
     scaling(rhs.scaling),
     rotation(rhs.rotation),
     position(rhs.position),
@@ -32,7 +33,7 @@ mesh::mesh(mesh &&rhs) :
     local_coordinates(move(rhs.local_coordinates)),
     local_normals(move(rhs.local_normals)),
     triangles(move(rhs.triangles)),
-    colors(move(rhs.colors)),
+    lines(move(rhs.lines)),
     scaling(move(rhs.scaling)),
     rotation(move(rhs.rotation)),
     position(move(rhs.position)),
@@ -46,7 +47,7 @@ const mesh &mesh::operator=(const mesh &rhs) {
         local_coordinates = rhs.local_coordinates;
         local_normals = rhs.local_normals;
         triangles = rhs.triangles;
-        colors = rhs.colors;
+        lines = rhs.lines;
         scaling = rhs.scaling;
         rotation = rhs.rotation;
         position = rhs.position;
@@ -62,7 +63,7 @@ mesh &mesh::operator=(mesh &&rhs) {
     local_coordinates = move(rhs.local_coordinates);
     local_normals = move(rhs.local_normals);
     triangles = move(rhs.triangles);
-    colors = move(rhs.colors);
+    lines = move(rhs.lines);
     scaling = move(rhs.scaling);
     rotation = move(rhs.rotation);
     position = move(rhs.position);
@@ -75,9 +76,8 @@ mesh &mesh::operator=(mesh &&rhs) {
 mesh::~mesh() {
 }
 
-int mesh::add_vertex(const vector4f &v, const color &c) {
+int mesh::add_vertex(const vector4f &v) {
     local_coordinates.push_back(v);
-    colors.push_back(c);
     world_coordinates.push_back(vector4f());
     view_coordinates.push_back(vector4f());
     return local_coordinates.size() - 1;
@@ -94,6 +94,16 @@ void mesh::add_triangle(int vi1, int vi2, int vi3,
                         int ni1, int ni2, int ni3,
                         const texture *tex) {
     triangles.push_back(triangle(vi1, vi2, vi3, uv1, uv2, uv3, ni1, ni2, ni3, tex));
+}
+
+void mesh::add_line(int v1, int v2, const color &c1, const color &c2) {
+    lines.push_back(line(v1, v2, c1, c2));
+}
+
+void mesh::add_line(const math::vector4f &v1, const math::vector4f &v2, const color &c1, const color &c2) {
+    int vi1 = add_vertex(v1);
+    int vi2 = add_vertex(v2);
+    lines.push_back(line(vi1, vi2, c1, c2));
 }
 
 void mesh::set_scaling(float x, float y, float z) {

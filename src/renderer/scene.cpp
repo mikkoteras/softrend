@@ -62,7 +62,7 @@ void scene::set_eye_reference_point(const vector3f &look_at_point) {
 
 void scene::set_eye_orientation(const vector3f &up_direction) {
     eye_up = up_direction;
-    world_to_view_matrix_dirty = true;    
+    world_to_view_matrix_dirty = true;
 }
 
 void scene::set_view_to_view_plane_distance(float d) {

@@ -18,6 +18,7 @@ SOURCES += ambient_light.cpp \
            importer.cpp \
            light.cpp \
            light_list.cpp \
+           line.cpp \
            lodepng.cpp \
            main.cpp \
            material.cpp \
@@ -28,7 +29,6 @@ SOURCES += ambient_light.cpp \
            texture.cpp \
            triangle.cpp \
            util.cpp \
-           vertex.cpp \
            window.cpp \
            scenes/dnahelix.cpp \
            scenes/icosa.cpp \

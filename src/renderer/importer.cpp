@@ -28,7 +28,7 @@ mesh importer::load_3dmax_object(const std::string &filename, material_library &
             }
             else if (command == "v") {
                 vector4f point = imp.parse_ws_separated_3d_point();
-                m.add_vertex(point, color(1, 1, 1, 1));
+                m.add_vertex(point);
 
                 box_min = util::min(box_min, point);
                 box_max = util::max(box_max, point);
