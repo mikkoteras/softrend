@@ -5,6 +5,9 @@
 
 using namespace math;
 
+#include <iostream>
+#include "util.h"
+
 line::line() {
 }
 
@@ -92,6 +95,16 @@ void line::render(framebuffer &target, const mesh &parent) const {
             c_delta = (endpoint_color[0] - c) / width;
         }
 
+        if (x < 0) {
+            y += -x * y_delta;
+            z += -x * z_delta;
+            c += -x * c_delta;
+            x = 0;
+        }
+
+        if (x_max >= target.pixel_width())
+            x_max = target.pixel_width();
+        
         for (; x <= x_max; ++x) {
             target.set_pixel(x, y, z, c);
             y += y_delta;
@@ -124,8 +137,28 @@ void line::render(framebuffer &target, const mesh &parent) const {
             z_delta = (v1.z() - z) / height;
             c = endpoint_color[1];
             c_delta = (endpoint_color[0] - c) / height;
+
+                        
+            c = color(1,1,1,1); c_delta=color(0,0,0,0);
+
+            if (height > 100 && width > 0)
+            std::cout << "Line from " << v1.x() << "," << v1.y() << " to "<< v2.x() << "," << v2.y()
+                      << ", x_min=" << x << ", y_min=" << y << ", y_max=" << y_max
+                      << ", x_delta=" << x_delta << std::endl;
+
         }
+
+        if (y < 0) {
+            x += -y * x_delta;
+            z += -y * z_delta;
+            c += -y * c_delta;
+            y = 0;
+        }
+
+        if (y_max >= target.pixel_height())
+            y_max = target.pixel_height();
         
+                
         for (; y <= y_max; ++y) {
             target.set_pixel(x, y, z, c);
             x += x_delta;

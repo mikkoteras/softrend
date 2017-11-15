@@ -42,7 +42,7 @@ public: // for child geometries (lines, triangles...)
     const math::vector4f *world_normal_data() const;
     const math::vector4f *view_coordinate_data() const;
     
-private:
+//private:
     std::vector<math::vector4f> local_coordinates;
     std::vector<math::vector4f> local_normals;
     std::vector<triangle> triangles;
