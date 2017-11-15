@@ -143,6 +143,9 @@ void mesh::render(scene &sc, framebuffer &fb) {
     
     for (const triangle &t: triangles)
         t.render(fb, *this, sc);
+
+    for (const line &l: lines)
+        l.render(fb, *this);
 }
 
 const vector4f *mesh::world_coordinate_data() const {
