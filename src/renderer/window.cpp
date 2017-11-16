@@ -1,35 +1,27 @@
-
 #include "window.h"
+#include "benchmark.h"
+#include "framebuffer.h"
+#include "scene.h"
+#include "SDL.h"
 
-window::window(scene *s, int w, int h, QWidget *parent) :
-    QWidget(parent),
+window::window(int w, int h) :
+    width(w),
+    height(h),
+    sdl_context_initialized(false),
+    sdl_window(nullptr),
+    sdl_renderer(nullptr),
+    sdl_texture(nullptr) {
 
-    width(w), height(h),
-    container(new QLabel),
-    render_buffer(new QImage(width, height, QImage::Format_RGB32)),
-    pixmap_buffer{new QPixmap(width, height), new QPixmap(width, height)},
-    the_scene(s),
-    current_buffer_index(0),
-    timer(new QTimer(this)),
-    closed(false),
-    frame(width, height) {
-
-    connect(timer, SIGNAL(timeout()), this, SLOT(timer_event()));
-    timer->start(0);
-	the_scene->start();
+    if (!init_sdl()) {
+        deinit_sdl();
+        throw window_exception();
+    }
 }
 
 window::~window() {
+    deinit_sdl();
 }
-
-void window::timer_event() {
-    update();
-}
-
-void window::closeEvent(QCloseEvent *) {
-    closed = true;
-}
-
+/*
 void window::update() {
     if (closed)
         return;
@@ -49,4 +41,82 @@ void window::update() {
     
     container->setPixmap(*pixmap_buffer[current_buffer_index]);
     container->show();
+}
+*/
+int window::run(scene &s) {
+    s.start();
+    bool quit = false;
+    framebuffer fb(width, height);
+    int stride = 4 * width;
+    benchmark b;
+    s.start();
+
+    while (!quit) {
+        b.update_starting();
+        fb.clear();
+        b.clear_finished();
+        s.render(fb);
+        b.render_finished();
+        SDL_RenderClear(sdl_renderer);
+        SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), stride);
+	SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
+	SDL_RenderPresent(sdl_renderer);
+        b.copy_finished();
+        
+        SDL_Event event;
+        SDL_PollEvent(&event);
+
+        if (event.type == SDL_QUIT)
+            quit = true;
+    }
+
+    return 0;
+}
+
+bool window::init_sdl() {
+    if (sdl_context_initialized || sdl_window || sdl_renderer || sdl_texture)
+        return false; // already running, idiot
+
+    if (SDL_Init(SDL_INIT_VIDEO))
+        return false;
+
+    sdl_context_initialized = true;
+    sdl_window = SDL_CreateWindow("softrend", 0, 0, width, height, SDL_WINDOW_SHOWN);
+
+    if (!sdl_window)
+        return false;
+
+    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    if (!sdl_renderer)
+        return false;
+
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_TARGET, width, height);
+
+    if (!sdl_texture)
+        return false;
+
+    return true;
+}
+
+void window::deinit_sdl() {
+    if (sdl_texture) {
+        SDL_DestroyTexture(sdl_texture);
+        sdl_texture = nullptr;
+    }
+
+    if (sdl_renderer) {
+        SDL_DestroyRenderer(sdl_renderer);
+        sdl_renderer = nullptr;
+    }
+
+    if (sdl_window) {
+        SDL_DestroyWindow(sdl_window);
+        sdl_window = nullptr;
+    }
+
+    if (sdl_context_initialized) {
+        SDL_Quit();
+        sdl_context_initialized = false;
+    }
 }

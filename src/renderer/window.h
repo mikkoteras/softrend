@@ -1,41 +1,32 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "framebuffer.h"
-#include "benchmark.h"
-#include "scene.h"
-#include <QLabel>
-#include <QObject>
-#include <QPixmap>
-#include <QTimer>
+class scene;
+class SDL_Window;
+class SDL_Renderer;
+class SDL_Texture;
 
-class window : public QWidget {
-    Q_OBJECT
+class window_exception {};
 
+class window {
 public:
-    window(scene *s, int w, int h, QWidget *parent = nullptr);
+    window(int w, int h);
     virtual ~window();
 
-public slots:
-    void timer_event();
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
+    int run(scene &s);
 
 private:
-    void update();
-
+    bool init_sdl();
+    void deinit_sdl();
+    
 private:
     int width, height;
-    QLabel *container;
-    QImage *render_buffer;
-    QPixmap *pixmap_buffer[2];
-    scene *the_scene;
-    int current_buffer_index;
-    QTimer *timer;
-    bool closed;
-    framebuffer frame;
-    benchmark mark;
+    bool sdl_context_initialized;
+    SDL_Window *sdl_window;
+    SDL_Renderer *sdl_renderer;
+    SDL_Texture *sdl_texture;  // TODO maybe multiple
+    
+    
     
 };
 

@@ -3,7 +3,6 @@
 #include "vertex.h"
 #include <cmath>
 #include <limits>
-#include <QtGui/QPainter>
 
 #define OPTIMIZE_FRAMEBUFFER_CLEAR
 
@@ -13,13 +12,16 @@ using namespace math;
 framebuffer::framebuffer(int w, int h) :
     width(w), height(h),
     pixels(new color[width * height]),
-    depth_buffer(new float[width * height]) {
+    depth_buffer(new float[width * height]),
+    raw_rgba_buffer(new uint8_t[4 *width * height]) {
 
     clear();
 }
 
 framebuffer::~framebuffer() {
     delete[] pixels;
+    delete[] depth_buffer;
+    delete[] raw_rgba_buffer;
 }
 
 int framebuffer::pixel_width() const {
@@ -78,19 +80,11 @@ void framebuffer::clear() {
 #endif
 }
 
-void framebuffer::render_frame_on(QPixmap *buffer) {
-    QPainter painter(buffer);
+uint8_t *framebuffer::get_rgba_byte_buffer() {
+    float *float_buffer = reinterpret_cast<float*>(pixels); // TODO: not quite evil, but slightly naughty.
+    
+    for (int i = 0, max = 4 * width * height; i < max; ++i)
+        raw_rgba_buffer[i] = static_cast<uint8_t>(255.0 * float_buffer[i]);
 
-    for (int y = 0, i = 0; y < height; ++y)
-        for (int x = 0; x < width; ++x, ++i) {
-            color &c = pixels[i];
-            painter.setPen(QColor(c.r_to_int(), c.g_to_int(), c.b_to_int()));
-            painter.drawPoint(x, y);
-        }
-}
-
-void framebuffer::render_frame_on(QImage *buffer) {
-    for (int y = 0, i = 0; y < height; ++y)
-        for (int x = 0; x < width; ++x, ++i)
-            buffer->setPixel(x, y, pixels[i].to_ffrgb());
+    return raw_rgba_buffer;
 }
