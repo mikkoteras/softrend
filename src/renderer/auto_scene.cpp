@@ -1,6 +1,4 @@
-#include "icosa.h"
-#include "ambient_light.h"
-#include "directional_light.h"
+#include "auto_scene.h"
 #include "importer.h"
 #include "vector.h"
 
@@ -27,6 +25,9 @@ icosa::~icosa() {
 
 void icosa::render(framebuffer &fb) {
     float t = clock.seconds();
+
     icosahedron.set_rotation(0, 0.3f * t, 0.1f * t);
+    //icosahedron.set_position(sinf(0.1f * t), 0.2f * sinf(2.f * t), sinf(0.12f * t));
+
     icosahedron.render(*this, fb);    
 }

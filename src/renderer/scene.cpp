@@ -24,6 +24,15 @@ void scene::start() {
     clock.start();
 }
 
+void scene::key_down_event(int, bool) {
+}
+
+void scene::mouse_move_event(int, int) {
+}
+
+void scene::mouse_wheel_event(int) {
+}
+
 matrix4x4f scene::world_to_view() {
     using namespace math::viewport_transforms;
     
@@ -43,6 +52,10 @@ material_library &scene::materials() {
 
 color scene::shade(const vector3f &surface_normal) const {
     return lights.sum(surface_normal);
+}
+
+const math::vector3f &scene::get_eye_position() const {
+    return eye_position;
 }
 
 void scene::set_eye_position(const vector3f &position) {

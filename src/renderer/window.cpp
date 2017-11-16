@@ -21,28 +21,7 @@ window::window(int w, int h) :
 window::~window() {
     deinit_sdl();
 }
-/*
-void window::update() {
-    if (closed)
-        return;
 
-    mark.update_starting();
-
-    frame.clear();
-    mark.clear_finished();
-    
-    the_scene->render(frame);
-    mark.render_finished();
-    
-    current_buffer_index = 1 - current_buffer_index;
-    frame.render_frame_on(render_buffer);
-    pixmap_buffer[current_buffer_index]->convertFromImage(*render_buffer);
-    mark.copy_finished();
-    
-    container->setPixmap(*pixmap_buffer[current_buffer_index]);
-    container->show();
-}
-*/
 int window::run(scene &s) {
     s.start();
     bool quit = false;
@@ -64,10 +43,16 @@ int window::run(scene &s) {
         b.copy_finished();
         
         SDL_Event event;
-        SDL_PollEvent(&event);
-
-        if (event.type == SDL_QUIT)
-            quit = true;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT)
+                quit = true;
+            else if (event.type == SDL_KEYDOWN) {
+                SDL_KeyboardEvent key = event.key;
+                
+                if (key.repeat == 0)
+                    s.key_down_event(key.keysym.sym, key.keysym.mod & KMOD_CTRL);
+            }
+        }
     }
 
     return 0;

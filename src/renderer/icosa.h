@@ -1,10 +1,10 @@
 #ifndef ICOSA_H
 #define ICOSA_H
 
-#include "scene.h"
+#include "freecam_scene.h"
 #include "mesh.h"
 
-class icosa : public scene {
+class icosa : public freecam_scene {
 public:
     icosa();
     ~icosa();

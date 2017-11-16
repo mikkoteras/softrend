@@ -6,6 +6,7 @@ SOURCES=ambient_light.cpp \
         coordinate_system.cpp \
         directional_light.cpp \
         framebuffer.cpp \
+        freecam_scene.cpp \
 	icosa.cpp \
         importer.cpp \
         light.cpp \

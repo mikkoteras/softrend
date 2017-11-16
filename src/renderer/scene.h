@@ -19,6 +19,10 @@ public:
 
     void start();
     virtual void render(framebuffer &fb) = 0;
+
+    virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
+    virtual void mouse_move_event(int delta_x, int delta_y);
+    virtual void mouse_wheel_event(int delta);
     
 public:
     math::matrix4x4f world_to_view();
@@ -26,6 +30,8 @@ public:
     color shade(const math::vector3f &surface_normal) const;
 
 protected:
+    const math::vector3f &get_eye_position() const;
+    
     void set_eye_position(const math::vector3f &position);
     void set_eye_direction(const math::vector3f &direction);           // option 1
     void set_eye_reference_point(const math::vector3f &look_at_point); // option 2

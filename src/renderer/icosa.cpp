@@ -1,6 +1,4 @@
 #include "icosa.h"
-#include "ambient_light.h"
-#include "directional_light.h"
 #include "importer.h"
 #include "vector.h"
 
@@ -26,6 +24,8 @@ icosa::~icosa() {
 }
 
 void icosa::render(framebuffer &fb) {
+    freecam_scene::render(fb);
+    
     float t = clock.seconds();
     icosahedron.set_rotation(0, 0.3f * t, 0.1f * t);
     icosahedron.render(*this, fb);    
