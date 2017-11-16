@@ -27,7 +27,7 @@ void scene::start() {
 void scene::key_down_event(int, bool) {
 }
 
-void scene::mouse_move_event(int, int) {
+void scene::mouse_move_event(int, int, bool) {
 }
 
 void scene::mouse_wheel_event(int) {

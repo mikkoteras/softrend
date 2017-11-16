@@ -21,7 +21,7 @@ public:
     virtual void render(framebuffer &fb) = 0;
 
     virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
-    virtual void mouse_move_event(int delta_x, int delta_y);
+    virtual void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down);
     virtual void mouse_wheel_event(int delta);
     
 public:

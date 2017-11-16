@@ -22,6 +22,8 @@ window::~window() {
     deinit_sdl();
 }
 
+#include <iostream>
+
 int window::run(scene &s) {
     s.start();
     bool quit = false;
@@ -38,21 +40,43 @@ int window::run(scene &s) {
         b.render_finished();
         SDL_RenderClear(sdl_renderer);
         SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), stride);
-	SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
-	SDL_RenderPresent(sdl_renderer);
+        SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
+        SDL_RenderPresent(sdl_renderer);
         b.copy_finished();
         
         SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+        int mouse_x_tally = 0, mouse_y_tally = 0, mouse_wheel_tally = 0;
+        
+        
+        while (!quit && SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 quit = true;
             else if (event.type == SDL_KEYDOWN) {
                 SDL_KeyboardEvent key = event.key;
                 
-                if (key.repeat == 0)
+                if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
+                    quit = true;
+                else if (key.repeat == 0)
                     s.key_down_event(key.keysym.sym, key.keysym.mod & KMOD_CTRL);
             }
+            else if (event.type == SDL_MOUSEMOTION) {
+                // don't bother calling multiple times per frame
+                mouse_x_tally += event.motion.xrel;
+                mouse_y_tally += event.motion.yrel;
+            }
+            else if (event.type == SDL_MOUSEWHEEL) {
+                // SDL's wheel ticks point to exactly the heretic direction, dammit
+                mouse_wheel_tally -= event.wheel.y;
+            }
         }
+
+        if (mouse_x_tally != 0 || mouse_y_tally != 0) {
+            uint32_t state = SDL_GetMouseState(nullptr, nullptr);
+            s.mouse_move_event(mouse_x_tally, mouse_y_tally, state & SDL_BUTTON(SDL_BUTTON_LEFT));
+        }
+
+        if (mouse_wheel_tally != 0)
+            s.mouse_wheel_event(mouse_wheel_tally);
     }
 
     return 0;
