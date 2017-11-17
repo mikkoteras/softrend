@@ -3,6 +3,7 @@
 *#?*
 # Binaries
 *.o
+*.d
 src/renderer/softrend
 src/math_tests/math_tests
 # Crashes
