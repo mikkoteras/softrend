@@ -8,7 +8,9 @@ namespace math { namespace detail {
     template<typename float_t> constexpr float_t cos(float_t t);
     template<typename float_t> constexpr float_t asin(float_t t);
     template<typename float_t> constexpr float_t acos(float_t t);
-        
+
+    template<typename float_t> constexpr float_t pi();
+    
     template<> constexpr float sin<float>(float t)  { return ::sinf(t); }
     template<> constexpr float cos<float>(float t)  { return ::cosf(t); }
     template<> constexpr float asin<float>(float t) { return ::asinf(t); }
@@ -18,6 +20,9 @@ namespace math { namespace detail {
     template<> constexpr double cos<double>(double t)  { return ::cos(t); }
     template<> constexpr double asin<double>(double t) { return ::asin(t); }
     template<> constexpr double acos<double>(double t) { return ::acos(t); }
+
+    template<> constexpr float pi() { return 3.14159265358979323846f; }
+    template<> constexpr double pi() { return 3.14159265358979323846; }
 } }
 
 #endif
