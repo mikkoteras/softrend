@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
         return win.run(s);
     }
     catch (...) {
-        std::cerr << "caught stray exceptions, aborting." << std::endl;
+        std::cerr << "caught stray exception, aborting." << std::endl;
         return 1;
     }
 }
