@@ -11,7 +11,7 @@ class window_exception {};
 class window {
 public:
     window(int w, int h);
-    virtual ~window();
+    ~window();
 
     int run(scene &s);
 
@@ -25,9 +25,6 @@ private:
     SDL_Window *sdl_window;
     SDL_Renderer *sdl_renderer;
     SDL_Texture *sdl_texture;  // TODO maybe multiple
-    
-    
-    
 };
 
 #endif

@@ -22,8 +22,6 @@ window::~window() {
     deinit_sdl();
 }
 
-#include <iostream>
-
 int window::run(scene &s) {
     s.start();
     bool quit = false;

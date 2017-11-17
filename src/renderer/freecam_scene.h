@@ -19,8 +19,10 @@ private:
     bool show_coords;
     coordinate_system coords;
 
-    float eye_azimuth_angle, eye_zenith_angle, eye_radius;
+    float eye_azimuth_angle, eye_polar_angle, eye_radius;
     float eye_twist_angle;
+
+//    float eye_xz_orbit, eye_elevation;
 };
 
 #endif
