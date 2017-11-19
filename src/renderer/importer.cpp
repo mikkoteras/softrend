@@ -30,9 +30,6 @@ mesh importer::load_3dmax_object(const std::string &filename, material_library &
             else if (command == "v") {
                 vector4f point = imp.parse_ws_separated_3d_point();
                 m.add_vertex(point);
-
-                box_min = util::min(box_min, point);
-                box_max = util::max(box_max, point);
                 ++vertices;
             }
             else if (command == "vn") {
@@ -98,8 +95,10 @@ mesh importer::load_3dmax_object(const std::string &filename, material_library &
             imp.advance_to_next_line();
         }
 
+        bounding_box box = m.local_bounding_box();
         cout << "imported " << vertices << " vertices, " << polys << " polys" << endl;
-        cout << "bounding box = [" << util::to_string(box_min) << ", " << util::to_string(box_max) << "]" << endl;
+        cout << "bounding box also = [" << util::to_string(box.min()) << ", " << util::to_string(box.max()) << "]" << endl;
+        
         return m;
     }
     catch (...) {

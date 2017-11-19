@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <experimental/filesystem>
 
 class material_library;
 
@@ -17,7 +18,7 @@ private:
     static void load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
     
 private: // [sic]
-    importer(const std::string &filename);
+    importer(const std::string &source);
     ~importer();
 
     importer() = delete;
@@ -51,6 +52,8 @@ private:
     static void chomp(std::string &s);
     
 private:
+    std::experimental::filesystem::path original_working_directory;
+    
     std::ifstream input;
     std::string current_line;
     std::istringstream line_parse;
