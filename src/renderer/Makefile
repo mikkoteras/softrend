@@ -2,12 +2,13 @@ TARGET=softrend
 SOURCES=ambient_light.cpp \
         animation_clock.cpp \
         benchmark.cpp \
+        bounding_box.cpp \
         color.cpp \
         coordinate_system.cpp \
         directional_light.cpp \
         framebuffer.cpp \
         freecam_scene.cpp \
-	icosa.cpp \
+        icosa.cpp \
         importer.cpp \
         light.cpp \
         light_list.cpp \
@@ -19,6 +20,7 @@ SOURCES=ambient_light.cpp \
         mesh.cpp \
         point_light.cpp \
         scene.cpp \
+        teapot.cpp \
         texture.cpp \
         triangle.cpp \
         util.cpp \
@@ -36,7 +38,7 @@ CFLAGS=-c -g -Wall -ansi -Wall -Werror -D_REENTRANT -std=c++14
 LD=g++
 LDFLAGS=-o $(TARGET)
 LIBDIRS=-L/usr/lib/x86_64-linux-gnu
-LIBS=-lstdc++ -lSDL2
+LIBS=-lstdc++ -lstdc++fs -lSDL2
 
 all: debug
 
