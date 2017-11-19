@@ -21,7 +21,7 @@ public:
     float depth() const;
     float max_semiaxis() const;
 
-    void stretch(const math::vector3f &point); // stretch box so as to the argument
+    void stretch(const math::vector3f &point); // stretch box so that to the argument point fits
     void stretch(const math::vector4f &point);
     void stretch(const bounding_box &other);
 
