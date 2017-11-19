@@ -5,6 +5,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace std::experimental::filesystem;
 using namespace math;
 
 mesh importer::load_3dmax_object(const std::string &filename, material_library &lib, bool echo_comments) {
@@ -140,14 +141,21 @@ void importer::load_3dmax_materials(const std::string &filename, material_librar
     }
 } 
 
-importer::importer(const std::string &filename) :
-    input(filename.c_str()),
+importer::importer(const std::string &source) :
+    input(source.c_str()),
     at_eof(false) {
+    
+    original_working_directory = current_path();
+    path p = path(source).parent_path();
 
+    if (!p.empty())
+        current_path(p);
+        
     advance_to_next_line();
 }
 
 importer::~importer() {
+    current_path(original_working_directory);
 }
 
 vector4f importer::parse_ws_separated_3d_point() {
@@ -172,7 +180,8 @@ vector3f importer::parse_ws_separated_uv_coords() {
 
 
 void importer::advance_to_next_line() {
-    // TODO: this will hang forever if the file is bad
+    if (input.bad())
+        throw importer_exception();
     
     getline(input, current_line);
     chomp(current_line);
