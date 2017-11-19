@@ -21,7 +21,6 @@ SOURCES=ambient_light.cpp \
         mesh.cpp \
         point_light.cpp \
         scene.cpp \
-        teapot.cpp \
         texture.cpp \
         triangle.cpp \
         util.cpp \
