@@ -1,6 +1,7 @@
 TARGET=softrend
 SOURCES=ambient_light.cpp \
         animation_clock.cpp \
+        auto_scene.cpp \
         benchmark.cpp \
         bounding_box.cpp \
         color.cpp \
