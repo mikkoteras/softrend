@@ -50,3 +50,11 @@ void bounding_box::stretch(const bounding_box &other) {
     min_corner = elementwise_min(min_corner, other.min_corner);
     max_corner = elementwise_max(max_corner, other.max_corner);
 }
+
+const math::vector3f &bounding_box::min() const {
+    return min_corner;
+}
+
+const math::vector3f &bounding_box::max() const {
+    return max_corner;
+}
