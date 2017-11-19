@@ -16,6 +16,7 @@ benchmark::benchmark() :
 }
 
 benchmark::~benchmark() {
+    cout << endl;
 }
     
 void benchmark::update_starting() {
