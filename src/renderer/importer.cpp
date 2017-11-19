@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::experimental::filesystem;
 using namespace math;
 
-mesh importer::load_3dmax_object(const std::string &filename, material_library &lib, bool echo_comments) {
+mesh importer::load_3dmax_object(const path &filename, material_library &lib, bool echo_comments) {
     try {
         mesh m;
         importer imp(filename);
@@ -97,7 +97,8 @@ mesh importer::load_3dmax_object(const std::string &filename, material_library &
 
         bounding_box box = m.local_bounding_box();
         cout << "imported " << vertices << " vertices, " << polys << " polys" << endl;
-        cout << "bounding box also = [" << util::to_string(box.min()) << ", " << util::to_string(box.max()) << "]" << endl;
+        cout << "bounding box = [" << util::to_string(box.min()) << ", " << util::to_string(box.max()) << "]" << endl;
+        cout << "maximum semiaxis = " << box.max_semiaxis() << endl;
         
         return m;
     }

@@ -12,7 +12,9 @@ class material_library;
 
 class importer {
 public:
-    static mesh load_3dmax_object(const std::string &filename, material_library &lib, bool echo_comments = false);
+    static mesh load_3dmax_object(const std::experimental::filesystem::path &filename,
+                                  material_library &lib,
+                                  bool echo_comments = false);
     
 private:
     static void load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
