@@ -6,7 +6,7 @@
 
 class freecam_scene : public scene {
 public:
-    freecam_scene();
+    freecam_scene(float initial_eye_radius = 1.0f);
     virtual ~freecam_scene();
 
     void render(framebuffer &fb) override;
