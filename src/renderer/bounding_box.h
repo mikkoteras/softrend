@@ -15,14 +15,20 @@ public:
     
     ~bounding_box();
 
+public:
     float width() const;
     float height() const;
     float depth() const;
+    float max_semiaxis() const;
 
     void stretch(const math::vector3f &point); // stretch box so as to the argument
     void stretch(const math::vector4f &point);
     void stretch(const bounding_box &other);
 
+public:
+    const bounding_box &operator*=(float s);
+    const bounding_box &operator/=(float s);
+    
 public:
     const math::vector3f &min() const;
     const math::vector3f &max() const;
