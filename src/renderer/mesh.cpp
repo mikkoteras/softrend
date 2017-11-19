@@ -148,6 +148,19 @@ void mesh::render(scene &sc, framebuffer &fb) {
         l.render(fb, *this);
 }
 
+bounding_box mesh::local_bounding_box() const {
+    if (local_coordinates.empty())
+        return bounding_box(vector3f{0, 0, 0});
+    else {
+        bounding_box result(local_coordinates[0]);
+
+        for (unsigned i = 1; i < local_coordinates.size(); ++i)
+            result.stretch(local_coordinates[i]);
+
+        return result;
+    }
+}
+
 const vector4f *mesh::world_coordinate_data() const {
     return world_coordinates.data();}
 

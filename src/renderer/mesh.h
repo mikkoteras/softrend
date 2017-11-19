@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "bounding_box.h"
 #include "line.h"
 #include "matrix.h"
 #include "triangle.h"
@@ -36,6 +37,7 @@ public:
     void set_position(float x, float y, float z);
 
     void render(scene &sc, framebuffer &fb);
+    bounding_box local_bounding_box() const;
 
 public: // for child geometries (lines, triangles...)
     const math::vector4f *world_coordinate_data() const;
