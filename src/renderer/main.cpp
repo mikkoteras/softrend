@@ -1,6 +1,6 @@
 #include "window.h"
 #include "auto_scene.h"
-#include "scenes/icosa.h"
+#include "icosa.h"
 #include <iostream>
 
 int main(int argc, char *argv[]) {
@@ -15,4 +15,3 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 }
-
