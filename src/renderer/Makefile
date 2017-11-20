@@ -23,7 +23,6 @@ SOURCES=ambient_light.cpp \
         texture.cpp \
         triangle.cpp \
         util.cpp \
-        vertex.cpp \
         window.cpp
 
 DEPS=$(patsubst %.cpp,%.d,$(SOURCES))

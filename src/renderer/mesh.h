@@ -6,7 +6,6 @@
 #include "matrix.h"
 #include "triangle.h"
 #include "vector.h"
-#include "vertex.h"
 #include <vector>
 
 class color;

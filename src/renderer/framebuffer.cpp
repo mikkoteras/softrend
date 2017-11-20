@@ -1,13 +1,11 @@
 #include "framebuffer.h"
 #include "texture.h"
-#include "vertex.h"
 #include <cmath>
 #include <limits>
 
 #define OPTIMIZE_FRAMEBUFFER_CLEAR
 
 using namespace std;
-using namespace math;
 
 framebuffer::framebuffer(int w, int h) :
     width(w), height(h),
