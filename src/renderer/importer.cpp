@@ -105,7 +105,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
     }
     catch (...) {
         cout << "error loading " << filename << endl;
-        return mesh();
+        throw;
     }
 }
 

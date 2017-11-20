@@ -15,6 +15,9 @@ public:
     static mesh load_3dmax_object(const std::experimental::filesystem::path &filename,
                                   material_library &lib,
                                   bool echo_comments = false);
+
+public:
+    class importer_exception {};
     
 private:
     static void load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
@@ -28,9 +31,6 @@ private: // [sic]
     importer(importer&&) = delete;
     const importer &operator=(const importer&) = delete;
     importer &operator=(importer&&) = delete;
-
-private:
-    class importer_exception {};
 
 private:
     math::vector4f parse_ws_separated_3d_point();

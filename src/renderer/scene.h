@@ -18,6 +18,9 @@ public:
     virtual ~scene();
 
     void start();
+    void stop();
+    virtual bool stopped() const;
+    
     virtual void render(framebuffer &fb) = 0;
 
     virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
@@ -54,6 +57,9 @@ private:
     math::matrix4x4f world_to_view_matrix;
     bool world_to_view_matrix_dirty;
     light_list lights;
+
+private:
+    bool stop_requested;
 };
 
 #endif

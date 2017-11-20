@@ -31,7 +31,7 @@ int window::run(scene &s) {
     benchmark b;
     s.start();
 
-    while (!quit) {
+    while (!quit && !s.stopped()) {
         b.update_starting();
         fb.clear();
         b.clear_finished();

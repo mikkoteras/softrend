@@ -14,7 +14,8 @@ scene::scene() :
     eye_up{0, 1, 0},
     viewing_distance(1),
     world_to_view_matrix(matrix4x4f::identity()),
-    world_to_view_matrix_dirty(true) {
+    world_to_view_matrix_dirty(true),
+    stop_requested(false) {
 }
 
 scene::~scene() {
@@ -22,6 +23,14 @@ scene::~scene() {
 
 void scene::start() {
     clock.start();
+}
+
+void scene::stop() {
+    stop_requested = true;
+}
+
+bool scene::stopped() const {
+    return stop_requested;
 }
 
 void scene::key_down_event(int, bool) {
