@@ -3,6 +3,7 @@
 #include "framebuffer.h"
 #include "scene.h"
 #include "SDL.h"
+#include <iostream>
 
 window::window(int w, int h) :
     width(w),
@@ -43,8 +44,8 @@ int window::run(scene &s) {
         b.copy_finished();
         
         SDL_Event event;
-        int mouse_x_tally = 0, mouse_y_tally = 0, mouse_wheel_tally = 0;
-        
+        int mouse_x_tally = 0, mouse_y_tally = 0;
+        int mouse_horz_wheel_tally = 0, mouse_vert_wheel_tally = 0;
         
         while (!quit && SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
@@ -63,8 +64,9 @@ int window::run(scene &s) {
                 mouse_y_tally += event.motion.yrel;
             }
             else if (event.type == SDL_MOUSEWHEEL) {
+                mouse_horz_wheel_tally += event.wheel.x;
                 // SDL's wheel ticks point to exactly the heretic direction, dammit
-                mouse_wheel_tally -= event.wheel.y;
+                mouse_vert_wheel_tally -= event.wheel.y;
             }
         }
 
@@ -73,8 +75,8 @@ int window::run(scene &s) {
             s.mouse_move_event(mouse_x_tally, mouse_y_tally, state & SDL_BUTTON(SDL_BUTTON_LEFT));
         }
 
-        if (mouse_wheel_tally != 0)
-            s.mouse_wheel_event(mouse_wheel_tally);
+        if (mouse_horz_wheel_tally != 0 || mouse_vert_wheel_tally != 0)
+            s.mouse_wheel_event(mouse_horz_wheel_tally, mouse_vert_wheel_tally);
     }
 
     return 0;

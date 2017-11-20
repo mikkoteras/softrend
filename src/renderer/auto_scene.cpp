@@ -21,18 +21,26 @@ auto_scene::auto_scene(const path &object_file, bool echo_comments, object_posit
         object.set_scaling(scale, scale, scale);
         box /= max_semiaxis;
 
-        if (pos == center_at_origin)
+        if (pos == as_is)
+            point_of_interest(vector3f{0.0f, 0.0f, 0.0f});
+        else if (pos == center_at_origin) {
             object.set_position(-box.min().x() - box.width() / 2.0f,
                                 -box.min().y() - box.height() / 2.0f,
                                 -box.min().z() - box.depth() / 2.0f);
-        else if (pos == bounding_box_touches_origin)
+            point_of_interest(vector3f{0.0f, 0.0f, 0.0f});
+        }
+        else if (pos == bounding_box_touches_origin) {
             object.set_position(-box.min().x(),
                                 -box.min().y(),
                                 -box.min().z());
-        else if (pos == center_at_unity)
+            point_of_interest(vector3f{box.width() / 2.0f, box.height() / 2.0f, box.depth() / 2.0f});
+        }
+        else if (pos == center_at_unity) {
             object.set_position(1.0f - box.min().x() - box.width() / 2.0f,
                                 1.0f - box.min().y() - box.height() / 2.0f,
                                 1.0f - box.min().z() - box.depth() / 2.0f);
+            point_of_interest(vector3f{1.0f, 1.0f, 1.0f});
+        }
     }
 }
 

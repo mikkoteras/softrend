@@ -3,26 +3,28 @@
 
 #include "scene.h"
 #include "coordinate_system.h"
+#include "vector.h"
 
 class freecam_scene : public scene {
 public:
     freecam_scene(float initial_eye_radius = 1.0f);
-    virtual ~freecam_scene();
+    ~freecam_scene();
 
+    void point_of_interest(const math::vector3f &p);
+    
     void render(framebuffer &fb) override;
     
     void key_down_event(int sdk_keycode, bool ctrl_is_down) override;
     void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down) override;
-    void mouse_wheel_event(int delta) override;
-
+    void mouse_wheel_event(int delta_x, int delta_y) override;
+    
 private:
     bool show_coords;
     coordinate_system coords;
 
     float eye_azimuth_angle, eye_polar_angle, eye_radius;
     float eye_twist_angle;
-
-//    float eye_xz_orbit, eye_elevation;
+    math::vector3f eye_reference_point;
 };
 
 #endif
