@@ -1,0 +1,8 @@
+Missing features
+================
+
+* Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/
+* Phong etc shading.
+* Fix line plotting.
+* Clip polygons at screen edges.
+* Clip everything at the the edges of FOV.
