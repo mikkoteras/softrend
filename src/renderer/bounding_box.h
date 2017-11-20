@@ -21,8 +21,8 @@ public:
     float depth() const;
     float max_semiaxis() const;
 
-    void stretch(const math::vector3f &point); // stretch box so that to the argument point fits
-    void stretch(const math::vector4f &point);
+    void stretch(const math::vector3f &p); // stretch box so as to contain p
+    void stretch(const math::vector4f &p);
     void stretch(const bounding_box &other);
 
 public:
@@ -32,7 +32,11 @@ public:
 public:
     const math::vector3f &min() const;
     const math::vector3f &max() const;
+    bool contains(const math::vector3f &p) const;
     
+    bool clip(const math::vector3f &v1, const math::vector3f &v2) const; // lines
+    bool clip(const math::vector4f &v1, const math::vector4f &v2, const math::vector4f &v3) const; // triangles
+
 private:
     math::vector3f min_corner;
     math::vector3f max_corner;

@@ -4,6 +4,7 @@
 #include "framebuffer.h"
 #include "material_library.h"
 #include "viewport_transforms.h"
+#include <limits>
 
 using namespace math;
 using namespace std;
@@ -15,22 +16,18 @@ scene::scene() :
     viewing_distance(1),
     world_to_view_matrix(matrix4x4f::identity()),
     world_to_view_matrix_dirty(true),
+    framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
     stop_requested(false) {
 }
 
 scene::~scene() {
 }
 
-void scene::start() {
-    clock.start();
-}
-
-void scene::stop() {
-    stop_requested = true;
-}
-
-bool scene::stopped() const {
-    return stop_requested;
+void scene::prerender(const framebuffer &fb) {
+    framebuffer_visible_volume = bounding_box(vector3f{0.0f, 0.0f, 0.0f});
+    framebuffer_visible_volume.stretch(vector3f{static_cast<float>(fb.pixel_width()),
+                                                static_cast<float>(fb.pixel_height()),
+                                                -std::numeric_limits<float>::infinity()});
 }
 
 void scene::key_down_event(int, bool) {
@@ -61,6 +58,22 @@ material_library &scene::materials() {
 
 color scene::shade(const vector3f &surface_normal) const {
     return lights.sum(surface_normal);
+}
+
+const bounding_box &scene::visible_volume() const {
+    return framebuffer_visible_volume;
+}
+
+void scene::start() {
+    clock.start();
+}
+
+void scene::stop() {
+    stop_requested = true;
+}
+
+bool scene::stopped() const {
+    return stop_requested;
 }
 
 const math::vector3f &scene::get_eye_position() const {

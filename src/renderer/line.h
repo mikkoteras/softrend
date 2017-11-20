@@ -6,6 +6,7 @@
 
 class framebuffer;
 class mesh;
+class scene;
 
 class line {
 public:
@@ -18,7 +19,7 @@ public:
     ~line();
     
 public:
-    void render(framebuffer &target, const mesh &parent) const;
+    void render(framebuffer &target, const mesh &parent, const scene &grandparent) const;
     
 private:
     int vertex_index[2];

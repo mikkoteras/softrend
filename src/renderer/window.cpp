@@ -35,6 +35,7 @@ int window::run(scene &s) {
         b.update_starting();
         fb.clear();
         b.clear_finished();
+        s.prerender(fb);
         s.render(fb);
         b.render_finished();
         SDL_RenderClear(sdl_renderer);

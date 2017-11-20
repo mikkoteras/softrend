@@ -76,7 +76,7 @@ triangle::~triangle() {
 void triangle::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
     const vector4f *view_data = parent.view_coordinate_data();
 
-    // Vertex winding test
+    // vertex winding test
     vector4f v1 = view_data[vertex_index[0]];
     vector4f v2 = view_data[vertex_index[1]];
     vector4f v3 = view_data[vertex_index[2]];
@@ -88,7 +88,11 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
     if (sum < 0.0f)
         return;
 
-    // Shading
+    // plane clip
+    if (grandparent.visible_volume().clip(v1, v2, v3))
+        return;
+    
+    // shading
     const vector4f *normals = parent.world_normal_data();
     vector3f surface_normal = (normals[normal_index[0]] + normals[normal_index[1]] + normals[normal_index[2]]).dehomo().unit();
     color shade = grandparent.shade(surface_normal);

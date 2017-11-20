@@ -1,6 +1,7 @@
 #include "line.h"
 #include "color.h"
 #include "mesh.h"
+#include "scene.h"
 #include "framebuffer.h"
 
 using namespace math;
@@ -50,10 +51,15 @@ line &line::operator=(line &&rhs) {
 line::~line() {
 }
 
-void line::render(framebuffer &target, const mesh &parent) const {
+void line::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
     const vector4f *view_coordinates = parent.view_coordinate_data();
+    // TODO why not vector4f?
     vector3f v1 = view_coordinates[vertex_index[0]].dehomo();
     vector3f v2 = view_coordinates[vertex_index[1]].dehomo();
+
+    // plane clip
+    if (grandparent.visible_volume().clip(v1, v2))
+        return;
     
     int width = fabs(v2.x() - v1.x());
     int height = fabs(v2.y() - v1.y());

@@ -145,7 +145,7 @@ void mesh::render(scene &sc, framebuffer &fb) {
         t.render(fb, *this, sc);
 
     for (const line &l: lines)
-        l.render(fb, *this);
+        l.render(fb, *this, sc);
 }
 
 bounding_box mesh::local_bounding_box() const {

@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include "animation_clock.h"
+#include "bounding_box.h"
 #include "light_list.h"
 #include "matrix.h"
 #include "material_library.h"
@@ -17,20 +18,23 @@ public:
     scene();
     virtual ~scene();
 
-    void start();
-    void stop();
-    virtual bool stopped() const;
-    
+public: // for window
+    virtual void prerender(const framebuffer &fb);
     virtual void render(framebuffer &fb) = 0;
-
     virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
     virtual void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down);
     virtual void mouse_wheel_event(int delta_x, int delta_y);
-    
+
 public:
     math::matrix4x4f world_to_view();
     material_library &materials();
     color shade(const math::vector3f &surface_normal) const;
+    const bounding_box &visible_volume() const;
+
+public:
+    void start();
+    void stop();
+    virtual bool stopped() const;
 
 protected:
     const math::vector3f &get_eye_position() const;
@@ -57,6 +61,7 @@ private:
     math::matrix4x4f world_to_view_matrix;
     bool world_to_view_matrix_dirty;
     light_list lights;
+    bounding_box framebuffer_visible_volume;
 
 private:
     bool stop_requested;
