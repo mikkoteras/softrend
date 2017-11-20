@@ -8,7 +8,8 @@ using namespace std;
 using namespace std::experimental::filesystem;
 using namespace math;
 
-mesh importer::load_3dmax_object(const path &filename, material_library &lib, bool echo_comments) {
+mesh importer::load_3dmax_object(const std::experimental::filesystem::path &filename,
+                                 material_library &lib, bool echo_comments) {
     try {
         mesh m;
         importer imp(filename);
@@ -141,7 +142,7 @@ void importer::load_3dmax_materials(const std::string &filename, material_librar
     }
 } 
 
-importer::importer(const std::string &source) :
+importer::importer(const path &source) :
     input(source.c_str()),
     at_eof(false) {
     

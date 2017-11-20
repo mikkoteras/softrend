@@ -20,7 +20,7 @@ private:
     static void load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
     
 private: // [sic]
-    importer(const std::string &source);
+    importer(const std::experimental::filesystem::path &source);
     ~importer();
 
     importer() = delete;
