@@ -31,14 +31,14 @@ void freecam_scene::render(framebuffer &fb) {
     float a = eye_azimuth_angle / (2.0f * pi);
     eye_azimuth_angle = 2.0f * pi * (a - floorf(a)); // 0 <= azimuth < 2*pi
     math::clamp<float>(eye_polar_angle, -pi / 2.0f + 0.0001f, pi / 2.0f - 0.0001f);  // -pi < polar < pi
-    eye_radius = std::max(0.001f, eye_radius); // 0 < radius
+    eye_radius = std::max(2.00001f, eye_radius); // viewer to plane distance < eye distance
     float b = eye_twist_angle / (2.0f * pi);
     eye_twist_angle = 2.0f * pi * (b - floorf(b)); // 0 <= twist < 2*pi
 
     float eye_x = eye_radius * sinf(eye_azimuth_angle) * cos(eye_polar_angle);
     float eye_y = eye_radius * sin(eye_polar_angle);
     float eye_z = eye_radius * cosf(eye_azimuth_angle) * cos(eye_polar_angle);
-    
+
     set_eye_position(eye_reference_point + vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(eye_reference_point);
     set_eye_orientation(vector3f{0.0f, cosf(eye_twist_angle), sinf(eye_twist_angle), 0.0f});
