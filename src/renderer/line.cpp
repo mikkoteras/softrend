@@ -101,7 +101,9 @@ void line::render(framebuffer &target, const mesh &parent) const {
             x_max = target.pixel_width() - 1;
         
         for (; x <= x_max; ++x) {
-            target.set_pixel(x, y, z, c);
+            if (z <= 0.0f)
+                target.set_pixel(x, y, z, c);
+            
             y += y_delta;
             z += z_delta;
             c += c_delta;
@@ -145,7 +147,9 @@ void line::render(framebuffer &target, const mesh &parent) const {
             y_max = target.pixel_height() - 1;
 
         for (; y <= y_max; ++y) {
-            target.set_pixel(x, y, z, c);
+            if (z <= 0.0f)
+                target.set_pixel(x, y, z, c);
+            
             x += x_delta;
             z += z_delta;
             c += c_delta;
