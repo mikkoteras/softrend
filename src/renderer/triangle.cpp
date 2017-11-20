@@ -4,6 +4,7 @@
 #include "math_util.h"
 #include "mesh.h"
 #include "scene.h"
+#include <algorithm>
 
 using namespace math;
 
@@ -166,12 +167,25 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float v1 = vertex_uv[long_edge.top].y() + y_offset * v1_delta;
     float v2 = vertex_uv[short_edge.top].y();
     float min_y = short_top_y;
-    float max_y = short_bottom_y;
+    int max_y = short_bottom_y;
     float z, z_delta;
     float u, u_delta;
     float v, v_delta;
 
-    // TODO: handle min_y<0, max_y>buffer
+    if (min_y < 0) {
+        x1 += -min_y * x1_delta;
+        x2 += -min_y * x2_delta;
+        z1 += -min_y * z1_delta;
+        z2 += -min_y * z2_delta;
+        u1 += -min_y * u1_delta;
+        u2 += -min_y * u2_delta;
+        v1 += -min_y * v1_delta;
+        v2 += -min_y * v2_delta;
+        min_y = 0;
+    }
+    
+    max_y = std::min(max_y, target.pixel_height() - 1);
+    
     for (int y = min_y; y < max_y; ++y) {
         // TODO: precompute min and max, don't redo once per line.
         int min_x, max_x;
@@ -197,7 +211,15 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
             v_delta = (v1 - v2) / (x1 - x2 + 1);
         }
 
-        // TODO: handle min_x<0, max_x>buffer
+        if (min_x < 0) {
+            z += -min_x * z_delta;
+            u += -min_x * u_delta;
+            v += -min_x * v_delta;
+            min_x = 0;
+        }
+        
+        max_x = std::min(max_x, target.pixel_width() - 1);
+        
         for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
             target.set_pixel(x, y, z, shade * tex->at(u, v));
 
