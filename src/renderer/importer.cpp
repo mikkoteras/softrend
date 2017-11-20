@@ -112,7 +112,7 @@ void importer::load_3dmax_materials(const std::string &filename, material_librar
     try {
         importer imp(filename);
         string current_material_name;
-        
+
         while (!imp.eof()) {
             string command = imp.accept_command();
 
@@ -180,8 +180,10 @@ vector3f importer::parse_ws_separated_uv_coords() {
 
 
 void importer::advance_to_next_line() {
-    if (input.bad())
+    if (input.bad()) {
+        cout << "importer::advance_to_next_line: failed." << endl;
         throw importer_exception();
+    }
     
     getline(input, current_line);
     chomp(current_line);
@@ -219,15 +221,19 @@ string importer::full_line() {
 }
 
 bool importer::next_char_is(char c) {
-    if (line_parse.eof())
+    if (line_parse.eof()) {
+        cout << "importer: expected character, got EOF." << endl;
         throw importer_exception();
+    }
     
     return line_parse.peek() == (decltype(input)::int_type)c;
 }
 
 int importer::accept_int() {
-    if (line_parse.eof())
+    if (line_parse.eof()) {
+        cout << "importer: expected integer, got EOF." << endl;
         throw importer_exception();
+    }
     
     int result;
     line_parse >> result;
@@ -235,8 +241,10 @@ int importer::accept_int() {
 }
 
 float importer::accept_float() {
-    if (line_parse.eof())
+    if (line_parse.eof()) {
+        cout << "importer: expected floating point number, got EOF." << endl;
         throw importer_exception();
+    }
     
     float result;
     line_parse >> result;
@@ -244,8 +252,10 @@ float importer::accept_float() {
 }
 
 char importer::accept_char() {
-    if (line_parse.eof())
+    if (line_parse.eof()) {
+        cout << "importer: expected character, got EOF." << endl;
         throw importer_exception();
+    }
 
     decltype(line_parse)::int_type c = line_parse.get();
     return (char)c;
@@ -261,8 +271,10 @@ string importer::accept_until_eol() {
 }
 
 void importer::accept_literal(char c) {
-    if (accept_char() != c)
+    if (accept_char() != c) {
+        cout << "importer: unexpected character." << endl;
         throw importer_exception();
+    }
 }
 
 string importer::accept_command() {
