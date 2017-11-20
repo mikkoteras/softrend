@@ -9,8 +9,6 @@ SOURCES=ambient_light.cpp \
         directional_light.cpp \
         framebuffer.cpp \
         freecam_scene.cpp \
-        icosa.cpp \
-        importer.cpp \
         light.cpp \
         light_list.cpp \
         line.cpp \
