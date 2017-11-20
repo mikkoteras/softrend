@@ -16,7 +16,7 @@ public:
     
 private:
     typedef std::chrono::high_resolution_clock::time_point tp;
-    
+
     bool first_frame;
     
     int frames_rendered;
@@ -27,9 +27,6 @@ private:
     double time_spent_clearing;
     double time_spent_rendering;
     double time_spent_copying;
-    double time_spent_in_event_loop;
-
-
 };
 
 #endif
