@@ -43,13 +43,16 @@ LIBS=-lstdc++ -lstdc++fs -lSDL2
 all: debug
 
 debug: $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
+	@echo linking
+	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
 
 %.o: %.cpp %.d
-	$(CC) $(CFLAGS) $(INCLUDEDIRS) $<
+	@echo compiling $<
+	@$(CC) $(CFLAGS) $(INCLUDEDIRS) $<
 
 %.d: %.cpp
-	$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
+	@echo computing dependencies for $<
+	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
 
 -include $(DEPS)
 
