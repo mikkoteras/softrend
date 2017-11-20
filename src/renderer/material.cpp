@@ -1,11 +1,9 @@
 #include "material.h"
 #include "texture.h"
+#include "vector.h"
 
-material::material() :
-    tex(nullptr) {
-}
-
-material::material(const texture *t) :
+material::material(const model &data, const texture *t) :
+    data(data),
     tex(t) {
 }
 
