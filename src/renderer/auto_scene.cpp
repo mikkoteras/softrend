@@ -13,7 +13,9 @@ auto_scene::auto_scene(const path &object_file, bool echo_comments, object_posit
     try {
         object = importer::load_3dmax_object(object_file, materials(), echo_comments);
 
-        add_ambient_light(color(1.0f, 1.0f, 1.0f, 1.0f));
+        add_ambient_light(color(.6f, .6f, .6f, 1.0f));
+        add_directional_light(vector3f{1.0f, 0.0f, -1.0f}.unit(), color(.4f, .1f, .1f, 1.0f));
+        add_directional_light(vector3f{-1.0f, 0.0f, -1.0f}.unit(), color(.1f, .1f, .4f, 1.0f));
 
         bounding_box box = object.local_bounding_box();
         float max_semiaxis = box.max_semiaxis();
