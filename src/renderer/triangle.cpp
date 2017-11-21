@@ -184,8 +184,10 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         v2 += -min_y * v2_delta;
         min_y = 0;
     }
-    
+
     max_y = std::min(max_y, target.pixel_height() - 1);
+
+    // TODO: check z-coords as well.
     
     for (int y = min_y; y <= max_y; ++y) {
         // TODO: precompute min and max, don't redo once per line.
