@@ -53,7 +53,7 @@ void framebuffer::set_pixel_unchecked(int x, int y, const color &c) {
 void framebuffer::set_pixel_unchecked(int x, int y, float z, const color &c) {
     int i = y * width + x;
 
-    if (z < depth_buffer[i]) {
+    if (z <= 0 && z < depth_buffer[i]) {
         depth_buffer[i] = z;
         pixels[y * width + x] = c;
     }
