@@ -222,7 +222,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         max_x = std::min(max_x, target.pixel_width() - 1);
         
         for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
-            target.set_pixel(x, y, z, shade * tex->at(u, v));
+            target.set_pixel_unchecked(x, y, z, shade * tex->at(u, v));
 
         x1 += x1_delta;
         x2 += x2_delta;
