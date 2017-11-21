@@ -141,9 +141,12 @@ void mesh::render(scene &sc, framebuffer &fb) {
     for (unsigned i = 0, max = local_normals.size(); i < max; ++i)
         world_normals[i] = local_to_world * local_normals[i];
 
-    for (const triangle &t: triangles)
-        t.render(fb, *this, sc);
+    //for (const triangle &t: triangles)
+    //    t.render(fb, *this, sc);
 
+    for (unsigned int i = 0; i < triangles.size(); ++i)
+        triangles[i].render(fb, *this, sc, i);
+    
     for (const line &l: lines)
         l.render(fb, *this, sc);
 }
