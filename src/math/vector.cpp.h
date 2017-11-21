@@ -81,12 +81,12 @@ namespace math {
     }
 
     template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator+(const vector &rhs) const {
-	vector<float_t, dim> result;
+        vector<float_t, dim> result;
 
-	for (int i = 0; i < dim; ++i)
-	    result.elements[i] = elements[i] + rhs.elements[i];
+        for (int i = 0; i < dim; ++i)
+            result.elements[i] = elements[i] + rhs.elements[i];
 
-	return result;
+        return result;
     }
 
     template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator-(const vector &rhs) const {
@@ -215,12 +215,12 @@ namespace math {
     }
 
     template<typename float_t, int dim> float_t vector<float_t, dim>::dot(const vector &rhs) const {
-	float_t result = 0;
+        float_t result = 0;
 
-	for (int i = 0; i < dim; ++i)
-	    result += elements[i] * rhs.elements[i];
+        for (int i = 0; i < dim; ++i)
+            result += elements[i] * rhs.elements[i];
 
-	return result;
+        return result;
     }
 
     template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::cross(const vector &rhs) const {
