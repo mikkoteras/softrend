@@ -53,9 +53,8 @@ line::~line() {
 
 void line::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
     const vector4f *view_coordinates = parent.view_coordinate_data();
-    // TODO why not vector4f?
-    vector3f v1 = view_coordinates[vertex_index[0]].dehomo();
-    vector3f v2 = view_coordinates[vertex_index[1]].dehomo();
+    vector4f v1 = view_coordinates[vertex_index[0]];
+    vector4f v2 = view_coordinates[vertex_index[1]];
 
     // plane clip
     if (grandparent.visible_volume().clip(v1, v2))

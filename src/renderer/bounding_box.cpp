@@ -105,7 +105,7 @@ bool bounding_box::contains(const vector3f &p) const {
 
 #include <iostream>
 
-bool bounding_box::clip(const vector3f &v1, const vector3f &v2) const {
+bool bounding_box::clip(const vector4f &v1, const vector4f &v2) const {
     // TODO: why not an intersect test while we're at it?
     if (v1.x() < min_corner.x() && v2.x() < min_corner.x())
         return true;
