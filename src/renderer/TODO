@@ -8,4 +8,3 @@ Missing features
 * Fix triangle plotting bugs:
     - some polys appear as protruding horizontal lines, why?
         - see top of teapot for an example
-* Devise a better way on computing transformed normals (probably two matrix stacks)
