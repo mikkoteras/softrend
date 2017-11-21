@@ -14,7 +14,7 @@ public:
     ~coordinate_system();
 
     void render(scene &sc, framebuffer &fb);
-    
+
 private:
     mesh m;
 };

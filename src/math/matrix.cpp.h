@@ -23,7 +23,7 @@ namespace math {
         for (const auto e: il)
             elements[i++] = e;
     }
-    
+
     template<typename float_t, int rows, int columns> matrix<float_t, rows, columns>::~matrix() {
         delete[] elements;
     }
@@ -33,13 +33,13 @@ namespace math {
 
         for (int i = 0; i < result.size; ++i)
             result.elements[i] = (float_t)0;
-        
+
         return result;
     }
 
     template<typename float_t, int rows, int columns> matrix<float_t, rows, columns> matrix<float_t, rows, columns>::identity() {
         static_assert(rows == columns, "matrix::identity() is only defined for square matrices");
-        
+
         matrix result = zero();
 
         for (int i = 0; i < result.size; i += columns + 1)
@@ -80,25 +80,25 @@ namespace math {
     template<int rhs_columns>
     matrix<float_t, rows, rhs_columns> matrix<float_t, rows, columns>::operator*(const matrix<float_t, columns, rhs_columns> &rhs) const {
         matrix<float_t, rows, rhs_columns> result;
-        
+
         for (int row = 0, element_index = 0; element_index < result.size; ++row)
             for (int column = 0; column < rhs_columns; ++column, ++element_index) {
                 float_t e = 0;
                 int lhs_element_index = row * columns;
                 int rhs_element_index = column;
-                
+
                 for (int i = 0; i < columns; ++i) {
                     e += elements[lhs_element_index] * rhs.elements[rhs_element_index];
                     lhs_element_index += 1;
                     rhs_element_index += rhs_columns;
                 }
-                
+
                 result.elements[element_index] = e;
             }
-        
+
         return result;
     }
-    
+
     template<typename float_t, int rows, int columns>
         typename matrix<float_t, rows, columns>::column_vector_t
         matrix<float_t, rows, columns>::operator*(const matrix<float_t, rows, columns>::column_vector_t &rhs) const {
@@ -108,7 +108,7 @@ namespace math {
 
         for (int row = 0; row < rows; ++row) {
             float_t e = 0;
-            
+
             for (int column = 0; column < columns; ++column, ++matrix_element_index)
                 e += elements[matrix_element_index] * rhs.elements[column];
 

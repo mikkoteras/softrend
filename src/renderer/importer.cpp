@@ -20,7 +20,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
         int vertices = 0, polys = 0;
         const material *current_material = nullptr;
         std::vector<vector3f> texture_coordinates;
-        
+
         while (!imp.eof()) {
             string command = imp.accept_command();
 
@@ -52,7 +52,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
             else if (command == "f") {
                 std::vector<int> vertex_indices, normal_indices, texture_indices;
                 imp.skip_space();
-                
+
                 while (!imp.line_ends()) {
                     vertex_indices.push_back(imp.accept_int() - 1); // -1 because indexing starts at 1
                     imp.accept_literal('/');
@@ -61,7 +61,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                         texture_indices.push_back(-1);
                     else
                         texture_indices.push_back(imp.accept_int() - 1);
-                        
+
                     imp.accept_literal('/');
 
                     if (imp.line_ends() || imp.next_char_is(' '))
@@ -74,7 +74,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                     cout << "importer: too few vertices in poly: " << imp.full_line() << endl;
                     throw importer_exception();
                 }
-            
+
                 if (vertex_indices.size() > 4)
                     cout << "warning: unexpected number of vertices in poly (" << vertex_indices.size() << ")" << endl;
 
@@ -88,7 +88,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                                    normal_indices[0], // FIXME can be bad index
                                    normal_indices[i - 1], // FIXME can be bad index
                                    normal_indices[i], // FIXME can be bad index
-                                   current_material->get_texture());                    
+                                   current_material->get_texture());
                     ++polys;
                 }
             }
@@ -100,7 +100,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
         cout << "imported " << vertices << " vertices, " << polys << " polys" << endl;
         cout << "bounding box = [" << util::to_string(box.min()) << ", " << util::to_string(box.max()) << "]" << endl;
         cout << "maximum semiaxis = " << box.max_semiaxis() << endl;
-        
+
         return m;
     }
     catch (...) {
@@ -125,12 +125,12 @@ void importer::load_3dmax_materials(const std::string &filename, material_librar
                 current_material_name = imp.accept_until_eol();
             else if (command == "map_Kd") {
                 string texture_filename = imp.accept_until_eol();
-                
+
                 if (!current_material_name.empty()) {
                     lib.add_texture(texture_filename, texture_filename);
                     lib.add_material(current_material_name, texture_filename);
                 }
-                
+
                 current_material_name.clear();
             }
 
@@ -140,18 +140,18 @@ void importer::load_3dmax_materials(const std::string &filename, material_librar
     catch (...) {
         cout << "error loading " << filename << endl;
     }
-} 
+}
 
 importer::importer(const path &source) :
     input(source.c_str()),
     at_eof(false) {
-    
+
     original_working_directory = current_path();
     path p = path(source).parent_path();
 
     if (!p.empty())
         current_path(p);
-        
+
     advance_to_next_line();
 }
 
@@ -161,7 +161,7 @@ importer::~importer() {
 
 vector3f importer::parse_ws_separated_3d_point() {
     vector3f point;
-                
+
     for (int i = 0; i < 3; ++i)
         point[i] = accept_float();
 
@@ -175,7 +175,7 @@ vector3f importer::parse_ws_separated_uv_coords() {
 
     if (!line_ends())
         point[2] = accept_float();
-    
+
     return point;
 }
 
@@ -184,10 +184,10 @@ void importer::advance_to_next_line() {
         cout << "importer::advance_to_next_line: failed." << endl;
         throw importer_exception();
     }
-    
+
     getline(input, current_line);
     chomp(current_line);
-    
+
     while (current_line.empty() && !input.eof()) {
         getline(input, current_line);
         chomp(current_line);
@@ -225,7 +225,7 @@ bool importer::next_char_is(char c) {
         cout << "importer: expected character, got EOF." << endl;
         throw importer_exception();
     }
-    
+
     return line_parse.peek() == (decltype(input)::int_type)c;
 }
 
@@ -234,7 +234,7 @@ int importer::accept_int() {
         cout << "importer: expected integer, got EOF." << endl;
         throw importer_exception();
     }
-    
+
     int result;
     line_parse >> result;
     return result;
@@ -245,7 +245,7 @@ float importer::accept_float() {
         cout << "importer: expected floating point number, got EOF." << endl;
         throw importer_exception();
     }
-    
+
     float result;
     line_parse >> result;
     return result;
@@ -280,12 +280,12 @@ void importer::accept_literal(char c) {
 string importer::accept_command() {
     while (!line_parse.eof() && isspace(line_parse.peek()))
         line_parse.ignore();
-    
+
     if (line_parse.eof()) {
         cout << "importer::accept_command(): out of characters: " << current_line << endl;
         throw importer_exception();
     }
-    
+
     string result;
     char c = line_parse.get();
     result += c;
@@ -296,12 +296,12 @@ string importer::accept_command() {
     }
 
     char next = line_parse.peek();
-    
+
     while (!line_parse.eof() && (isalpha(next) || next == '_')) {
         result += line_parse.get();
         next = line_parse.peek();
     }
-    
+
     return result;
 }
 

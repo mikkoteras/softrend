@@ -21,7 +21,7 @@ public:
     const mesh &operator=(const mesh &rhs);
     mesh &operator=(mesh &&rhs);
     ~mesh();
-    
+
     int add_vertex(const math::vector3f &v);
     int add_vertex_normal(const math::vector3f &vn);
     int add_texture_coordinates(const math::vector3f &tc);
@@ -42,7 +42,7 @@ public: // for child geometries (lines, triangles...)
     const math::vector4f *world_coordinate_data() const;
     const math::vector4f *world_normal_data() const;
     const math::vector4f *view_coordinate_data() const;
-    
+
 //private:
     std::vector<math::vector4f> local_coordinates;
     std::vector<math::vector4f> local_normals;

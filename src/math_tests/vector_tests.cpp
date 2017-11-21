@@ -59,7 +59,7 @@ void vector_comparison_tests() {
     vector3d u{2, 3, 4};
     vector3d v = u;
     ASSERT(t == u && u == v && t == v);
-	
+
     vector4d a{2, 3, 4, 1};
     vector4d b{2, 3, 4, 2};
     vector4d c(b);
@@ -98,7 +98,7 @@ void vector_assignment_tests() {
 
     vector3f e; e = a; e *= 3;
     ASSERT((e == vector3f{9, 18, 27}));
-        
+
     vector3f f; f = a; f /= 3;
     ASSERT((f == vector3f{1, 2, 3}));
 }
@@ -109,7 +109,7 @@ void vector_geometry_tests() {
 
     vector3d b{2, 0, 0};
     ASSERT((b.unit() == vector3d{1, 0, 0}));
-        
+
     vector3d c{0, -3, 0};
     vector3d asasas = c.unit();
     ASSERT((c.unit() == vector3d{0, -1, 0}));

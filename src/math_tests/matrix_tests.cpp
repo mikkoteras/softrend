@@ -23,7 +23,7 @@ void matrix_creation_tests() {
     ASSERT(m1.at(1, 0) == 0);
     ASSERT(m1.at(0, 1) == 0);
     ASSERT(m1.at(1, 1) == 1);
-    
+
     matrix3x3f m2{1, 2, 3, 4, 5, 6, 7, 8, 9};
     ASSERT(m2.at(0, 0) == 1);
     ASSERT(m2.at(1, 0) == 2);

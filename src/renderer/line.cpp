@@ -59,7 +59,7 @@ void line::render(framebuffer &target, const mesh &parent, const scene &grandpar
     // plane clip
     if (grandparent.visible_volume().clip(v1, v2))
         return;
-    
+
     int width = fabs(v2.x() - v1.x());
     int height = fabs(v2.y() - v1.y());
 
@@ -73,7 +73,7 @@ void line::render(framebuffer &target, const mesh &parent, const scene &grandpar
         int x, x_max;
         float z, z_delta;
         color c, c_delta;
-        
+
         if (v1.x() < v2.x()) {
             x = v1.x();
             x_max = v2.x();
@@ -101,14 +101,14 @@ void line::render(framebuffer &target, const mesh &parent, const scene &grandpar
             c += -x * c_delta;
             x = 0;
         }
-        
+
         if (x_max >= target.pixel_width())
             x_max = target.pixel_width() - 1;
-        
+
         for (; x <= x_max; ++x) {
             if (z <= 0.0f)
                 target.set_pixel(x, y, z, c);
-            
+
             y += y_delta;
             z += z_delta;
             c += c_delta;
@@ -119,7 +119,7 @@ void line::render(framebuffer &target, const mesh &parent, const scene &grandpar
         int y, y_max;
         float z, z_delta;
         color c, c_delta;
-        
+
         if (v1.y() < v2.y()) {
             y = v1.y();
             y_max = v2.y();
@@ -154,7 +154,7 @@ void line::render(framebuffer &target, const mesh &parent, const scene &grandpar
         for (; y <= y_max; ++y) {
             if (z <= 0.0f)
                 target.set_pixel(x, y, z, c);
-            
+
             x += x_delta;
             z += z_delta;
             c += c_delta;

@@ -38,7 +38,7 @@ public:
 
 protected:
     const math::vector3f &get_eye_position() const;
-    
+
     void set_eye_position(const math::vector3f &position);
     void set_eye_direction(const math::vector3f &direction);           // option 1
     void set_eye_reference_point(const math::vector3f &look_at_point); // option 2
@@ -48,7 +48,7 @@ protected:
     void add_ambient_light(const color &light_color);
     void add_directional_light(const math::vector3f &direction, const color &light_color);
     void add_light(std::unique_ptr<light> l);
-    
+
 protected:
     animation_clock clock;
     material_library mat_lib;

@@ -43,17 +43,17 @@ int window::run(scene &s) {
         SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
         SDL_RenderPresent(sdl_renderer);
         b.copy_finished();
-        
+
         SDL_Event event;
         int mouse_x_tally = 0, mouse_y_tally = 0;
         int mouse_horz_wheel_tally = 0, mouse_vert_wheel_tally = 0;
-        
+
         while (!quit && SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 quit = true;
             else if (event.type == SDL_KEYDOWN) {
                 SDL_KeyboardEvent key = event.key;
-                
+
                 if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
                     quit = true;
                 else if (key.repeat == 0)

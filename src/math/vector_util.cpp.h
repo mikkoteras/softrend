@@ -10,7 +10,7 @@ namespace math {
 
         return result;
     }
-    
+
     template<typename float_t, int dim>
     vector<float_t, dim> elementwise_max(const vector<float_t, dim> &lhs, const vector<float_t, dim> &rhs) {
         vector<float_t, dim> result;

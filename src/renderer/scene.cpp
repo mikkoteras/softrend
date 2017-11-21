@@ -41,7 +41,7 @@ void scene::mouse_wheel_event(int, int) {
 
 matrix4x4f scene::world_to_view() {
     using namespace math::viewport_transforms;
-    
+
     if (world_to_view_matrix_dirty) {
         world_to_view_matrix =
             simple_perspective_projection<float>(viewing_distance) *

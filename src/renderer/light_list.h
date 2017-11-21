@@ -15,7 +15,7 @@ public:
 
     void add(std::unique_ptr<light> l);
     color sum(const math::vector3f &surface_normal) const;
-    
+
 private:
     std::vector<std::unique_ptr<light>> lights;
 };

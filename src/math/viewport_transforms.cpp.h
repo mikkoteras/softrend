@@ -16,7 +16,7 @@ namespace math { namespace viewport_transforms {
         vector<float_t, 3> n = eye_direction.unit();
         vector<float_t, 3> u = up_vector.cross(eye_direction).unit();
         vector<float_t, 3> v = n.cross(u);
-        
+
         matrix<float_t, 4, 4> rotate{
             u[0], u[1], u[2], 0,
             v[0], v[1], v[2], 0,

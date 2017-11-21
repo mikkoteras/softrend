@@ -18,7 +18,7 @@ public:
 private:
     bool init_sdl();
     void deinit_sdl();
-    
+
 private:
     int width, height;
     bool sdl_context_initialized;

@@ -57,5 +57,5 @@ auto_scene::~auto_scene() {
 
 void auto_scene::render(framebuffer &fb) {
     freecam_scene::render(fb);
-    object.render(*this, fb);    
+    object.render(*this, fb);
 }

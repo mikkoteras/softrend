@@ -15,7 +15,7 @@ using namespace math::linear_transforms;
 template<typename float_t, int dim> bool is_approximately(const vector<float_t, dim> &lhs, const vector<float_t, dim> &rhs) {
     for (int i = 0; i < dim; ++i) {
         float_t diff = lhs[i] - rhs[i];
-        
+
         if (diff < -0.00001 || diff > 0.00001)
             return false;
     }
@@ -54,8 +54,8 @@ void scale_tests() {
     vector3d b{-3, 2, 1};
     ASSERT((scale2x<double>(7) * b == vector3d{-21, 2, 1}));
     ASSERT((scale2y<double>(-5) * b == vector3d{-3, -10, 1}));
-    ASSERT((scale2<double>(4) * b == vector3d{-12, 8, 1}));   
-    ASSERT((scale2<double>(2, -2) * b == vector3d{-6, -4, 1}));   
+    ASSERT((scale2<double>(4) * b == vector3d{-12, 8, 1}));
+    ASSERT((scale2<double>(2, -2) * b == vector3d{-6, -4, 1}));
 }
 
 void rotation_tests() {

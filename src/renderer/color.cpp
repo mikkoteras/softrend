@@ -47,7 +47,7 @@ color &color::operator+=(const color &rhs) {
     g += rhs.g;
     b += rhs.b;
     a += rhs.a;
-    
+
     return *this;
 }
 

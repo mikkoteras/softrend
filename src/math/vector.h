@@ -6,7 +6,7 @@
 namespace math {
     template<typename float_t, int dim> class vector;
     template<typename float_t, int rows, int columns> class matrix;
-    
+
     template<typename float_t, int dim> class vector {
     public:
         vector();
@@ -31,17 +31,17 @@ namespace math {
         vector operator-(const vector &rhs) const;
         vector operator*(const float_t rhs) const;
         vector operator/(const float_t rhs) const;
-        
+
         vector &operator=(const vector &rhs);
         vector &operator=(vector &&rhs);
-		
+
         vector &operator+=(const vector &rhs);
         vector &operator-=(const vector &rhs);
         vector &operator*=(const float_t rhs);
         vector &operator/=(const float_t rhs);
-	
+
         vector operator-() const { return (float_t)(-1) * *this; }
-	
+
         bool operator==(const vector &that) const;
         bool operator!=(const vector &that) const { return !(*this == that); }
 
@@ -49,13 +49,13 @@ namespace math {
         void divide_by_h();
         vector<float_t, dim + 1> homo() const;
         vector<float_t, dim - 1> dehomo() const;
-        
+
         float_t length() const;
         vector unit() const;
         float_t dot(const vector &rhs) const;
         vector cross(const vector &rhs) const;
         float_t angle(const vector &rhs) const;
-        
+
     public: // Mandatory inlines
         friend vector operator*(float_t lhs, const vector& rhs) { return rhs * lhs; }
 

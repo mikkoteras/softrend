@@ -17,10 +17,10 @@ public:
     const line &operator=(const line &rhs);
     line &operator=(line &&rhs);
     ~line();
-    
+
 public:
     void render(framebuffer &target, const mesh &parent, const scene &grandparent) const;
-    
+
 private:
     int vertex_index[2];
     color endpoint_color[2];

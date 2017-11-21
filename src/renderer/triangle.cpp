@@ -16,7 +16,7 @@ triangle::triangle(int vi1, int vi2, int vi3,
                    int ni1, int ni2, int ni3,
                    const texture *t) :
     tex(t) {
-    
+
     vertex_index[0] = vi1;
     vertex_index[1] = vi2;
     vertex_index[2] = vi3;
@@ -80,18 +80,18 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
     vector4f v1 = view_data[vertex_index[0]];
     vector4f v2 = view_data[vertex_index[1]];
     vector4f v3 = view_data[vertex_index[2]];
-    
+
     float sum = (v2.x() - v1.x()) * (v2.y() + v1.y()) +
                 (v3.x() - v2.x()) * (v3.y() + v2.y()) +
                 (v1.x() - v3.x()) * (v1.y() + v3.y());
-    
+
     if (sum < 0.0f)
         return;
 
     // plane clip
     if (grandparent.visible_volume().clip(v1, v2, v3))
         return;
-    
+
     // shading
     const vector4f *normals = parent.world_normal_data();
     vector3f surface_normal = (normals[normal_index[0]] +
@@ -135,7 +135,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     int short_bottom_y = vertex_data[vertex_index[short_edge.bottom]].y();
 
     int height_1 = long_bottom_y - long_top_y;
-    
+
     if (height_1 == 0)
         return;
 
@@ -143,7 +143,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
     if (height_2 == 0)
         return;
-    
+
     float long_top_x = vertex_data[vertex_index[long_edge.top]].x();
     float long_top_z = vertex_data[vertex_index[long_edge.top]].z();
     float long_bottom_x = vertex_data[vertex_index[long_edge.bottom]].x();
@@ -152,7 +152,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float short_top_z = vertex_data[vertex_index[short_edge.top]].z();
     float short_bottom_x = vertex_data[vertex_index[short_edge.bottom]].x();
     float short_bottom_z = vertex_data[vertex_index[short_edge.bottom]].z();
-    
+
     int y_offset = short_top_y - long_top_y; // 0 or rows already drawn
     float x1_delta = (long_bottom_x - long_top_x) / height_1;
     float x2_delta = (short_bottom_x - short_top_x) / height_2;
@@ -191,7 +191,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     max_y = std::min(max_y, target.pixel_height() - 1);
 
     // TODO: check z-coords as well.
-    
+
     for (int y = min_y; y <= max_y; ++y) {
         // TODO: precompute min and max, don't redo once per line.
         int min_x, max_x;
@@ -223,9 +223,9 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
             v += -min_x * v_delta;
             min_x = 0;
         }
-        
+
         max_x = std::min(max_x, target.pixel_width() - 1);
-        
+
         for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
             target.set_pixel_unchecked(x, y, z, shade * tex->at(u, v));
 

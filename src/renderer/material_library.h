@@ -17,7 +17,7 @@ public:
     bool add_material(const std::string &name, const std::string &texture_name);
     const material *get_material(const std::string &name) const;
     const texture *get_texture(const std::string &name) const;
-    
+
 private:
     std::map<std::string, texture> textures;
     std::map<std::string, material> materials;

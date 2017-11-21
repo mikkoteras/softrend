@@ -15,7 +15,7 @@ public:
         float specular_exponent;
         int illumination_model;
     };
-    
+
 public:
     material() = delete;
     material(const model &data, const texture *t);

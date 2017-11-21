@@ -18,10 +18,10 @@ public:
 
 public:
     class importer_exception {};
-    
+
 private:
     static void load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
-    
+
 private: // [sic]
     importer(const std::experimental::filesystem::path &source);
     ~importer();
@@ -35,7 +35,7 @@ private: // [sic]
 private:
     math::vector3f parse_ws_separated_3d_point();
     math::vector3f parse_ws_separated_uv_coords(); // uv or uvw
-    
+
 private:
     void advance_to_next_line();
     bool eof();
@@ -52,10 +52,10 @@ private:
 
 private:
     static void chomp(std::string &s);
-    
+
 private:
     std::experimental::filesystem::path original_working_directory;
-    
+
     std::ifstream input;
     std::string current_line;
     std::istringstream line_parse;

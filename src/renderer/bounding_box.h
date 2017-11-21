@@ -12,7 +12,7 @@ public:
     bounding_box(bounding_box &&rhs);
     const bounding_box &operator=(const bounding_box &rhs);
     bounding_box &operator=(bounding_box &&rhs);
-    
+
     ~bounding_box();
 
 public:
@@ -28,12 +28,12 @@ public:
 public:
     const bounding_box &operator*=(float s);
     const bounding_box &operator/=(float s);
-    
+
 public:
     const math::vector3f &min() const;
     const math::vector3f &max() const;
     bool contains(const math::vector3f &p) const;
-    
+
     bool clip(const math::vector4f &v1, const math::vector4f &v2) const; // lines
     bool clip(const math::vector4f &v1, const math::vector4f &v2, const math::vector4f &v3) const; // triangles
 

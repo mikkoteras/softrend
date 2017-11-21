@@ -17,7 +17,7 @@ benchmark::benchmark() :
 benchmark::~benchmark() {
     cout << endl;
 }
-    
+
 void benchmark::update_starting() {
     auto entered = high_resolution_clock::now();
 
@@ -37,7 +37,7 @@ void benchmark::update_starting() {
             total_time_spent = time_spent_clearing = time_spent_rendering = time_spent_copying = 0.0;
         }
     }
-    
+
     previous_update_start = entered;
     previous_time_point = high_resolution_clock::now();
 }

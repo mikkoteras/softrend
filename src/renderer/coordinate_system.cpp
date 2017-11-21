@@ -13,12 +13,12 @@ coordinate_system::coordinate_system() :
 coordinate_system::coordinate_system(const color &x,const color &y, const color &z) {
 
     const float t = 6; // ticks
-    
+
     // Axes
     m.add_line(vector3f{-t, 0.0f, 0.0f}, vector3f{t, 0.0f, 0.0f}, x, x);
     m.add_line(vector3f{0.0f, -t, 0.0f}, vector3f{0.0f, t, 0.0f}, y, y);
     m.add_line(vector3f{0.0f, 0.0f, -t}, vector3f{0.0f, 0.0f, t}, z, z);
-    
+
     // Axis ticks
     for (float i = 1.0f; i < t + 0.5f; i += 1.0f) {
         m.add_line(vector3f{i, -0.05f, 0.0f}, vector3f{i, 0.05f, 0.0f}, x, x);

@@ -14,6 +14,6 @@ void directional_light::sum(const math::vector3f &surface_normal, color &shade) 
 
     if (cos_incident_angle < 0.0f)
         cos_incident_angle = 0.0f;
-    
+
     shade += cos_incident_angle * col;
 }

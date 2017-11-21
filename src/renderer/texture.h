@@ -20,13 +20,13 @@ public:
 
     int pixel_width() const;
     int pixel_height() const;
-    
+
 public:
     static texture load_png(const std::string &filename);
 
 public:
     const color &at(float x, float y) const;
-    
+
 private:
     int width, height;
     int max_x, max_y;

@@ -44,37 +44,37 @@ namespace math {
         static_assert(dim >= 1, "vector::x() is undefined when dim < 1");
         return elements[0];
     }
-    
+
     template<typename float_t, int dim> float_t vector<float_t, dim>::y() const {
         static_assert(dim >= 2, "vector::y() is undefined when dim < 2");
         return elements[1];
     }
-    
+
     template<typename float_t, int dim> float_t vector<float_t, dim>::z() const {
         static_assert(dim >= 3, "vector::z() is undefined when dim < 3");
         return elements[2];
     }
-    
+
     template<typename float_t, int dim> float_t vector<float_t, dim>::h() const {
         static_assert(dim >= 4, "vector::h() is undefined when dim < 4");
         return elements[3];
     }
-    
+
     template<typename float_t, int dim> float_t &vector<float_t, dim>::x() {
         static_assert(dim >= 1, "vector::x() is undefined when dim < 1");
         return elements[0];
     }
-    
+
     template<typename float_t, int dim> float_t &vector<float_t, dim>::y() {
         static_assert(dim >= 2, "vector::y() is undefined when dim < 2");
         return elements[1];
     }
-    
+
     template<typename float_t, int dim> float_t &vector<float_t, dim>::z() {
         static_assert(dim >= 3, "vector::z() is undefined when dim < 3");
         return elements[2];
     }
-    
+
     template<typename float_t, int dim> float_t &vector<float_t, dim>::h() {
         static_assert(dim >= 4, "vector::h() is undefined when dim < 4");
         return elements[3];
@@ -94,10 +94,10 @@ namespace math {
 
         for (int i = 0; i < dim; ++i)
             result.elements[i] = elements[i] - rhs.elements[i];
-	
+
         return result;
     }
-    
+
     template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator*(const float_t rhs) const {
         vector<float_t, dim> result;
 
@@ -119,7 +119,7 @@ namespace math {
     template<typename float_t, int dim> vector<float_t, dim> &vector<float_t, dim>::operator=(const vector &rhs) {
         for (int i = 0; i < dim; ++i)
             elements[i] = rhs.elements[i];
-        
+
         return *this;
     }
 
@@ -162,7 +162,7 @@ namespace math {
         for (int i = 0; i < dim; ++i)
             if (elements[i] != that.elements[i])
                 return false;
-		
+
         return true;
     }
 
@@ -183,10 +183,10 @@ namespace math {
     template<typename float_t, int dim>
     vector<float_t, dim + 1> vector<float_t, dim>::homo() const {
         vector<float_t, dim + 1> result;
-            
+
         for (int i = 0; i < dim; ++i)
             result.elements[i] = elements[i];
-        
+
         result.elements[dim] = 1;
         return result;
     }
@@ -194,13 +194,13 @@ namespace math {
     template<typename float_t, int dim>
     vector<float_t, dim - 1> vector<float_t, dim>::dehomo() const {
         vector<float_t, dim - 1> result;
-            
+
         for (int i = 0; i < dim - 1; ++i)
             result.elements[i] = elements[i];
 
         return result;
     }
-    
+
     template<typename float_t, int dim> float_t vector<float_t, dim>::length() const {
         float_t sqr_sum = 0;
 
@@ -230,7 +230,7 @@ namespace math {
             elements[2] * rhs.elements[0] - elements[0] * rhs.elements[2],
             elements[0] * rhs.elements[1] - elements[1] * rhs.elements[0]
         };
-    }   
+    }
 
     template<typename float_t, int dim> float_t vector<float_t, dim>::angle(const vector &rhs) const {
         return detail::acos<float_t>(dot(rhs) / (length() * rhs.length()));

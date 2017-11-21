@@ -114,7 +114,7 @@ void mesh::set_rotation(float x, float y, float z) {
     rotation =
         linear_transforms::rotate3z<float>(z) *
         linear_transforms::rotate3y<float>(y) *
-        linear_transforms::rotate3x<float>(x); 
+        linear_transforms::rotate3x<float>(x);
 }
 
 void mesh::set_position(float x, float y, float z) {
@@ -131,7 +131,7 @@ void mesh::render(scene &sc, framebuffer &fb) {
 
     matrix4x4f local_to_world = position * rotation * scaling;
     matrix4x4f world_to_view = translate_to_screen_coords * scale_to_screen_coords * sc.world_to_view();
-    
+
     for (unsigned i = 0, max = local_coordinates.size(); i < max; ++i) {
         world_coordinates[i] = local_to_world * local_coordinates[i];
         view_coordinates[i] = world_to_view * world_coordinates[i];
@@ -140,7 +140,7 @@ void mesh::render(scene &sc, framebuffer &fb) {
 
     for (unsigned i = 0, max = local_normals.size(); i < max; ++i)
         world_normals[i] = local_to_world * local_normals[i];
-    
+
     for (const triangle &t: triangles)
         t.render(fb, *this, sc);
 

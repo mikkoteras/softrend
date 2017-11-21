@@ -36,7 +36,7 @@ bounding_box &bounding_box::operator=(bounding_box &&rhs) {
     max_corner = rhs.max_corner;
     return *this;
 }
-    
+
 bounding_box::~bounding_box() {
 }
 
@@ -59,7 +59,7 @@ float bounding_box::max_semiaxis() const {
         result = std::max(result, fabs(min_corner[i]));
         result = std::max(result, fabs(max_corner[i]));
     }
-    
+
     return result;
 }
 

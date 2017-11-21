@@ -18,7 +18,7 @@ public:
     color &operator+=(const color &rhs);
 
     void clamp();
-    
+
     std::uint32_t to_rgba() const;
     std::uint32_t to_ffrgb() const;
     std::uint8_t r_to_int() const;
@@ -26,7 +26,7 @@ public:
     std::uint8_t b_to_int() const;
 
     std::string to_string() const;
-    
+
 private:
     float r, g, b, a;
 };

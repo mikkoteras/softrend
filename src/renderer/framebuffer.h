@@ -12,7 +12,7 @@ public:
 
     int pixel_width() const;
     int pixel_height() const;
-    
+
     void set_pixel(int x, int y, const color &c);
     void set_pixel(int x, int y, float z, const color &c);
     void set_pixel_unchecked(int x, int y, const color &c);

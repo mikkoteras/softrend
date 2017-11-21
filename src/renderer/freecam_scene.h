@@ -11,13 +11,13 @@ public:
     ~freecam_scene();
 
     void point_of_interest(const math::vector3f &p);
-    
+
     void render(framebuffer &fb) override;
-    
+
     void key_down_event(int sdk_keycode, bool ctrl_is_down) override;
     void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down) override;
     void mouse_wheel_event(int delta_x, int delta_y) override;
-    
+
 private:
     bool show_coords;
     coordinate_system coords;
