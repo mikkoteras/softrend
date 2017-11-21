@@ -94,7 +94,11 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
     
     // shading
     const vector4f *normals = parent.world_normal_data();
-    vector3f surface_normal = (normals[normal_index[0]] + normals[normal_index[1]] + normals[normal_index[2]]).dehomo().unit();
+    const vector4f *world = parent.world_coordinate_data();
+    vector3f surface_normal = (normals[normal_index[0]] - world[vertex_index[0]] +
+                               normals[normal_index[1]] - world[vertex_index[1]] +
+                               normals[normal_index[2]] - world[vertex_index[2]]).dehomo().unit();
+
     color shade = grandparent.shade(surface_normal);
     edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
     int long_edge_index = find_long_edge(e, view_data);
