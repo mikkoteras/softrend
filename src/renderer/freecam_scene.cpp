@@ -41,7 +41,7 @@ void freecam_scene::render(framebuffer &fb) {
 
     set_eye_position(eye_reference_point + vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(eye_reference_point);
-    set_eye_orientation(vector3f{0.0f, cosf(eye_twist_angle), sinf(eye_twist_angle), 0.0f});
+    set_eye_orientation(vector3f{0.0f, cosf(eye_twist_angle), sinf(eye_twist_angle)});
 
     set_view_to_view_plane_distance(2);
 
