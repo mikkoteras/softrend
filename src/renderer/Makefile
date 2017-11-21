@@ -55,11 +55,6 @@ $(TARGET): $(OBJS)
 	@echo linking
 	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
 
-
-release: $(OBJS)
-	@echo linking
-	@$(LD) $(RELEASELDFLAGS) $(OBJS) $(LIBSDIRS) $(LIBS)
-
 %.o: %.cpp %.d
 	@echo compiling $<
 	@$(CC) $(CFLAGS) $(INCLUDEDIRS) $<
