@@ -32,17 +32,33 @@ DEP=g++
 DEPFLAGS=-E -MM
 INCLUDEDIRS=-I. -I.. -I../math -I../../math -I/usr/include/SDL2
 CC=g++
-CFLAGS=-c -g -Wall -ansi -Wall -Werror -D_REENTRANT -std=c++14
+CFLAGS=-c -Wall -ansi -Wall -Werror -D_REENTRANT -std=c++17
 LD=g++
 LDFLAGS=-o $(TARGET)
+DEBUGFLAGS=-g
+OPTIMIZATIONFLAGS=-O3
 LIBDIRS=-L/usr/lib/x86_64-linux-gnu
 LIBS=-lstdc++ -lstdc++fs -lSDL2
 
-all: debug
+all: default
+default: debug
 
-debug: $(OBJS)
+debug: CFLAGS += $(DEBUGFLAGS)
+debug: LDFLAGS += $(DEBUGFLAGS)
+debug: $(TARGET)
+
+release: CFLAGS += $(OPTIMIZATIONFLAGS)
+release: LDFLAGS += $(OPTIMIZATIONFLAGS)
+release: $(TARGET)
+
+$(TARGET): $(OBJS)
 	@echo linking
 	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
+
+
+release: $(OBJS)
+	@echo linking
+	@$(LD) $(RELEASELDFLAGS) $(OBJS) $(LIBSDIRS) $(LIBS)
 
 %.o: %.cpp %.d
 	@echo compiling $<
