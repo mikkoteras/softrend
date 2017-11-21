@@ -124,10 +124,7 @@ int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
 void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
                                   framebuffer &target, const vector4f *vertex_data,
                                   const color &shade) const {
-
-    // TODO: which is these are just duplicates? Which should be ints?
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
-    
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
     int short_top_y = vertex_data[vertex_index[short_edge.top]].y();
@@ -190,7 +187,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     
     max_y = std::min(max_y, target.pixel_height() - 1);
     
-    for (int y = min_y; y < max_y; ++y) {
+    for (int y = min_y; y <= max_y; ++y) {
         // TODO: precompute min and max, don't redo once per line.
         int min_x, max_x;
 
