@@ -3,5 +3,8 @@ Missing features
 
 * Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/
 * Phong etc shading.
-* Fix line plotting.
-* Clip everything at the the edges of FOV.
+* Fix line plotting bugs:
+    - z-lines near the horizon are botched.
+* Fix triangle plotting bugs:
+    - some polys appear as protruding horizontal lines, why?
+        - see top of teapot for an example
