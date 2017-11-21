@@ -76,15 +76,15 @@ mesh &mesh::operator=(mesh &&rhs) {
 mesh::~mesh() {
 }
 
-int mesh::add_vertex(const vector4f &v) {
-    local_coordinates.push_back(v);
+int mesh::add_vertex(const vector3f &v) {
+    local_coordinates.push_back(vector4f(v, 1.0f));
     world_coordinates.push_back(vector4f());
     view_coordinates.push_back(vector4f());
     return local_coordinates.size() - 1;
 }
 
-int mesh::add_vertex_normal(const vector4f &vn) {
-    local_normals.push_back(vn);
+int mesh::add_vertex_normal(const vector3f &vn) {
+    local_normals.push_back(vector4f(vn, 0.0f));
     world_normals.push_back(vector4f());
     return local_normals.size() - 1;
 }
@@ -100,7 +100,7 @@ void mesh::add_line(int v1, int v2, const color &c1, const color &c2) {
     lines.push_back(line(v1, v2, c1, c2));
 }
 
-void mesh::add_line(const math::vector4f &v1, const math::vector4f &v2, const color &c1, const color &c2) {
+void mesh::add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2) {
     int vi1 = add_vertex(v1);
     int vi2 = add_vertex(v2);
     lines.push_back(line(vi1, vi2, c1, c2));

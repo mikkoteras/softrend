@@ -15,38 +15,38 @@ coordinate_system::coordinate_system(const color &x,const color &y, const color 
     const float t = 6; // ticks
     
     // Axes
-    m.add_line(vector4f{-t, 0.0f, 0.0f, 1.0f}, vector4f{t, 0.0f, 0.0f, 1.0f}, x, x);
-    m.add_line(vector4f{0.0f, -t, 0.0f, 1.0f}, vector4f{0.0f, t, 0.0f, 1.0f}, y, y);
-    m.add_line(vector4f{0.0f, 0.0f, -t, 1.0f}, vector4f{0.0f, 0.0f, t, 1.0f}, z, z);
+    m.add_line(vector3f{-t, 0.0f, 0.0f}, vector3f{t, 0.0f, 0.0f}, x, x);
+    m.add_line(vector3f{0.0f, -t, 0.0f}, vector3f{0.0f, t, 0.0f}, y, y);
+    m.add_line(vector3f{0.0f, 0.0f, -t}, vector3f{0.0f, 0.0f, t}, z, z);
     
     // Axis ticks
     for (float i = 1.0f; i < t + 0.5f; i += 1.0f) {
-        m.add_line(vector4f{i, -0.05f, 0.0f, 1.0f}, vector4f{i, 0.05f, 0.0f, 1.0f}, x, x);
-        m.add_line(vector4f{-i, -0.05f, 0.0f, 1.0f}, vector4f{-i, 0.05f, 0.0f, 1.0f}, x, x);
-        m.add_line(vector4f{-0.05, i, 0.0f, 1.0f}, vector4f{0.05f, i, 0.0f, 1.0f}, y, y);
-        m.add_line(vector4f{-0.05, -i, 0.0f, 1.0f}, vector4f{0.05f, -i, 0.0f, 1.0f}, y, y);
-        m.add_line(vector4f{-0.05, 0.0f, i, 1.0f}, vector4f{0.05f, 0.0f, i, 1.0f}, z, z);
-        m.add_line(vector4f{-0.05, 0.0f, -i, 1.0f}, vector4f{0.05f, 0.0f, -i, 1.0f}, z, z);
+        m.add_line(vector3f{i, -0.05f, 0.0f}, vector3f{i, 0.05f, 0.0f}, x, x);
+        m.add_line(vector3f{-i, -0.05f, 0.0f}, vector3f{-i, 0.05f, 0.0f}, x, x);
+        m.add_line(vector3f{-0.05, i, 0.0f}, vector3f{0.05f, i, 0.0f}, y, y);
+        m.add_line(vector3f{-0.05, -i, 0.0f}, vector3f{0.05f, -i, 0.0f}, y, y);
+        m.add_line(vector3f{-0.05, 0.0f, i}, vector3f{0.05f, 0.0f, i}, z, z);
+        m.add_line(vector3f{-0.05, 0.0f, -i}, vector3f{0.05f, 0.0f, -i}, z, z);
     }
 
-    // TODO: labels
-    m.add_line(vector4f{4.95f, -0.3f, 0.0f, 1.0f}, vector4f{5.05f, -0.5f, 0.0f, 1.0f}, x, x); // x
-    m.add_line(vector4f{5.05f, -0.3f, 0.0f, 1.0f}, vector4f{4.95f, -0.5f, 0.0f, 1.0f}, x, x);
-    m.add_line(vector4f{-5.2f, -0.4f, 0.0f, 1.0f}, vector4f{-5.1f, -0.4f, 0.0f, 1.0f}, x, x); // -x
-    m.add_line(vector4f{-4.95f, -0.3f, 0.0f, 1.0f}, vector4f{-5.05f, -0.5f, 0.0f, 1.0f}, x, x);
-    m.add_line(vector4f{-5.05f, -0.3f, 0.0f, 1.0f}, vector4f{-4.95f, -0.5f, 0.0f, 1.0f}, x, x);
-    m.add_line(vector4f{.4f, 5.1f, 0.0f, 1.0f}, vector4f{.3f, 4.9f, 0.0f, 1.0f}, y, y); // y
-    m.add_line(vector4f{.3f, 5.1f, 0.0f, 1.0f}, vector4f{.35f, 5.0f, 0.0f, 1.0f}, y, y);
-    m.add_line(vector4f{.2f, -5.0f, 0.0f, 1.0f}, vector4f{.3f, -5.0f, 0.0f, 1.0f}, y, y); // -y
-    m.add_line(vector4f{.3f, -4.9f, 0.0f, 1.0f}, vector4f{.35f, -5.0f, 0.0f, 1.0f}, y, y);
-    m.add_line(vector4f{.3f, -5.1f, 0.0f, 1.0f}, vector4f{.4f, -4.9f, 0.0f, 1.0f}, y, y);
-    m.add_line(vector4f{.3f, 0.1f, 5.0f, 1.0f}, vector4f{.4f, 0.1f, 5.0f, 1.0f}, z, z); // z
-    m.add_line(vector4f{.4f, 0.1f, 5.0f, 1.0f}, vector4f{.3f, -0.1f, 5.0f, 1.0f}, z, z);
-    m.add_line(vector4f{.3f, -0.1f, 5.0f, 1.0f}, vector4f{.4f, -0.1f, 5.0f, 1.0f}, z, z);
-    m.add_line(vector4f{.2f, 0.0f, -5.0f, 1.0f}, vector4f{.3f, 0.0f, -5.0f, 1.0f}, z, z); // -z
-    m.add_line(vector4f{.3f, 0.1f, -5.0f, 1.0f}, vector4f{.4f, 0.1f, -5.0f, 1.0f}, z, z);
-    m.add_line(vector4f{.4f, 0.1f, -5.0f, 1.0f}, vector4f{.3f, -0.1f, -5.0f, 1.0f}, z, z);
-    m.add_line(vector4f{.3f, -0.1f, -5.0f, 1.0f}, vector4f{.4f, -0.1f, -5.0f, 1.0f}, z, z);
+    // Axis labels
+    m.add_line(vector3f{4.95f, -0.3f, 0.0f}, vector3f{5.05f, -0.5f, 0.0f}, x, x); // x
+    m.add_line(vector3f{5.05f, -0.3f, 0.0f}, vector3f{4.95f, -0.5f, 0.0f}, x, x);
+    m.add_line(vector3f{-5.2f, -0.4f, 0.0f}, vector3f{-5.1f, -0.4f, 0.0f}, x, x); // -x
+    m.add_line(vector3f{-4.95f, -0.3f, 0.0f}, vector3f{-5.05f, -0.5f, 0.0f}, x, x);
+    m.add_line(vector3f{-5.05f, -0.3f, 0.0f}, vector3f{-4.95f, -0.5f, 0.0f}, x, x);
+    m.add_line(vector3f{.4f, 5.1f, 0.0f}, vector3f{.3f, 4.9f, 0.0f}, y, y); // y
+    m.add_line(vector3f{.3f, 5.1f, 0.0f}, vector3f{.35f, 5.0f, 0.0f}, y, y);
+    m.add_line(vector3f{.2f, -5.0f, 0.0f}, vector3f{.3f, -5.0f, 0.0f}, y, y); // -y
+    m.add_line(vector3f{.3f, -4.9f, 0.0f}, vector3f{.35f, -5.0f, 0.0f}, y, y);
+    m.add_line(vector3f{.3f, -5.1f, 0.0f}, vector3f{.4f, -4.9f, 0.0f}, y, y);
+    m.add_line(vector3f{.3f, 0.1f, 5.0f}, vector3f{.4f, 0.1f, 5.0f}, z, z); // z
+    m.add_line(vector3f{.4f, 0.1f, 5.0f}, vector3f{.3f, -0.1f, 5.0f}, z, z);
+    m.add_line(vector3f{.3f, -0.1f, 5.0f}, vector3f{.4f, -0.1f, 5.0f}, z, z);
+    m.add_line(vector3f{.2f, 0.0f, -5.0f}, vector3f{.3f, 0.0f, -5.0f}, z, z); // -z
+    m.add_line(vector3f{.3f, 0.1f, -5.0f}, vector3f{.4f, 0.1f, -5.0f}, z, z);
+    m.add_line(vector3f{.4f, 0.1f, -5.0f}, vector3f{.3f, -0.1f, -5.0f}, z, z);
+    m.add_line(vector3f{.3f, -0.1f, -5.0f}, vector3f{.4f, -0.1f, -5.0f}, z, z);
 }
 
 coordinate_system::~coordinate_system() {

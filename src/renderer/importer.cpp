@@ -29,12 +29,12 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                     cout << imp.full_line() << endl;
             }
             else if (command == "v") {
-                vector4f point = imp.parse_ws_separated_3d_point();
+                vector3f point = imp.parse_ws_separated_3d_point();
                 m.add_vertex(point);
                 ++vertices;
             }
             else if (command == "vn") {
-                vector4f point = imp.parse_ws_separated_3d_point();
+                vector3f point = imp.parse_ws_separated_3d_point();
                 m.add_vertex_normal(point);
             }
             else if (command == "vt") {
@@ -54,7 +54,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                 imp.skip_space();
                 
                 while (!imp.line_ends()) {
-                    vertex_indices.push_back(imp.accept_int() - 1); // -1 because index starts at 1
+                    vertex_indices.push_back(imp.accept_int() - 1); // -1 because indexing starts at 1
                     imp.accept_literal('/');
 
                     if (imp.next_char_is('/'))
@@ -159,8 +159,8 @@ importer::~importer() {
     current_path(original_working_directory);
 }
 
-vector4f importer::parse_ws_separated_3d_point() {
-    vector4f point{0, 0, 0, 1};
+vector3f importer::parse_ws_separated_3d_point() {
+    vector3f point;
                 
     for (int i = 0; i < 3; ++i)
         point[i] = accept_float();
@@ -169,7 +169,7 @@ vector4f importer::parse_ws_separated_3d_point() {
 }
 
 vector3f importer::parse_ws_separated_uv_coords() {
-    vector3f point{0, 0, 0};
+    vector3f point{0.0f, 0.0f, 0.0f};
     point[0] = accept_float();
     point[1] = accept_float();
 
@@ -178,7 +178,6 @@ vector3f importer::parse_ws_separated_uv_coords() {
     
     return point;
 }
-
 
 void importer::advance_to_next_line() {
     if (input.bad()) {

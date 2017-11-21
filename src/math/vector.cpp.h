@@ -25,6 +25,13 @@ namespace math {
             elements[i++] = e;
     }
 
+    template<typename float_t, int dim> vector<float_t, dim>::vector(const vector<float_t, dim - 1> &v, float_t h) {
+        for (int i = 0; i < dim - 1; ++i)
+            elements[i] = v.elements[i];
+
+        elements[dim - 1] = h;
+    }
+
     template<typename float_t, int dim> float_t vector<float_t, dim>::operator[](int i) const {
         return elements[i];
     }

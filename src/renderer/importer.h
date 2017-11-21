@@ -33,7 +33,7 @@ private: // [sic]
     importer &operator=(importer&&) = delete;
 
 private:
-    math::vector4f parse_ws_separated_3d_point();
+    math::vector3f parse_ws_separated_3d_point();
     math::vector3f parse_ws_separated_uv_coords(); // uv or uvw
     
 private:

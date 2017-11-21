@@ -13,6 +13,7 @@ namespace math {
         vector(const vector &rhs);
         vector(vector &&rhs);
         vector(const std::initializer_list<float_t> &il);
+        vector(const vector<float_t, dim - 1> &v, float_t h);
 
         float_t operator[](int i) const;
         float_t &operator[](int i);
