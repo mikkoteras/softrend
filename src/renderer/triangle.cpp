@@ -6,8 +6,6 @@
 #include "scene.h"
 #include <algorithm>
 
-#include <iostream>
-
 using namespace math;
 
 triangle::triangle() {
@@ -122,14 +120,8 @@ int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
         (vertex_data[vertex_index[edges[2].bottom]].y() - vertex_data[vertex_index[edges[2].top]].y())
     };
 
-    //   std::cout << "heights: 0:" << height[0] << " 1:" << height[1] << " 2:" << height[2];
-
     int i = height[0] > height[1] ? 0 : 1;
-    i = height[i] > height[2] ? i : 2;
-
-    //std::cout << " selecting " << i << std::endl;
-    
-    return i;
+    return height[i] > height[2] ? i : 2;
 }
 
 void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
