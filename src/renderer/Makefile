@@ -5,6 +5,7 @@ SOURCES=ambient_light.cpp \
         benchmark.cpp \
         bounding_box.cpp \
         color.cpp \
+        command_line.cpp \
         coordinate_system.cpp \
         directional_light.cpp \
         framebuffer.cpp \

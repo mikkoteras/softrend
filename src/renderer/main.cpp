@@ -1,13 +1,23 @@
 #include "window.h"
 #include "auto_scene.h"
+#include "command_line.h"
 #include <iostream>
 
 int main(int argc, char *argv[]) {
     try {
-        int w = 800, h = 600;
-        auto_scene sc("assets/teapot/tpot.obj", true, auto_scene::bounding_box_touches_origin);
-        window win(w, h);
-        return win.run(sc);
+        command_line cl(argc, argv);
+
+        if (cl.valid()) {
+            if (cl.scene_mode() == command_line::auto_scene) {
+                auto_scene sc(cl.object_filename(), cl.verbose(), auto_scene::bounding_box_touches_origin);
+                window win(cl.width(), cl.height());
+                return win.run(sc);
+            }
+            else {
+                std::cerr << "Named scenes aren't supported yet." << std::endl;
+                return 1;
+            }
+        }
     }
     catch (...) {
         std::cerr << "caught stray exception, aborting." << std::endl;
