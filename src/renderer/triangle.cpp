@@ -75,7 +75,7 @@ triangle &triangle::operator=(triangle &&rhs) {
 triangle::~triangle() {
 }
 
-void triangle::render(framebuffer &target, const mesh &parent, const scene &grandparent, int i) const {
+void triangle::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
     const vector4f *view_data = parent.view_coordinate_data();
 
     // vertex winding test
@@ -104,14 +104,8 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
     edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
     int long_edge_index = find_long_edge(e, view_data);
 
-    if (i == 2479) {
-        shade = color(0, 1, 0, 1);
-        std::cout << "vertices: (" << v1.x() << ", " << v1.y() << "), (" << v2.x() << ", " << v2.y() << "), ("
-                  << v3.x() << ", " << v3.y() << ")" << std::endl;
-    }
-    
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, view_data, shade, i);
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, view_data, shade, i);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, view_data, shade);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, view_data, shade);
 }
 
 triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
@@ -122,24 +116,25 @@ triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_da
 }
 
 int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
-    int height[3] = {
-        (int)(vertex_data[vertex_index[edges[0].bottom]].y() - vertex_data[vertex_index[edges[0].top]].y()),
-        (int)(vertex_data[vertex_index[edges[1].bottom]].y() - vertex_data[vertex_index[edges[1].top]].y()),
-        (int)(vertex_data[vertex_index[edges[2].bottom]].y() - vertex_data[vertex_index[edges[2].top]].y())
+    float height[3] = {
+        (vertex_data[vertex_index[edges[0].bottom]].y() - vertex_data[vertex_index[edges[0].top]].y()),
+        (vertex_data[vertex_index[edges[1].bottom]].y() - vertex_data[vertex_index[edges[1].top]].y()),
+        (vertex_data[vertex_index[edges[2].bottom]].y() - vertex_data[vertex_index[edges[2].top]].y())
     };
 
+    //   std::cout << "heights: 0:" << height[0] << " 1:" << height[1] << " 2:" << height[2];
+
     int i = height[0] > height[1] ? 0 : 1;
-    return height[i] > height[2] ? i : 2;
+    i = height[i] > height[2] ? i : 2;
+
+    //std::cout << " selecting " << i << std::endl;
+    
+    return i;
 }
 
 void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
                                   framebuffer &target, const vector4f *vertex_data,
-                                  const color &shade, int ix) const {
-
-    if (ix == 2479)
-        std::cout << "poly " << ix << ": ";
-
-    
+                                  const color &shade) const {
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
@@ -147,23 +142,19 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     int long_bottom_y = vertex_data[vertex_index[long_edge.bottom]].y();
     int short_bottom_y = vertex_data[vertex_index[short_edge.bottom]].y();
 
-    int height_1 = long_bottom_y - long_top_y;
-
-    if (height_1 == 0)
+    if (long_bottom_y == long_top_y || short_bottom_y == short_top_y)
         return;
+    
+    float height_1 = long_bottom_y - long_top_y;
+    float height_2 = short_bottom_y - short_top_y;
 
-    int height_2 = short_bottom_y - short_top_y;
-
-    if (height_2 == 0)
-        return;
-
-    float long_top_x = vertex_data[vertex_index[long_edge.top]].x();
+    int long_top_x = vertex_data[vertex_index[long_edge.top]].x();
     float long_top_z = vertex_data[vertex_index[long_edge.top]].z();
-    float long_bottom_x = vertex_data[vertex_index[long_edge.bottom]].x();
+    int long_bottom_x = vertex_data[vertex_index[long_edge.bottom]].x();
     float long_bottom_z = vertex_data[vertex_index[long_edge.bottom]].z();
-    float short_top_x = vertex_data[vertex_index[short_edge.top]].x();
+    int short_top_x = vertex_data[vertex_index[short_edge.top]].x();
     float short_top_z = vertex_data[vertex_index[short_edge.top]].z();
-    float short_bottom_x = vertex_data[vertex_index[short_edge.bottom]].x();
+    int short_bottom_x = vertex_data[vertex_index[short_edge.bottom]].x();
     float short_bottom_z = vertex_data[vertex_index[short_edge.bottom]].z();
 
     int y_offset = short_top_y - long_top_y; // 0 or rows already drawn
@@ -189,9 +180,6 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float u, u_delta;
     float v, v_delta;
 
-    if (ix == 2479)
-        std::cout << " y = " << min_y << " to " << max_y << std::endl;
-    
     if (min_y < 0) {
         x1 += -min_y * x1_delta;
         x2 += -min_y * x2_delta;
@@ -242,18 +230,9 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
         max_x = std::min(max_x, target.pixel_width() - 1);
 
-        if (ix == 2479)
-            std::cout << "filling scanline " << y << " from x " << min_x  << " to " << max_x << std::endl;
-        
-        for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta) {
+        for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
             target.set_pixel_unchecked(x, y, z, shade * tex->at(u, v));
-            if (ix == 2479)
-                std::cout << "    set_pixel(" << x << ", " << y << ")" << std::endl;
-        }
 
-        if (ix == 2479)
-            std::cout << "filled, x1_delta= " << x1_delta << " x2_delta=" << x2_delta << std::endl;
-        
         x1 += x1_delta;
         x2 += x2_delta;
         z1 += z1_delta;

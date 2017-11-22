@@ -23,7 +23,7 @@ public:
     ~triangle();
 
 public:
-    void render(framebuffer &target, const mesh &parent, const scene &grandparent, int i) const;
+    void render(framebuffer &target, const mesh &parent, const scene &grandparent) const;
 
 private: // render helpers
     struct edge { int top, bottom; }; // indices to vertex_index
@@ -31,7 +31,7 @@ private: // render helpers
     int find_long_edge(edge *edges, const math::vector4f *vertex_data) const;
     void draw_half_triangle(const edge &long_edge, const edge &short_edge,
                             framebuffer &target, const math::vector4f *vertex_data,
-                            const color &shade, int ix) const;
+                            const color &shade) const;
 
 private:
     int vertex_index[3]; // indices to parent mesh's vertex data
