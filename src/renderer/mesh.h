@@ -29,6 +29,7 @@ public:
                       const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,  // texture uv coords
                       int ni1, int ni2, int ni3,  // indices to vertex normal data
                       const texture *tex);
+    void add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3);
     void add_line(int v1, int v2, const color &c1, const color &c2);
     void add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2);
     void set_scaling(float x, float y, float z);

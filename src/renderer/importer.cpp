@@ -52,20 +52,22 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
             else if (command == "f") {
                 std::vector<int> vertex_indices, normal_indices, texture_indices;
                 imp.skip_space();
+                bool include_uv_coords = true;
+                bool include_normals = true;
 
                 while (!imp.line_ends()) {
                     vertex_indices.push_back(imp.accept_int() - 1); // -1 because indexing starts at 1
                     imp.accept_literal('/');
 
                     if (imp.next_char_is('/'))
-                        texture_indices.push_back(-1);
+                        include_uv_coords = false;
                     else
                         texture_indices.push_back(imp.accept_int() - 1);
 
                     imp.accept_literal('/');
 
                     if (imp.line_ends() || imp.next_char_is(' '))
-                        normal_indices.push_back(-1);
+                        include_normals = false;
                     else
                         normal_indices.push_back(imp.accept_int() - 1);
                 }
@@ -75,22 +77,38 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                     throw importer_exception();
                 }
 
+                if (!include_normals) {
+                    cout << "importer: objects without normals not implemented yet" << endl;
+                    throw importer_exception();
+                }
+
                 if (vertex_indices.size() > 4)
                     cout << "warning: unexpected number of vertices in poly (" << vertex_indices.size() << ")" << endl;
 
-                for (unsigned i = 2; i < vertex_indices.size(); ++i) {
-                    m.add_triangle(vertex_indices[0],
-                                   vertex_indices[i - 1],
-                                   vertex_indices[i],
-                                   texture_coordinates[texture_indices[0]], // FIXME can be bad index
-                                   texture_coordinates[texture_indices[i - 1]], // FIXME can be bad index
-                                   texture_coordinates[texture_indices[i]], // FIXME can be bad index
-                                   normal_indices[0], // FIXME can be bad index
-                                   normal_indices[i - 1], // FIXME can be bad index
-                                   normal_indices[i], // FIXME can be bad index
-                                   current_material->get_texture());
-                    ++polys;
-                }
+                if (include_uv_coords)
+                    for (unsigned i = 2; i < vertex_indices.size(); ++i) {
+                        m.add_triangle(vertex_indices[0],
+                                       vertex_indices[i - 1],
+                                       vertex_indices[i],
+                                       texture_coordinates[texture_indices[0]],
+                                       texture_coordinates[texture_indices[i - 1]],
+                                       texture_coordinates[texture_indices[i]],
+                                       normal_indices[0],
+                                       normal_indices[i - 1],
+                                       normal_indices[i],
+                                       current_material->get_texture());
+                        ++polys;
+                    }
+                else
+                    for (unsigned i = 2; i < vertex_indices.size(); ++i) {
+                        m.add_triangle(vertex_indices[0],
+                                       vertex_indices[i - 1],
+                                       vertex_indices[i],
+                                       normal_indices[0],
+                                       normal_indices[i - 1],
+                                       normal_indices[i]);
+                        ++polys;
+                    }
             }
 
             imp.advance_to_next_line();

@@ -7,3 +7,5 @@ Missing features
     - z-lines near the horizon are botched.
 * Optimize triangle plotting
     - the entire vertex_data[vertex_index[edge[edge_index].top]]] scheme is demented
+    - use different function when there are no uvw coords or texture.
+* Refactor triangle ctors and mesh::add_triangle.

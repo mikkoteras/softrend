@@ -16,6 +16,7 @@ public:
              const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
              int ni1, int ni2, int ni3,
              const texture *t);
+    triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3);
     triangle(const triangle &rhs);
     triangle(triangle &&rhs);
     const triangle &operator=(const triangle &rhs);

@@ -28,6 +28,21 @@ triangle::triangle(int vi1, int vi2, int vi3,
     normal_index[2] = ni3;
 }
 
+triangle::triangle(int vi1, int vi2, int vi3,
+                   int ni1, int ni2, int ni3) :
+    tex(nullptr) {
+
+    vertex_index[0] = vi1;
+    vertex_index[1] = vi2;
+    vertex_index[2] = vi3;
+    vertex_uv[0] = vector3f{0.0f, 0.0f, 0.0f};
+    vertex_uv[1] = vector3f{0.0f, 0.0f, 0.0f};
+    vertex_uv[2] = vector3f{0.0f, 0.0f, 0.0f};
+    normal_index[0] = ni1;
+    normal_index[1] = ni2;
+    normal_index[2] = ni3;
+}
+
 triangle::triangle(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
@@ -128,6 +143,8 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
                                   framebuffer &target, const vector4f *vertex_data,
                                   const color &shade) const {
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
+    // TODO: split function to avoid u/v computation when there is no texture.
+
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
     int short_top_y = vertex_data[vertex_index[short_edge.top]].y();
@@ -222,8 +239,12 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
         max_x = std::min(max_x, target.pixel_width() - 1);
 
-        for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
-            target.set_pixel_unchecked(x, y, z, shade * tex->at(u, v));
+        if (tex)
+            for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
+                target.set_pixel_unchecked(x, y, z, shade * tex->at(u, v));
+        else
+            for (int x = min_x; x <= max_x; ++x, z += z_delta)
+                target.set_pixel_unchecked(x, y, z, shade);
 
         x1 += x1_delta;
         x2 += x2_delta;
