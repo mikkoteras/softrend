@@ -136,7 +136,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
     if (long_bottom_y == long_top_y || short_bottom_y == short_top_y)
         return;
-    
+
     float height_1 = long_bottom_y - long_top_y;
     float height_2 = short_bottom_y - short_top_y;
 
