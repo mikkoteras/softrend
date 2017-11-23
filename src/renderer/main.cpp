@@ -1,6 +1,7 @@
 #include "window.h"
 #include "auto_scene.h"
 #include "command_line.h"
+#include "demo.h"
 #include <iostream>
 
 int main(int argc, char *argv[]) {
@@ -14,8 +15,9 @@ int main(int argc, char *argv[]) {
                 return win.run(sc);
             }
             else {
-                std::cerr << "Named scenes aren't supported yet." << std::endl;
-                return 1;
+                demo sc;
+                window win(cl.width(), cl.height());
+                return win.run(sc);
             }
         }
     }

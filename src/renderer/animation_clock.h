@@ -9,6 +9,7 @@ public:
     ~animation_clock();
 
     void start();
+    void reset();
     float seconds() const;
 
 private:

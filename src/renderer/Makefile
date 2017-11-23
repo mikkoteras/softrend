@@ -7,6 +7,7 @@ SOURCES=ambient_light.cpp \
         color.cpp \
         command_line.cpp \
         coordinate_system.cpp \
+        demo.cpp \
         directional_light.cpp \
         framebuffer.cpp \
         freecam_scene.cpp \

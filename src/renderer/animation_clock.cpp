@@ -10,6 +10,10 @@ animation_clock::~animation_clock() {
 }
 
 void animation_clock::start() {
+    reset();
+}
+
+void animation_clock::reset() {
     start_time = steady_clock::now();
 }
 
