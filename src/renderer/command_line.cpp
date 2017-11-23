@@ -65,7 +65,7 @@ void command_line::parse(const std::vector<std::string> &args) {
             }
             else if (arg == "-s" || arg == "--scene") {
                 accept_scene_mode_parameter(args, i++, scene_name_opt);
-                scene_mode_opt = auto_scene;
+                scene_mode_opt = named_scene;
             }
             else if (arg == "-w" || arg == "--width")
                 accept_int_parameter(args, i++, width_opt);
