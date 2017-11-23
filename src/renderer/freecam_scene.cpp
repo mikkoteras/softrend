@@ -35,9 +35,9 @@ void freecam_scene::render(framebuffer &fb) {
     float b = eye_twist_angle / (2.0f * pi);
     eye_twist_angle = 2.0f * pi * (b - floorf(b)); // 0 <= twist < 2*pi
 
-    float eye_x = eye_radius * sinf(eye_azimuth_angle) * cos(eye_polar_angle);
+    float eye_x = eye_radius * cos(eye_azimuth_angle) * cos(eye_polar_angle);
     float eye_y = eye_radius * sin(eye_polar_angle);
-    float eye_z = eye_radius * cosf(eye_azimuth_angle) * cos(eye_polar_angle);
+    float eye_z = eye_radius * -sinf(eye_azimuth_angle) * cos(eye_polar_angle);
 
     set_eye_position(eye_reference_point + vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(eye_reference_point);
