@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::experimental::filesystem;
 using namespace math;
 
-mesh importer::load_3dmax_object(const std::experimental::filesystem::path &filename,
+mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &filename,
                                  material_library &lib, bool echo_comments) {
     try {
         mesh m;
@@ -43,7 +43,7 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
             }
             else if (command == "mtllib") {
                 string filename = imp.accept_until_eol();
-                load_3dmax_materials(filename, lib, echo_comments);
+                load_3dsmax_materials(filename, lib, echo_comments);
             }
             else if (command == "usemtl") {
                 string name = imp.accept_until_eol();
@@ -73,17 +73,17 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
                 }
 
                 if (vertex_indices.size() < 3) {
-                    cout << "importer: too few vertices in poly: " << imp.full_line() << endl;
+                    cerr << "importer: too few vertices in poly: " << imp.full_line() << endl;
                     throw importer_exception();
                 }
 
                 if (!include_normals) {
-                    cout << "importer: objects without normals not implemented yet" << endl;
+                    cerr << "importer: objects without normals not implemented yet" << endl;
                     throw importer_exception();
                 }
 
                 if (vertex_indices.size() > 4)
-                    cout << "warning: unexpected number of vertices in poly (" << vertex_indices.size() << ")" << endl;
+                    cerr << "warning: unexpected number of vertices in poly (" << vertex_indices.size() << ")" << endl;
 
                 if (include_uv_coords)
                     for (unsigned i = 2; i < vertex_indices.size(); ++i) {
@@ -122,42 +122,102 @@ mesh importer::load_3dmax_object(const std::experimental::filesystem::path &file
         return m;
     }
     catch (...) {
-        cout << "error loading " << filename << endl;
+        cerr << "error loading " << filename << endl;
         throw;
     }
 }
 
-void importer::load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments = false) {
+void importer::load_3dsmax_materials(const std::string &filename, material_library &lib, bool echo_comments = false) {
     try {
         importer imp(filename);
-        string current_material_name;
-
+        
+        bool material_constructed = false;
+        material constructed_material;
+        string constructed_material_name;
+        
         while (!imp.eof()) {
             string command = imp.accept_command();
-
+            
             if (command == "#") {
                 if (echo_comments)
                     cout << imp.full_line() << endl;
             }
-            else if (command == "newmtl")
-                current_material_name = imp.accept_until_eol();
-            else if (command == "map_Kd") {
-                string texture_filename = imp.accept_until_eol();
+            else if (command == "newmtl") {
+                if (material_constructed)
+                    lib.add_material(constructed_material_name, constructed_material);
 
-                if (!current_material_name.empty()) {
-                    lib.add_texture(texture_filename, texture_filename);
-                    lib.add_material(current_material_name, texture_filename);
+                material_constructed = true;
+                constructed_material = material();
+                constructed_material_name = imp.accept_until_eol();
+            }
+            else if (command == "Ka")
+                constructed_material.set_ambient_reflectivity(parse_material_vector());
+            else if (command == "Kd")
+                constructed_material.set_diffuse_reflectivity(parse_material_vector());
+            else if (command == "Ks")
+                constructed_material.set_specular_reflectivity(parse_material_vector());
+            else if (command == "Tf")
+                constructed_material.set_transmission_filter(parse_material_vector());
+            else if (command == "illum")
+                constructed_material.set_illumination_model(accept_int());
+            else if (command == "d") {
+                bool halo = false;
+                
+                if (next_char_is('-')) {
+                    string token = accept_command();
+
+                    if (token != "-halo") {
+                        cerr << "Unknown argument to d: " << token << endl;
+                        throw importer_exception();
+                    }
+
+                    halo = true;
                 }
 
-                current_material_name.clear();
+                constructed_material.set_dissolve(accept_float(), halo);
             }
+            else if (command == "Ns")
+                constructed_material.set_specular_exponent(accept_float());
+            else if (command == "sharpness")
+                constructed_material.set_sharpness(accept_float());
+            else if (command == "Ni")
+                constructed_material.set_optical_density(accept_float());
+            else if (command == "map_Ka")
+                ;
+            else if (command == "map_Kd")
+                current_texture_filename = imp.accept_until_eol();
+            else if (command == "map_Ks")
+                ;
+            else if (command == "map_Ns")
+                ;
+            else if (command == "map_d")
+                ;
+            else if (command == "disp")
+                ;
+            else if (command == "decal")
+                ;
+            else if (command == "bump")
+                ;
+            else if (command == "refl")
+                ;
 
             imp.advance_to_next_line();
         }
+
+        create_3dsmax_material(current_material_name, lib, data);
     }
     catch (...) {
-        cout << "error loading " << filename << endl;
+        cerr << "error loading " << filename << endl;
     }
+}
+
+void importer::create_3dsmax_material(const string &filename, material_library &lib, const material::data &data) {
+    if (!current_material_name.empty()) {
+        lib.add_texture(texture_filename, texture_filename);
+        lib.add_material(current_material_name, texture_filename);
+    }
+
+    current_material_name.clear();
 }
 
 importer::importer(const path &source) :
@@ -197,9 +257,30 @@ vector3f importer::parse_ws_separated_uv_coords() {
     return point;
 }
 
+vector3f importer::parse_material_vector() {
+    char next = peek_char;
+    
+    if (next == 's') {
+        cerr << "Spectral curves are not supported." << endl;
+        throw importer_exception();
+    }
+    else if (next == 'x') {
+        cerr << "CIEXYZ values are not supported." << endl;
+        throw importer_exception();
+    }
+    else {
+        vector3f result;
+
+        for (int i = 0; i < 3; ++i)
+            result[i] = accept_float();
+        
+        return result;
+    }
+}
+
 void importer::advance_to_next_line() {
     if (input.bad()) {
-        cout << "importer::advance_to_next_line: failed." << endl;
+        cerr << "importer::advance_to_next_line: failed." << endl;
         throw importer_exception();
     }
 
@@ -238,18 +319,22 @@ string importer::full_line() {
     return current_line;
 }
 
-bool importer::next_char_is(char c) {
+char importer::peek_char() {
     if (line_parse.eof()) {
-        cout << "importer: expected character, got EOF." << endl;
+        cerr << "importer: expected character, got EOF." << endl;
         throw importer_exception();
     }
 
-    return line_parse.peek() == (decltype(input)::int_type)c;
+    return static_cast<decltype(input)::int_type>(line_parse.peek());
+}
+
+bool importer::next_char_is(char c) {
+    return peek_chr() == c;
 }
 
 int importer::accept_int() {
     if (line_parse.eof()) {
-        cout << "importer: expected integer, got EOF." << endl;
+        cerr << "importer: expected integer, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -260,7 +345,7 @@ int importer::accept_int() {
 
 float importer::accept_float() {
     if (line_parse.eof()) {
-        cout << "importer: expected floating point number, got EOF." << endl;
+        cerr << "importer: expected floating point number, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -271,7 +356,7 @@ float importer::accept_float() {
 
 char importer::accept_char() {
     if (line_parse.eof()) {
-        cout << "importer: expected character, got EOF." << endl;
+        cerr << "importer: expected character, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -290,7 +375,7 @@ string importer::accept_until_eol() {
 
 void importer::accept_literal(char c) {
     if (accept_char() != c) {
-        cout << "importer: unexpected character." << endl;
+        cerr << "importer: unexpected character." << endl;
         throw importer_exception();
     }
 }
@@ -300,7 +385,7 @@ string importer::accept_command() {
         line_parse.ignore();
 
     if (line_parse.eof()) {
-        cout << "importer::accept_command(): out of characters: " << current_line << endl;
+        cerr << "importer::accept_command(): out of characters: " << current_line << endl;
         throw importer_exception();
     }
 
@@ -308,8 +393,8 @@ string importer::accept_command() {
     char c = line_parse.get();
     result += c;
 
-    if (c != '#' && !isalpha(c) && c != '_') {
-        cout << "importer::accept_command(): unexpected character: " << current_line << endl;
+    if (c != '#' && !isalpha(c) && c != '_' && c != '-') {
+        cerr << "importer::accept_command(): unexpected character: " << current_line << endl;
         throw importer_exception();
     }
 

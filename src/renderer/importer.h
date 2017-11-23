@@ -12,7 +12,7 @@ class material_library;
 
 class importer {
 public:
-    static mesh load_3dmax_object(const std::experimental::filesystem::path &filename,
+    static mesh load_3dsmax_object(const std::experimental::filesystem::path &filename,
                                   material_library &lib,
                                   bool echo_comments = false);
 
@@ -20,7 +20,7 @@ public:
     class importer_exception {};
 
 private:
-    static void load_3dmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
+    static void load_3dsmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
 
 private: // [sic]
     importer(const std::experimental::filesystem::path &source);
@@ -35,6 +35,8 @@ private: // [sic]
 private:
     math::vector3f parse_ws_separated_3d_point();
     math::vector3f parse_ws_separated_uv_coords(); // uv or uvw
+    math::vector3f parse_material_vector(); // color or illumination
+    void ensure_known_vector_format();
 
 private:
     void advance_to_next_line();
@@ -42,6 +44,7 @@ private:
     bool line_ends();
     void skip_space();
     std::string full_line();
+    char peek_char();
     bool next_char_is(char c);
     int accept_int();
     float accept_float();
@@ -56,6 +59,7 @@ private:
 private:
     std::experimental::filesystem::path original_working_directory;
 
+    std::string filename;
     std::ifstream input;
     std::string current_line;
     std::istringstream line_parse;
