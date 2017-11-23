@@ -29,9 +29,9 @@ void benchmark::update_starting() {
                  << " avg frame time = " << (total_time_spent / frames_rendered) << " ms "
                  << " (" << (1000.0 * frames_rendered / total_time_spent) << " fps;"
                  << " clear=" << (100.0 * time_spent_clearing / total_time_spent) << "%"
-                 << " rendering=" << (100.0 * time_spent_rendering / total_time_spent) << "%"
-                 << " copying_data=" << (100.0 * time_spent_copying / total_time_spent) << "%"
-                 << "                   \r" << flush;
+                 << " render=" << (100.0 * time_spent_rendering / total_time_spent) << "%"
+                 << " copy_data=" << (100.0 * time_spent_copying / total_time_spent) << "%"
+                 << "        \r" << flush;
 
             frames_rendered = 0;
             total_time_spent = time_spent_clearing = time_spent_rendering = time_spent_copying = 0.0;
