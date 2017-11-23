@@ -141,7 +141,7 @@ void command_line::accept_int_parameter(const vector<string> &args, unsigned arg
     
     string parameter = args[arg_index + 1];
     
-    if (parameter.find_first_of("0123456789") != string::npos) {
+    if (parameter.find_first_not_of("0123456789") != string::npos) {
         cerr << "Improperly formatted integer \"" << parameter << "\"." << endl;
         throw command_line_exception();
     }
