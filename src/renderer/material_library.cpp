@@ -16,19 +16,13 @@ bool material_library::add_texture(const std::string &name, const std::string &f
     return true;
 }
 
-bool material_library::add_material(const std::string &name, const std::string &texture_name) {
+bool material_library::add_material(const std::string &name, const material &mat) {
     if (materials.find(name) != materials.end())
         return false;
-
-    material::model model;
-    model.ambient_reflectivity = vector3f{0.f, 0.f, 0.f};
-    model.reflectivity = vector3f{0.f, 0.f, 0.f};
-    model.specular_reflectivity = vector3f{0.f, 0.f, 0.f};
-    model.material_dissolve = 0.0f;
-    model.specular_exponent = 0.0f;
-    model.illumination_model = 0;
-    materials.emplace(name, material(model, get_texture(texture_name)));
-    return true;
+    else {
+        materials[name] = mat;
+        return true;
+    }
 }
 
 const material *material_library::get_material(const std::string &name) const {

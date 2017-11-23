@@ -14,7 +14,7 @@ public:
     ~material_library();
 
     bool add_texture(const std::string &name, const std::string &filename);
-    bool add_material(const std::string &name, const std::string &texture_name);
+    bool add_material(const std::string &name, const material &mat);
     const material *get_material(const std::string &name) const;
     const texture *get_texture(const std::string &name) const;
 
