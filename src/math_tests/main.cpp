@@ -1,6 +1,7 @@
 #include "linear_transform_tests.h"
 #include "matrix_tests.h"
 #include "test_harness.h"
+#include "util_tests.h"
 #include "vector_tests.h"
 #include <iostream>
 
@@ -21,5 +22,6 @@ void run_all_tests() {
     vector_tests();
     matrix_tests();
     linear_transform_tests();
+    util_tests();
     delete test_harness::the_tester;
 }
