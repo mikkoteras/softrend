@@ -210,6 +210,15 @@ namespace math {
         return (float_t)std::sqrt(sqr_sum);
     }
 
+    template<typename float_t, int dim> float_t vector<float_t, dim>::length_sqr() const {
+        float_t sqr_sum = 0;
+
+        for (int i = 0; i < dim; ++i)
+            sqr_sum += elements[i] * elements[i];
+
+        return sqr_sum;
+    }
+
     template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::unit() const {
         return *this / length();
     }

@@ -51,6 +51,7 @@ namespace math {
         vector<float_t, dim - 1> dehomo() const;
 
         float_t length() const;
+        float_t length_sqr() const;
         vector unit() const;
         float_t dot(const vector &rhs) const;
         vector cross(const vector &rhs) const;
