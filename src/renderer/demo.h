@@ -18,9 +18,8 @@ public:
 
 private:
     void create_fern();
-    void create_fern_recursive(const math::vector3f &root,
-                               const color &root_color,
-                               float len, float phi, float theta, int generations);
+    void create_fern_recursive(const math::vector3f &root, const math::vector3f &tip,
+                               const color &root_color, int generations);
     
 private:
     enum stage_t { fern_still, fern_3d,
