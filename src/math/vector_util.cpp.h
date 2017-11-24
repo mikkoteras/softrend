@@ -1,3 +1,4 @@
+#include "math_detail.h"
 #include <algorithm>
 
 namespace math {
@@ -19,5 +20,15 @@ namespace math {
             result[i] = std::max(lhs[i], rhs[i]);
 
         return result;
+    }
+
+    template<typename float_t>
+        vector<float_t, 3> around_axis(const vector<float_t, 3> &point, const vector<float_t, 3> &axis, float_t angle) {
+        using namespace detail;
+        vector<float_t, 3> axis_unit(axis.unit());
+
+        return cos<float_t>(angle) * point +
+            sinf(angle) * (axis_unit.cross(point)) +
+               (static_cast<float_t>(1) - cos<float_t>(angle)) * axis_unit.dot(point) * axis_unit;
     }
 }
