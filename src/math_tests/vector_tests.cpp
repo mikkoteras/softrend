@@ -111,7 +111,6 @@ void vector_geometry_tests() {
     ASSERT((b.unit() == vector3d{1, 0, 0}));
 
     vector3d c{0, -3, 0};
-    vector3d asasas = c.unit();
     ASSERT((c.unit() == vector3d{0, -1, 0}));
 
     vector3d d{0, 0, 4};
