@@ -38,8 +38,6 @@ void matrix_creation_tests() {
     ASSERT(m3.at(2, 2) == 9);
 }
 
-#include <iostream>
-
 void matrix_comparison_tests() {
     matrix3x3f z = matrix3x3f::zero();
     matrix3x3f o = matrix3x3f::identity();
