@@ -28,12 +28,11 @@ void freecam_scene::point_of_interest(const math::vector3f &p) {
 void freecam_scene::render(framebuffer &fb) {
     // Normalize spherical coordinates
     const float pi = math::detail::pi<float>();
-    float a = eye_azimuth_angle / (2.0f * pi);
-    eye_azimuth_angle = 2.0f * pi * (a - floorf(a)); // 0 <= azimuth < 2*pi
+
+    eye_azimuth_angle = period<float>(eye_azimuth_angle, 0.0f, 2.0f * pi);
     math::clamp<float>(eye_polar_angle, -pi / 2.0f + 0.0001f, pi / 2.0f - 0.0001f);  // -pi < polar < pi
     eye_radius = std::max(2.00001f, eye_radius); // viewer to plane distance < eye distance
-    float b = eye_twist_angle / (2.0f * pi);
-    eye_twist_angle = 2.0f * pi * (b - floorf(b)); // 0 <= twist < 2*pi
+    eye_twist_angle = period<float>(eye_twist_angle, 0.0f, 2.0f * pi);
 
     float eye_x = eye_radius * cos(eye_azimuth_angle) * cos(eye_polar_angle);
     float eye_y = eye_radius * sin(eye_polar_angle);
