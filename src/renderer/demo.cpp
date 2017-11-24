@@ -3,8 +3,12 @@
 #include "math_detail.h"
 #include "math_util.h"
 #include "vector.h"
+#include "vector_util.h"
 #include "SDL.h"
 #include <cmath>
+
+#include <iostream>
+#include "util.h"
 
 using namespace math;
 using namespace std;
@@ -34,7 +38,7 @@ void demo::render_fern_still(framebuffer &fb) {
 
     set_eye_position(vector3f{10 * cosf(0.3 * t), 4.0f, 10 * sinf(0.3f * t)});
     set_eye_reference_point(vector3f{0.0f, 2.0f, 0.0f});
-    set_eye_orientation(vector3f{0.0f, 2.0f, 0.0f});
+    set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
     set_view_to_view_plane_distance(2);
     
@@ -46,7 +50,7 @@ void demo::render_fern_3d(framebuffer &fb) {
 
     set_eye_position(vector3f{10 * cosf(0.3 * t), 4.0f, 10 * sinf(0.3f * t)});
     set_eye_reference_point(vector3f{0.0f, 2.0f, 0.0f});
-    set_eye_orientation(vector3f{0.0f, 2.0f, 0.0f});
+    set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
     set_view_to_view_plane_distance(2);
     
@@ -70,55 +74,46 @@ void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
 
 void demo::create_fern() {
     create_fern_recursive(vector3f{0.0f, 0.0f, 0.0f}, vector3f{0.0f, 3.0f, 0.0f},
-                          color(1.0f, 1.0f, 1.0f, 1.0f), 2);
+                          color(1.0f, 1.0f, 1.0f, 1.0f), 4);
 }
-
-#include <iostream>
-#include "util.h"
 
 void demo::create_fern_recursive(const vector3f &root, const vector3f &tip,
                                  const color &root_color, int generations) {
     const float pi = detail::pi<float>();
-
-    vector3f rotation_axis = (tip - root).unit();
-    vector3f direction{1, 0, 0};
-
-    for (int b = 0; b < 5; ++b) {
-        float angle = 2.0f * pi * b / 5.0f;
-        vector3f vec = cosf(angle) * direction + sinf(angle) * (direction.cross(rotation_axis)) + (1 - cos(angle)) * direction.dot(rotation_axis) * direction;
-    }
-
-
-
     
-    /*
+    fern.add_line(root, tip, root_color, root_color);
+
+    if (generations <= 1)
+        return;
+
+    vector3f stem(tip - root); // stem is a vector such that root + stem is the line drawn
+    vector3f stem_direction(stem.unit());
+    const float stem_length = stem.length();
     
+    const int nodes = 2; // the points from which new lines branch
+    const int branches_per_node = 5; // new branches per each such node
 
-
-
-
-    
-    
-    vector3f top_direction = len *
-        vector3f{cosf(phi) * cosf(theta),
-                 sinf(theta),
-                -sinf(phi) * cosf(theta)};
-    color top_color(0.0f, 0.2f, 0.1f, 1.0f);
-
-    fern.add_line(root, root + top_direction, root_color, top_color);
-
-    if (generations > 0) {
-        for (int j = 0; j < theta_branches; ++j) {
-            float branch_multiplier = 1.0f - powf(0.5f, j + 1);
-
-            for (int i = 0; i < phi_branches; ++i) {
-                create_fern_recursive(root + branch_multiplier * top_direction,
-                                      color(root_color, top_color, branch_multiplier),
-                                      (1.0f - branch_multiplier) * len,
-                                      2.0f * pi * i / phi_branches,
-                                      theta + 1.55f,
-                                      generations - 1);
-            }
+    for (int n = 0; n < nodes; ++n) {
+        float node_pos_on_stem = (n + 1.0f) / (nodes + 1.0f);
+        vector3f branch_root = root + node_pos_on_stem * stem;
+        
+        // create a line parallel to stem, p1->p2, that is guaranteed to != stem, then use
+        // it to find the nearest point to the node and get a unit vector in its direction
+        vector3f p1(branch_root + vector3f{1.0f, 1.0f, 1.0f});
+        vector3f p2(p1 + stem_direction);
+        vector3f v1 = branch_root - p1;
+        vector3f v2 = v1 - stem_direction * v1.dot(stem_direction);
+        
+        vector3f perpendicular_point = branch_root - v2;
+        vector3f stem_unit_normal((perpendicular_point - branch_root).unit());
+        
+        for (int b = 0; b < branches_per_node; ++b) {
+            float angle = 2.0f * pi * b / branches_per_node;
+            vector3f branch_normal_direction = around_axis(stem_unit_normal, stem, angle);
+            vector3f branch_direction = (branch_normal_direction + stem_direction).unit();
+            
+            create_fern_recursive(branch_root, branch_root + 0.8f * (1.0f - node_pos_on_stem) * stem_length * branch_direction,
+                                  root_color, generations - 1);
         }
-        }*/
+    }
 }
