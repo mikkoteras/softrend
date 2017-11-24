@@ -5,10 +5,8 @@
 #include <sstream>
 #include <string>
 
-using namespace math;
-
 namespace util {
-    template<typename float_t, int dim> std::string to_string(const vector<float_t, dim> &vec) {
+    template<typename float_t, int dim> std::string to_string(const math::vector<float_t, dim> &vec) {
         std::ostringstream result;
         result << "[";
 
