@@ -23,12 +23,20 @@ namespace math {
     }
 
     template<typename float_t>
-        vector<float_t, 3> around_axis(const vector<float_t, 3> &point, const vector<float_t, 3> &axis, float_t angle) {
+    vector<float_t, 3> around_axis(const vector<float_t, 3> &point, const vector<float_t, 3> &axis, float_t angle) {
         using namespace detail;
         vector<float_t, 3> axis_unit(axis.unit());
 
         return cos<float_t>(angle) * point +
             sinf(angle) * (axis_unit.cross(point)) +
                (static_cast<float_t>(1) - cos<float_t>(angle)) * axis_unit.dot(point) * axis_unit;
+    }
+
+    template<typename float_t>
+    vector<float_t, 3> closest_point_on_line(const vector<float_t, 3> &point,
+        const vector<float_t, 3> &point_on_line, const vector<float_t, 3> &line_direction) {
+
+        vector<float_t, 3> v(point - point_on_line);
+        return point - (v - line_direction * v.dot(line_direction));
     }
 }

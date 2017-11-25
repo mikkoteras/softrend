@@ -12,6 +12,10 @@ namespace math {
 
     template<typename float_t>
     vector<float_t, 3> around_axis(const vector<float_t, 3> &point, const vector<float_t, 3> &axis);
+
+    template<typename float_t>
+    vector<float_t, 3> closest_point_on_line(const vector<float_t, 3> &point,
+        const vector<float_t, 3> &point_on_line, const vector<float_t, 3> &line_direction);
 }
 
 #include "vector_util.cpp.h"
