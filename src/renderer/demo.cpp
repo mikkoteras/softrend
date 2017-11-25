@@ -99,7 +99,7 @@ void demo::create_fern_recursive(const vector3f &root, const vector3f &tip,
         
         // create a line parallel to stem, p1->p2, that is guaranteed to != stem, then use
         // it to find the nearest point to the node and get a unit vector in its direction
-        vector3f p1(branch_root + vector3f{1.0f, 1.0f, 1.0f});
+        vector3f p1(branch_root + vector3f{stem_direction.y(), stem_direction.z(), stem_direction.x()});
         vector3f p2(p1 + stem_direction);
         vector3f v1 = branch_root - p1;
         vector3f v2 = v1 - stem_direction * v1.dot(stem_direction);
