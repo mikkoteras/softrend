@@ -9,6 +9,18 @@ ambient_light::ambient_light(const color &light_color) :
 ambient_light::~ambient_light() {
 }
 
-void ambient_light::sum(const math::vector3f&, color &shade) const {
-    shade += col;
+bool ambient_light::is_fully_ambient() override const {
+    return true;
+}
+
+color ambient_light::ambient() const {
+    return col;
+}
+
+color ambient_light::diffuse() const {
+    return color(0, 0, 0, 1);
+}
+
+color ambient_light::specular() const {
+    return color(0, 0, 0, 1);
 }

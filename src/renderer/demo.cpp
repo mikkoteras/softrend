@@ -10,9 +10,7 @@
 using namespace math;
 using namespace std;
 
-demo::demo() :
-    scene() {
-    
+demo::demo() {
     create_fern();
 }
 
@@ -28,6 +26,9 @@ void demo::render(framebuffer &fb) {
         render_fern_3d(fb);
         break;
     }
+
+    if (show_coord_sys)
+        coord_sys.render(*this, fb);
 }
 
 void demo::render_fern_still(framebuffer &fb) {
@@ -55,16 +56,22 @@ void demo::render_fern_3d(framebuffer &fb) {
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
-    if (sdl_keycode == SDLK_PAGEUP) {
-        if (stage > min_stage) {
-            stage = (stage_t)((int)stage - 1);
-            clock.reset();
-        }
+    if (ctrl_is_down) {
+        if (sdl_keycode == SDLK_c)
+            show_coord_sys = !show_coord_sys;
     }
-    else if (sdl_keycode == SDLK_PAGEDOWN) {
-        if (stage < max_stage) {
-            stage = (stage_t)((int)stage + 1);
-            clock.reset();
+    else {
+        if (sdl_keycode == SDLK_PAGEUP) {
+            if (stage > min_stage) {
+                stage = (stage_t)((int)stage - 1);
+                clock.reset();
+            }
+        }
+        else if (sdl_keycode == SDLK_PAGEDOWN) {
+            if (stage < max_stage) {
+                stage = (stage_t)((int)stage + 1);
+                clock.reset();
+            }
         }
     }
 }

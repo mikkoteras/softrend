@@ -9,11 +9,18 @@ directional_light::directional_light(const math::vector3f &direction, const colo
 directional_light::~directional_light() {
 }
 
-void directional_light::sum(const math::vector3f &surface_normal, color &shade) const {
-    float cos_incident_angle = surface_normal.dot(negative_direction);
+bool ambient_light::is_fully_ambient() override const {
+    return true;
+}
 
-    if (cos_incident_angle < 0.0f)
-        cos_incident_angle = 0.0f;
+color ambient_light::ambient() const {
+    return color(0, 0, 0, 1);
+}
 
-    shade += cos_incident_angle * col;
+color ambient_light::diffuse() const {
+    return col;
+}
+
+color ambient_light::specular() const {
+    return col;
 }

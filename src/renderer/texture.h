@@ -11,13 +11,13 @@ public:
     texture();
     texture(const std::vector<unsigned char> &rgba, int w, int h);
     texture(const texture &rhs);
-    texture &operator=(texture &&rhs);
+    texture(texture &&rhs);
 
     ~texture();
 
-    texture(texture &&rhs);
+    texture &operator=(texture &&rhs);
     const texture &operator=(const texture &rhs);
-
+    
     int pixel_width() const;
     int pixel_height() const;
 

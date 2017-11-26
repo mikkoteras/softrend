@@ -15,7 +15,11 @@ public:
     const light &operator=(const light&) = delete;
     light &operator=(light&&) = delete;
 
-    virtual void sum(const math::vector3f &surface_normal, color &shade) const = 0;
+    virtual is_fully_ambient() const = 0;
+
+    virtual color ambient() const = 0;
+    virtual color diffuse() const = 0;
+    virtual color specular() const = 0;
 };
 
 #endif
