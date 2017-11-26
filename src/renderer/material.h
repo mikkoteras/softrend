@@ -10,6 +10,9 @@ public:
     material();
     ~material();
 
+    color shade(const light_list &lights, const vector3f &surface_normal) const;
+    
+public:
     const math::vector3f &get_ambient_reflectivity() const;
     void set_ambient_reflectivity(const math::vector3f &vec);
     const math::vector3f &get_diffuse_reflectivity() const;
@@ -25,8 +28,8 @@ public:
     void set_specular_exponent(float value);
     float get_sharpness() const;
     void set_sharpness(float value);
-    float optical_density() const;
-    void optical_density(float value);
+    float get_optical_density() const;
+    void set_optical_density(float value);
     int get_illumination_model() const;
     void set_illumination_model(int value);
     const texture *get_texture_map() const;
@@ -41,6 +44,7 @@ private:
     float dissolve_halo;
     float specular_exponent;
     float sharpness;
+    float optical_density;
     int illumination_model;
 
     const texture *tex;

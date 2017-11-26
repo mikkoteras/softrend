@@ -15,7 +15,11 @@ public:
     const directional_light &operator=(const directional_light&) = delete;
     directional_light &operator=(directional_light&&) = delete;
 
-    void sum(const math::vector3f &surface_normal, color &shade) const override;
+    bool is_fully_ambient() override const;
+
+    color ambient() override const;
+    color diffuse() override const;
+    color specular() override const;
 
 private:
     math::vector3f negative_direction;

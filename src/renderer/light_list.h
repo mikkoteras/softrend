@@ -17,7 +17,8 @@ public:
     color sum(const math::vector3f &surface_normal) const;
 
 private:
-    std::vector<std::unique_ptr<light>> lights;
+    std::vector<std::unique_ptr<light>> diffuse_lights;
+    std::vector<std::unique_ptr<light>> specular_lights;
 };
 
 #endif

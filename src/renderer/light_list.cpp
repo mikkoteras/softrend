@@ -10,7 +10,10 @@ light_list::~light_list() {
 }
 
 void light_list::add(unique_ptr<light> l) {
-    lights.push_back(move(l));
+    if (l->has_diffuse_component)
+        diffuse_lights.push_back(move(l));
+    else
+        specular_lights.push_back(move(l));
 }
 
 color light_list::sum(const math::vector3f &surface_normal) const {

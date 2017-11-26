@@ -96,7 +96,7 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
                                        normal_indices[0],
                                        normal_indices[i - 1],
                                        normal_indices[i],
-                                       current_material->get_texture());
+                                       current_material->get_texture_map());
                         ++polys;
                     }
                 else
@@ -151,20 +151,20 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
                 constructed_material_name = imp.accept_until_eol();
             }
             else if (command == "Ka")
-                constructed_material.set_ambient_reflectivity(parse_material_vector());
+                constructed_material.set_ambient_reflectivity(imp.parse_material_vector());
             else if (command == "Kd")
-                constructed_material.set_diffuse_reflectivity(parse_material_vector());
+                constructed_material.set_diffuse_reflectivity(imp.parse_material_vector());
             else if (command == "Ks")
-                constructed_material.set_specular_reflectivity(parse_material_vector());
+                constructed_material.set_specular_reflectivity(imp.parse_material_vector());
             else if (command == "Tf")
-                constructed_material.set_transmission_filter(parse_material_vector());
+                constructed_material.set_transmission_filter(imp.parse_material_vector());
             else if (command == "illum")
-                constructed_material.set_illumination_model(accept_int());
+                constructed_material.set_illumination_model(imp.accept_int());
             else if (command == "d") {
                 bool halo = false;
-                
-                if (next_char_is('-')) {
-                    string token = accept_command();
+
+                if (imp.next_char_is('-')) {
+                    string token = imp.accept_command();
 
                     if (token != "-halo") {
                         cerr << "Unknown argument to d: " << token << endl;
@@ -174,50 +174,42 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
                     halo = true;
                 }
 
-                constructed_material.set_dissolve(accept_float(), halo);
+                constructed_material.set_dissolve(imp.accept_float(), halo);
             }
             else if (command == "Ns")
-                constructed_material.set_specular_exponent(accept_float());
+                constructed_material.set_specular_exponent(imp.accept_float());
             else if (command == "sharpness")
-                constructed_material.set_sharpness(accept_float());
+                constructed_material.set_sharpness(imp.accept_float());
             else if (command == "Ni")
-                constructed_material.set_optical_density(accept_float());
-            else if (command == "map_Ka")
-                ;
-            else if (command == "map_Kd")
-                current_texture_filename = imp.accept_until_eol();
-            else if (command == "map_Ks")
-                ;
-            else if (command == "map_Ns")
-                ;
-            else if (command == "map_d")
-                ;
-            else if (command == "disp")
-                ;
-            else if (command == "decal")
-                ;
-            else if (command == "bump")
-                ;
-            else if (command == "refl")
-                ;
-
+                constructed_material.set_optical_density(imp.accept_float());
+            else if (command == "map_Ka") {
+                cerr << "map_Ka is not yet supported." << endl;
+                throw importer_exception();
+            }
+            else if (command == "map_Kd") {
+                string png_filename = imp.accept_until_eol();
+                lib.add_texture(png_filename, png_filename);
+                constructed_material.set_texture_map(lib.get_texture(png_filename));
+            }
+            else if (command == "map_Ks" || command == "map_Ns" || command == "map_d" ||
+                     command == "disp" || command == "decal" || command == "bump" || command == "refl") {
+                cerr << command << " is not yet supported." << endl;
+                throw importer_exception();
+            }
+            else {
+                cerr << "Unknown command " << command << "." << endl;
+                throw importer_exception();
+            }
+            
             imp.advance_to_next_line();
         }
 
-        create_3dsmax_material(current_material_name, lib, data);
+        if (material_constructed)
+            lib.add_material(constructed_material_name, constructed_material);
     }
     catch (...) {
         cerr << "error loading " << filename << endl;
     }
-}
-
-void importer::create_3dsmax_material(const string &filename, material_library &lib, const material::data &data) {
-    if (!current_material_name.empty()) {
-        lib.add_texture(texture_filename, texture_filename);
-        lib.add_material(current_material_name, texture_filename);
-    }
-
-    current_material_name.clear();
 }
 
 importer::importer(const path &source) :
@@ -258,7 +250,7 @@ vector3f importer::parse_ws_separated_uv_coords() {
 }
 
 vector3f importer::parse_material_vector() {
-    char next = peek_char;
+    char next = peek_char();
     
     if (next == 's') {
         cerr << "Spectral curves are not supported." << endl;
@@ -329,7 +321,7 @@ char importer::peek_char() {
 }
 
 bool importer::next_char_is(char c) {
-    return peek_chr() == c;
+    return peek_char() == c;
 }
 
 int importer::accept_int() {

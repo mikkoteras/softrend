@@ -14,7 +14,11 @@ public:
     const ambient_light &operator=(const ambient_light&) = delete;
     ambient_light &operator=(ambient_light&&) = delete;
 
-    void sum(const math::vector3f&, color &shade) const override;
+    bool is_fully_ambient() override const;
+
+    color ambient() override const;
+    color diffuse() override const;
+    color specular() override const;
 
 private:
     color col;
