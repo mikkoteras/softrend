@@ -2,6 +2,7 @@
 #define DEMO_H
 
 #include "scene.h"
+#include "color.h"
 #include "mesh.h"
 
 class demo : public scene {
@@ -18,8 +19,7 @@ public:
 
 private:
     void create_fern();
-    void create_fern_recursive(const math::vector3f &root, const math::vector3f &tip,
-                               const color &root_color, int generations);
+    void create_fern_recursive(const math::vector3f &root, const math::vector3f &tip, int generations);
     
 private:
     enum stage_t { fern_still, fern_3d,
