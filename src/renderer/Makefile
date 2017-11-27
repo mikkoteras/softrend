@@ -1,6 +1,5 @@
 TARGET=softrend
-SOURCES=ambient_light.cpp \
-        animation_clock.cpp \
+SOURCES=animation_clock.cpp \
         auto_scene.cpp \
         benchmark.cpp \
         bounding_box.cpp \
@@ -34,7 +33,7 @@ DEP=g++
 DEPFLAGS=-E -MM
 INCLUDEDIRS=-I. -I.. -I../math -I../../math -I/usr/include/SDL2
 CC=g++
-CFLAGS=-c -Wall -ansi -Wall -Werror -D_REENTRANT -std=c++17
+CFLAGS=-c -ansi -Wall -Werror -fmax-errors=5 -D_REENTRANT -std=c++17
 LD=g++
 LDFLAGS=-o $(TARGET)
 DEBUGFLAGS=-g
@@ -66,6 +65,9 @@ $(TARGET): $(OBJS)
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
 
 -include $(DEPS)
+
+loc:
+	@wc -l $(ls ../*/*.{h,cpp} | grep -v lodepng)
 
 clean:
 	rm -f *.o *.d *~
