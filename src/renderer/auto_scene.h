@@ -12,10 +12,15 @@ public:
     auto_scene(const std::experimental::filesystem::path &object_file, bool echo_comments, object_position pos);
     ~auto_scene();
 
+    void key_down_event(int sdk_keycode, bool ctrl_is_down) override;
+
     void render(framebuffer &fb);
 
 private:
     mesh object;
+    float previous_render_time;
+    float y_rotation_per_second;
+    float y_rotation;
 };
 
 #endif
