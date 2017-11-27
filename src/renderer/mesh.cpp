@@ -92,12 +92,12 @@ int mesh::add_vertex_normal(const vector3f &vn) {
 void mesh::add_triangle(int vi1, int vi2, int vi3,
                         const vector3f &uv1, const vector3f &uv2, const vector3f &uv3,
                         int ni1, int ni2, int ni3,
-                        const texture *tex) {
-    triangles.push_back(triangle(vi1, vi2, vi3, uv1, uv2, uv3, ni1, ni2, ni3, tex));
+                        const material *mat) {
+    triangles.push_back(triangle(vi1, vi2, vi3, uv1, uv2, uv3, ni1, ni2, ni3, mat));
 }
 
-void mesh::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3) {
-    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3));
+void mesh::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) {
+    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, mat));
 }
 
 void mesh::add_line(int v1, int v2, const color &c1, const color &c2) {

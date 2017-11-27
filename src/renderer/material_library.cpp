@@ -3,6 +3,9 @@
 using namespace math;
 
 material_library::material_library() {
+    null_material.set_ambient_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
+    null_material.set_diffuse_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
+    null_material.set_specular_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
 }
 
 material_library::~material_library() {
@@ -32,6 +35,10 @@ const material *material_library::get_material(const std::string &name) const {
         throw material_library_exception();
 
     return &it->second;
+}
+
+const material *material_library::get_null_material() const {
+    return &null_material;
 }
 
 const texture *material_library::get_texture(const std::string &name) const {

@@ -1,24 +1,27 @@
 #ifndef LIGHT_LIST_H
 #define LIGHT_LIST_H
 
-#include <memory>
 #include <vector>
 #include "color.h"
 #include "vector.h"
 
 class light;
+class directional_light;
 
 class light_list {
 public:
     light_list();
     ~light_list();
+    
+    void set_ambient_light(const color &col);
+    void add_directional_light(const directional_light &l);
 
-    void add(std::unique_ptr<light> l);
-    color sum(const math::vector3f &surface_normal) const;
+    const std::vector<light*> &get() const; // TODO refactor
+    color ambient_coeff() const;
 
 private:
-    std::vector<std::unique_ptr<light>> diffuse_lights;
-    std::vector<std::unique_ptr<light>> specular_lights;
+    color ambient_light;
+    std::vector<light*> per_pixel_lights;
 };
 
 #endif

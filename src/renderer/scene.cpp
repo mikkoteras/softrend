@@ -1,5 +1,4 @@
 #include "scene.h"
-#include "ambient_light.h"
 #include "directional_light.h"
 #include "framebuffer.h"
 #include "material_library.h"
@@ -56,12 +55,16 @@ material_library &scene::materials() {
     return mat_lib;
 }
 
-color scene::shade(const vector3f &surface_normal) const {
-    return lights.sum(surface_normal);
-}
-
 const bounding_box &scene::visible_volume() const {
     return framebuffer_visible_volume;
+}
+
+const light_list &scene::light_sources() const {
+    return lights;
+}
+
+light_list &scene::light_sources() {
+    return lights;
 }
 
 void scene::start() {
@@ -103,16 +106,4 @@ void scene::set_eye_orientation(const vector3f &up_direction) {
 void scene::set_view_to_view_plane_distance(float d) {
     viewing_distance = d;
     world_to_view_matrix_dirty = true;
-}
-
-void scene::add_ambient_light(const color &light_color) {
-    lights.add(move(make_unique<ambient_light>(light_color)));
-}
-
-void scene::add_directional_light(const vector3f &direction, const color &light_color) {
-    lights.add(move(make_unique<directional_light>(direction, light_color)));
-}
-
-void scene::add_light(unique_ptr<light> l) {
-    lights.add(move(l));
 }

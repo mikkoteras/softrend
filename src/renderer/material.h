@@ -1,8 +1,10 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include "color.h"
 #include "vector.h"
 
+class light_list;
 class texture;
 
 class material {
@@ -10,36 +12,40 @@ public:
     material();
     ~material();
 
-    color shade(const light_list &lights, const vector3f &surface_normal) const;
-    
+    // TODO: texture_color could be replaced with uvw because the texture is known
+    // TODO: maybe make this polymorphic for when there is texture, Gouraud only, etc
+    color shade(const math::vector3f &surface_normal_unit, const vector3f &surface_to_eye_unit,
+                const light_list &light_sources, const color &texture_color) const;
+
 public:
-    const math::vector3f &get_ambient_reflectivity() const;
-    void set_ambient_reflectivity(const math::vector3f &vec);
-    const math::vector3f &get_diffuse_reflectivity() const;
-    void set_diffuse_reflectivity(const math::vector3f &vec);
-    const math::vector3f &get_specular_reflectivity() const;
-    void set_specular_reflectivity(const math::vector3f &vec);
-    const math::vector3f &get_transmission_filter() const;
-    void set_transmission_filter(const math::vector3f &vec);
-    float get_dissolve() const;
+    const color &get_ambient_reflectivity() const;
+    const color &get_diffuse_reflectivity() const;
+    const color &get_specular_reflectivity() const;
+    const color &get_transmission_filter() const;
     bool get_dissolve_halo() const;
-    void set_dissolve(float value, bool halo);
     float get_specular_exponent() const;
-    void set_specular_exponent(float value);
+    float get_dissolve() const;
     float get_sharpness() const;
-    void set_sharpness(float value);
     float get_optical_density() const;
-    void set_optical_density(float value);
     int get_illumination_model() const;
-    void set_illumination_model(int value);
     const texture *get_texture_map() const;
+    
+    void set_ambient_reflectivity(const color &vec);
+    void set_diffuse_reflectivity(const color &vec);
+    void set_specular_reflectivity(const color &vec);
+    void set_transmission_filter(const color &vec);
+    void set_dissolve(float value, bool halo);
+    void set_specular_exponent(float value);
+    void set_sharpness(float value);
+    void set_optical_density(float value);
+    void set_illumination_model(int value);
     void set_texture_map(const texture *t);
 
 private:
-    math::vector3f ambient_reflectivity;
-    math::vector3f diffuse_reflectivity;
-    math::vector3f specular_reflectivity;
-    math::vector3f transmission_filter;
+    color ambient_reflectivity;
+    color diffuse_reflectivity;
+    color specular_reflectivity;
+    color transmission_filter;
     float dissolve;
     float dissolve_halo;
     float specular_exponent;

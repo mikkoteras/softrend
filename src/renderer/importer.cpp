@@ -18,7 +18,7 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
         vector4f box_min{infty, infty, infty, 1};
         vector4f box_max{-infty, -infty, -infty, 1};
         int vertices = 0, polys = 0;
-        const material *current_material = nullptr;
+        const material *current_material = lib.get_null_material();
         std::vector<vector3f> texture_coordinates;
 
         while (!imp.eof()) {
@@ -96,7 +96,7 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
                                        normal_indices[0],
                                        normal_indices[i - 1],
                                        normal_indices[i],
-                                       current_material->get_texture_map());
+                                       current_material);
                         ++polys;
                     }
                 else
@@ -106,7 +106,8 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
                                        vertex_indices[i],
                                        normal_indices[0],
                                        normal_indices[i - 1],
-                                       normal_indices[i]);
+                                       normal_indices[i],
+                                       current_material);
                         ++polys;
                     }
             }
@@ -249,7 +250,7 @@ vector3f importer::parse_ws_separated_uv_coords() {
     return point;
 }
 
-vector3f importer::parse_material_vector() {
+color importer::parse_material_vector() {
     char next = peek_char();
     
     if (next == 's') {
@@ -261,12 +262,12 @@ vector3f importer::parse_material_vector() {
         throw importer_exception();
     }
     else {
-        vector3f result;
+        float rgb[3];
 
         for (int i = 0; i < 3; ++i)
-            result[i] = accept_float();
+            rgb[i] = accept_float();
         
-        return result;
+        return color(rgb[0], rgb[1], rgb[2], 1.0f);
     }
 }
 

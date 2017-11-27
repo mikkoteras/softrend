@@ -1,6 +1,8 @@
 #include "triangle.h"
 #include "color.h"
 #include "framebuffer.h"
+#include "light_list.h"
+#include "material.h"
 #include "math_util.h"
 #include "mesh.h"
 #include "scene.h"
@@ -14,8 +16,8 @@ triangle::triangle() {
 triangle::triangle(int vi1, int vi2, int vi3,
                    const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                    int ni1, int ni2, int ni3,
-                   const texture *t) :
-    tex(t) {
+                   const material *mat) :
+    mat(mat) {
 
     vertex_index[0] = vi1;
     vertex_index[1] = vi2;
@@ -28,9 +30,8 @@ triangle::triangle(int vi1, int vi2, int vi3,
     normal_index[2] = ni3;
 }
 
-triangle::triangle(int vi1, int vi2, int vi3,
-                   int ni1, int ni2, int ni3) :
-    tex(nullptr) {
+triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) :
+    mat(mat) {
 
     vertex_index[0] = vi1;
     vertex_index[1] = vi2;
@@ -50,7 +51,7 @@ triangle::triangle(const triangle &rhs) {
         normal_index[i] = rhs.normal_index[i];
     }
 
-    tex = rhs.tex;
+    mat = rhs.mat;
 }
 
 triangle::triangle(triangle &&rhs) {
@@ -60,7 +61,7 @@ triangle::triangle(triangle &&rhs) {
         normal_index[i] = rhs.normal_index[i];
     }
 
-    tex = rhs.tex;
+    mat = rhs.mat;
 }
 
 const triangle &triangle::operator=(const triangle &rhs) {
@@ -70,7 +71,7 @@ const triangle &triangle::operator=(const triangle &rhs) {
         normal_index[i] = rhs.normal_index[i];
     }
 
-    tex = rhs.tex;
+    mat = rhs.mat;
     return *this;
 }
 
@@ -81,15 +82,15 @@ triangle &triangle::operator=(triangle &&rhs) {
         normal_index[i] = rhs.normal_index[i];
     }
 
-    tex = rhs.tex;
+    mat = rhs.mat;
     return *this;
 }
 
 triangle::~triangle() {
 }
 
-void triangle::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
-    const vector4f *view_data = parent.view_coordinate_data();
+void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+    const vector4f *view_data = parent_mesh.view_coordinate_data();
 
     // vertex winding test
     vector4f v1 = view_data[vertex_index[0]];
@@ -104,21 +105,17 @@ void triangle::render(framebuffer &target, const mesh &parent, const scene &gran
         return;
 
     // plane clip
-    if (grandparent.visible_volume().clip(v1, v2, v3))
+    if (parent_scene.visible_volume().clip(v1, v2, v3))
         return;
 
-    // shading
-    const vector4f *normals = parent.world_normal_data();
-    vector3f surface_normal = (normals[normal_index[0]] +
-                               normals[normal_index[1]] +
-                               normals[normal_index[2]]).dehomo().unit();
+    const vector4f *normal_data = parent_mesh.world_normal_data();
+    const light_list &light_sources = parent_scene.light_sources();
 
-    color shade = grandparent.shade(surface_normal);
     edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
     int long_edge_index = find_long_edge(e, view_data);
 
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, view_data, shade);
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, view_data, shade);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, view_data, normal_data, light_sources);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, view_data, normal_data, light_sources);
 }
 
 triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
@@ -139,11 +136,12 @@ int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
     return height[i] > height[2] ? i : 2;
 }
 
-void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
-                                  framebuffer &target, const vector4f *vertex_data,
-                                  const color &shade) const {
+void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge, framebuffer &target,
+                                  const vector4f *vertex_data, const vector4f *normal_data,
+                                  const light_list &light_sources) const {
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
-    // TODO: split function to avoid u/v computation when there is no texture.
+    // TODO: split function to avoid u/v computation when there is no texture, for
+    // different reflection models etc.
 
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
@@ -203,10 +201,17 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
     max_y = std::min((int)max_y, target.pixel_height() - 1);
 
-    // TODO: check z-coords as well.
+    // TODO: check z-coords as well
 
+    const texture *tex = mat->get_texture_map(); // TODO: refactor
+
+    // shading
+    vector3f surface_normal = (normal_data[normal_index[0]] +
+                               normal_data[normal_index[1]] +
+                               normal_data[normal_index[2]]).dehomo().unit();
+    
     for (int y = min_y; y <= max_y; ++y) {
-        // TODO: precompute min and max, don't redo once per line.
+        // TODO: precompute min and max, don't redo once per line
         int min_x, max_x;
 
         if (x1 <= x2) {
@@ -238,13 +243,18 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         }
 
         max_x = std::min(max_x, target.pixel_width() - 1);
+        color white(1.0f, 1.0f, 1.0f, 1.0f);
 
         if (tex)
-            for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta)
-                target.set_pixel_unchecked(x, y, z, shade * tex->at(u, v));
-        else
-            for (int x = min_x; x <= max_x; ++x, z += z_delta)
+            for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta) {
+                color shade = mat->shade(surface_normal, light_sources, tex->at(u, v));
                 target.set_pixel_unchecked(x, y, z, shade);
+            }
+        else
+            for (int x = min_x; x <= max_x; ++x, z += z_delta) {
+                color shade = mat->shade(surface_normal, light_sources, white);
+                target.set_pixel_unchecked(x, y, z, shade);
+            }
 
         x1 += x1_delta;
         x2 += x2_delta;
