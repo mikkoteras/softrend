@@ -5,7 +5,7 @@
 using namespace std;
 
 color::color() :
-    color(0.0f, 0.0f, 0.0f, 0.0f) {
+    color(0.0f, 0.0f, 0.0f, 1.0f) {
 }
 
 color::color(float r, float g, float b, float a) :
