@@ -67,6 +67,10 @@ light_list &scene::light_sources() {
     return lights;
 }
 
+const math::vector3f &scene::get_eye_position() const {
+    return eye_position;
+}
+
 void scene::start() {
     clock.start();
 }
@@ -77,10 +81,6 @@ void scene::stop() {
 
 bool scene::stopped() const {
     return stop_requested;
-}
-
-const math::vector3f &scene::get_eye_position() const {
-    return eye_position;
 }
 
 void scene::set_eye_position(const vector3f &position) {
