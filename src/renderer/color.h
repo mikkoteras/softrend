@@ -18,6 +18,9 @@ public:
     color &operator+=(const color &rhs);
     color &operator*=(const color &rhs);
 
+    bool operator==(const color &rhs);
+    bool operator!=(const color &rhs) { return !(*this == rhs); }
+
     void clamp();
 
     std::uint32_t to_rgba() const;

@@ -10,7 +10,7 @@ using namespace std;
 using namespace std::experimental::filesystem;
 
 auto_scene::auto_scene(const path &object_file, bool echo_comments, object_position pos) :
-    freecam_scene(5.0f),
+    freecam_scene(10.0f),
     previous_render_time(0.0f),
     y_rotation_per_second(0.0f),
     y_rotation(0.0f) {
@@ -18,9 +18,9 @@ auto_scene::auto_scene(const path &object_file, bool echo_comments, object_posit
     try {
         object = importer::load_3dsmax_object(object_file, materials(), echo_comments);
 
-        light_sources().add_directional_light(directional_light(vector3f{0.0f, 0.0f, -1.0f}, color(0.5f, 0.0f, 0.0f, 1.0f)));
-        light_sources().set_ambient_light(color(0.5f, 0.5f, 0.5f, 1.0f));
-
+        light_sources().add_directional_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, color(1.0f, 1.0f, 1.0f, 1.0f)));
+        light_sources().set_ambient_light(color(0.0f, 0.0f, 0.04f, 1.0f));
+        
         bounding_box box = object.local_bounding_box();
         float max_semiaxis = box.max_semiaxis();
 
