@@ -2,7 +2,7 @@
 #include "math_detail.h"
 
 namespace math {
-    template<typename float_t, int dim> vector<float_t, dim>::vector() {
+    template<typename float_t, int dim> constexpr vector<float_t, dim>::vector() {
         for (int i = 0; i < dim; ++i) {
             elements[i] = (float_t)0;
         }
@@ -18,69 +18,69 @@ namespace math {
             elements[i] = rhs.elements[i];
     }
 
-    template<typename float_t, int dim> vector<float_t, dim>::vector(const std::initializer_list<float_t> &il) {
+    template<typename float_t, int dim> constexpr vector<float_t, dim>::vector(const std::initializer_list<float_t> &il) {
         int i = 0;
 
         for (const auto e: il)
             elements[i++] = e;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim>::vector(const vector<float_t, dim - 1> &v, float_t h) {
+    template<typename float_t, int dim> constexpr vector<float_t, dim>::vector(const vector<float_t, dim - 1> &v, float_t h) {
         for (int i = 0; i < dim - 1; ++i)
             elements[i] = v.elements[i];
 
         elements[dim - 1] = h;
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::operator[](int i) const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::operator[](int i) const {
         return elements[i];
     }
 
-    template<typename float_t, int dim> float_t &vector<float_t, dim>::operator[](int i) {
+    template<typename float_t, int dim> constexpr float_t &vector<float_t, dim>::operator[](int i) {
         return elements[i];
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::x() const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::x() const {
         static_assert(dim >= 1, "vector::x() is undefined when dim < 1");
         return elements[0];
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::y() const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::y() const {
         static_assert(dim >= 2, "vector::y() is undefined when dim < 2");
         return elements[1];
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::z() const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::z() const {
         static_assert(dim >= 3, "vector::z() is undefined when dim < 3");
         return elements[2];
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::h() const {
-        static_assert(dim >= 4, "vector::h() is undefined when dim < 4");
-        return elements[3];
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::h() const {
+        static_assert(dim >= 1, "vector::h() is undefined when dim < 1");
+        return elements[dim - 1];
     }
 
-    template<typename float_t, int dim> float_t &vector<float_t, dim>::x() {
+    template<typename float_t, int dim> constexpr float_t &vector<float_t, dim>::x() {
         static_assert(dim >= 1, "vector::x() is undefined when dim < 1");
         return elements[0];
     }
 
-    template<typename float_t, int dim> float_t &vector<float_t, dim>::y() {
+    template<typename float_t, int dim> constexpr float_t &vector<float_t, dim>::y() {
         static_assert(dim >= 2, "vector::y() is undefined when dim < 2");
         return elements[1];
     }
 
-    template<typename float_t, int dim> float_t &vector<float_t, dim>::z() {
+    template<typename float_t, int dim> constexpr float_t &vector<float_t, dim>::z() {
         static_assert(dim >= 3, "vector::z() is undefined when dim < 3");
         return elements[2];
     }
 
-    template<typename float_t, int dim> float_t &vector<float_t, dim>::h() {
-        static_assert(dim >= 4, "vector::h() is undefined when dim < 4");
-        return elements[3];
+    template<typename float_t, int dim> constexpr float_t &vector<float_t, dim>::h() {
+        static_assert(dim >= 1, "vector::h() is undefined when dim < 1");
+        return elements[dim - 1];
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator+(const vector &rhs) const {
+    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator+(const vector &rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -89,7 +89,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator-(const vector &rhs) const {
+    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator-(const vector &rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -98,7 +98,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator*(const float_t rhs) const {
+    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator*(const float_t rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -107,7 +107,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::operator/(const float_t rhs) const {
+    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator/(const float_t rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -158,7 +158,7 @@ namespace math {
         return *this;
     }
 
-    template<typename float_t, int dim> bool vector<float_t, dim>::operator==(const vector &that) const {
+    template<typename float_t, int dim> constexpr bool vector<float_t, dim>::operator==(const vector &that) const {
         for (int i = 0; i < dim; ++i)
             if (elements[i] != that.elements[i])
                 return false;
@@ -181,7 +181,7 @@ namespace math {
     }
 
     template<typename float_t, int dim>
-    vector<float_t, dim + 1> vector<float_t, dim>::homo() const {
+    vector<float_t, dim + 1> constexpr vector<float_t, dim>::homo() const {
         vector<float_t, dim + 1> result;
 
         for (int i = 0; i < dim; ++i)
@@ -192,7 +192,7 @@ namespace math {
     }
 
     template<typename float_t, int dim>
-    vector<float_t, dim - 1> vector<float_t, dim>::dehomo() const {
+    vector<float_t, dim - 1> constexpr vector<float_t, dim>::dehomo() const {
         vector<float_t, dim - 1> result;
 
         for (int i = 0; i < dim - 1; ++i)
@@ -201,7 +201,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::length() const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::length() const {
         float_t sqr_sum = 0;
 
         for (int i = 0; i < dim; ++i)
@@ -210,7 +210,7 @@ namespace math {
         return (float_t)std::sqrt(sqr_sum);
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::length_sqr() const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::length_sqr() const {
         float_t sqr_sum = 0;
 
         for (int i = 0; i < dim; ++i)
@@ -219,11 +219,11 @@ namespace math {
         return sqr_sum;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::unit() const {
+    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::unit() const {
         return *this / length();
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::dot(const vector &rhs) const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::dot(const vector &rhs) const {
         float_t result = 0;
 
         for (int i = 0; i < dim; ++i)
@@ -232,7 +232,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> vector<float_t, dim>::cross(const vector &rhs) const {
+    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::cross(const vector &rhs) const {
         static_assert(dim == 3, "vector::cross() is undefined when dim != 3");
         return vector<float_t, 3>{
             elements[1] * rhs.elements[2] - elements[2] * rhs.elements[1],
@@ -241,7 +241,7 @@ namespace math {
         };
     }
 
-    template<typename float_t, int dim> float_t vector<float_t, dim>::angle(const vector &rhs) const {
+    template<typename float_t, int dim> constexpr float_t vector<float_t, dim>::angle(const vector &rhs) const {
         return detail::acos<float_t>(dot(rhs) / (length() * rhs.length()));
     }
 }

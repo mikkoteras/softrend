@@ -9,28 +9,28 @@ namespace math {
 
     template<typename float_t, int dim> class vector {
     public:
-        vector();
+        constexpr vector();
         vector(const vector &rhs);
         vector(vector &&rhs);
-        vector(const std::initializer_list<float_t> &il);
-        vector(const vector<float_t, dim - 1> &v, float_t h);
+        constexpr vector(const std::initializer_list<float_t> &il);
+        constexpr vector(const vector<float_t, dim - 1> &v, float_t h);
 
-        float_t operator[](int i) const;
-        float_t &operator[](int i);
+        constexpr float_t operator[](int i) const;
+        constexpr float_t &operator[](int i);
 
-        float_t x() const;
-        float_t y() const;
-        float_t z() const;
-        float_t h() const;
-        float_t &x();
-        float_t &y();
-        float_t &z();
-        float_t &h();
+        constexpr float_t x() const;
+        constexpr float_t y() const;
+        constexpr float_t z() const;
+        constexpr float_t h() const;
+        constexpr float_t &x();
+        constexpr float_t &y();
+        constexpr float_t &z();
+        constexpr float_t &h();
 
-        vector operator+(const vector &rhs) const;
-        vector operator-(const vector &rhs) const;
-        vector operator*(const float_t rhs) const;
-        vector operator/(const float_t rhs) const;
+        constexpr vector operator+(const vector &rhs) const;
+        constexpr vector operator-(const vector &rhs) const;
+        constexpr vector operator*(const float_t rhs) const;
+        constexpr vector operator/(const float_t rhs) const;
 
         vector &operator=(const vector &rhs);
         vector &operator=(vector &&rhs);
@@ -40,25 +40,25 @@ namespace math {
         vector &operator*=(const float_t rhs);
         vector &operator/=(const float_t rhs);
 
-        vector operator-() const { return (float_t)(-1) * *this; }
+        constexpr vector operator-() const { return (float_t)(-1) * *this; }
 
-        bool operator==(const vector &that) const;
-        bool operator!=(const vector &that) const { return !(*this == that); }
+        constexpr bool operator==(const vector &that) const;
+        constexpr bool operator!=(const vector &that) const { return !(*this == that); }
 
         void normalize();
         void divide_by_h();
-        vector<float_t, dim + 1> homo() const;
-        vector<float_t, dim - 1> dehomo() const;
+        constexpr vector<float_t, dim + 1> homo() const;
+        constexpr vector<float_t, dim - 1> dehomo() const;
 
-        float_t length() const;
-        float_t length_sqr() const;
-        vector unit() const;
-        float_t dot(const vector &rhs) const;
-        vector cross(const vector &rhs) const;
-        float_t angle(const vector &rhs) const;
+        constexpr float_t length() const;
+        constexpr float_t length_sqr() const;
+        constexpr vector unit() const;
+        constexpr float_t dot(const vector &rhs) const;
+        constexpr vector cross(const vector &rhs) const;
+        constexpr float_t angle(const vector &rhs) const;
 
     public: // Mandatory inlines
-        friend vector operator*(float_t lhs, const vector& rhs) { return rhs * lhs; }
+        friend constexpr vector operator*(float_t lhs, const vector& rhs) { return rhs * lhs; }
 
     public:
         template<typename, int> friend class vector;
