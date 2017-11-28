@@ -4,6 +4,8 @@
 #include "texture.h"
 #include "vector.h"
 
+#include <iostream>
+
 using namespace math;
 
 material::material() :
@@ -18,25 +20,29 @@ material::material() :
 material::~material() {
 }
 
-color material::shade(const vector3f &surface_normal_unit, const vector3f &eye_position,
+color material::shade(const vector3f &surface_normal_unit, const vector3f &pixel_to_eye_unit,
                       const light_list &light_sources, const color &texture_color) const {
     color result = ambient_reflectivity * light_sources.ambient_coeff();
     color diffuse_term, specular_term;
 
     for (const light *source: light_sources.get()) {
-        diffuse_term += source->diffuse() * source->light_vector_unit().dot(surface_normal_unit);
-        vector3f r(2.0f * source->light_vector_unit().dot(surface_normal_unit) * surface_normal_unit -
-                   source->light_vector_unit());
-        float eye_angle_scalar = r.dot(-eye_position);
+        float light_vector_dot_surface_normal(source->light_vector_unit().dot(surface_normal_unit));
+
+        if (light_vector_dot_surface_normal > 0.0f)
+            diffuse_term += source->get_color() * light_vector_dot_surface_normal;
+        
+        vector3f r(2.0f * light_vector_dot_surface_normal * surface_normal_unit - source->light_vector_unit());
+        r.normalize();
+        float eye_angle_scalar = r.dot(pixel_to_eye_unit);
 
         if (eye_angle_scalar > 0.0f)
-            specular_term += powf(eye_angle_scalar, specular_exponent) * source->specular();
+            specular_term += powf(eye_angle_scalar, specular_exponent) * source->get_color();
     }
 
-    diffuse_term.clamp();
-    specular_term.clamp();
     result += diffuse_reflectivity * diffuse_term + specular_reflectivity * specular_term;
-    return result * texture_color;
+    result *= texture_color;
+    result.clamp();
+    return result;
 }
 
 const color &material::get_ambient_reflectivity() const {

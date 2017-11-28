@@ -60,6 +60,10 @@ color &color::operator*=(const color &rhs) {
     return *this;
 }
 
+bool color::operator==(const color &rhs) {
+    return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
+}
+
 void color::clamp() {
     math::clamp<float>(r, 0.0f, 1.0f);
     math::clamp<float>(g, 0.0f, 1.0f);

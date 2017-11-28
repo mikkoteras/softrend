@@ -25,16 +25,14 @@ public:
     ~triangle();
 
 public:
-    void render(framebuffer &target, const mesh &parent, const scene &grandparent) const;
+    void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private: // render helpers
     struct edge { int top, bottom; }; // indices to vertex_index
     edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;
     int find_long_edge(edge *edges, const math::vector4f *vertex_data) const;
     void draw_half_triangle(const edge &long_edge, const edge &short_edge, framebuffer &target,
-                            const math::vector4f *vertex_data, const math::vector4f *normal_data,
-                            const math::vector3f &eye_position,
-                            const light_list &light_sources) const;
+                            const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:
     int vertex_index[3]; // indices to parent mesh's vertex data

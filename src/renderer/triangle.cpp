@@ -108,16 +108,11 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     if (parent_scene.visible_volume().clip(v1, v2, v3))
         return;
 
-    const vector4f *normal_data = parent_mesh.world_normal_data();
-    const light_list &light_sources = parent_scene.light_sources();
-
     edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
     int long_edge_index = find_long_edge(e, view_data);
 
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3],
-                       target, view_data, normal_data, parent_scene.get_eye_position().unit(), light_sources);
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3],
-                       target, view_data, normal_data, parent_scene.get_eye_position().unit(), light_sources);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, parent_mesh, parent_scene);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, parent_mesh, parent_scene);
 }
 
 triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
@@ -139,13 +134,13 @@ int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
 }
 
 void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge, framebuffer &target,
-                                  const vector4f *vertex_data, const vector4f *normal_data,
-                                  const vector3f &eye_position,
-                                  const light_list &light_sources) const {
+                                  const mesh &parent_mesh, const scene &parent_scene) const {
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
     // TODO: split function to avoid u/v computation when there is no texture, for
     // different reflection models etc.
 
+    const vector4f *vertex_data = parent_mesh.view_coordinate_data();
+    
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
     int short_top_y = vertex_data[vertex_index[short_edge.top]].y();
@@ -167,15 +162,27 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     int short_bottom_x = vertex_data[vertex_index[short_edge.bottom]].x();
     float short_bottom_z = vertex_data[vertex_index[short_edge.bottom]].z();
 
+    const vector4f *normal_data = parent_mesh.world_normal_data();
+    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    
     int y_offset = short_top_y - long_top_y; // 0 or rows already drawn
-    float x1_delta = (long_bottom_x - long_top_x) / height_1;
+    float x1_delta = (long_bottom_x - long_top_x) / height_1; // screen x coordinate
     float x2_delta = (short_bottom_x - short_top_x) / height_2;
-    float z1_delta = (long_bottom_z - long_top_z) / height_1;
+    float z1_delta = (long_bottom_z - long_top_z) / height_1; // depth buffer z cooedinate
     float z2_delta = (short_bottom_z - short_top_z) / height_2;
-    float u1_delta = (vertex_uv[long_edge.bottom].x() - vertex_uv[long_edge.top].x()) / height_1;
+    float u1_delta = (vertex_uv[long_edge.bottom].x() - vertex_uv[long_edge.top].x()) / height_1; // texture u
     float u2_delta = (vertex_uv[short_edge.bottom].x() - vertex_uv[short_edge.top].x()) / height_2;
-    float v1_delta = (vertex_uv[long_edge.bottom].y() - vertex_uv[long_edge.top].y()) / height_1;
+    float v1_delta = (vertex_uv[long_edge.bottom].y() - vertex_uv[long_edge.top].y()) / height_1; // texture v
     float v2_delta = (vertex_uv[short_edge.bottom].y() - vertex_uv[short_edge.top].y()) / height_2;
+    vector3f n1_delta = (normal_data[normal_index[long_edge.bottom]] - // pixel normal in worĺd coordinate system
+                         normal_data[normal_index[long_edge.top]]).dehomo() / height_1;
+    vector3f n2_delta = (normal_data[normal_index[short_edge.bottom]] -
+                         normal_data[normal_index[short_edge.top]]).dehomo() / height_2;
+    vector3f w1_delta = (world_data[vertex_index[long_edge.bottom]] - // pixel in worĺd coordinate system
+                         world_data[vertex_index[long_edge.top]]).dehomo() / height_1;
+    vector3f w2_delta = (world_data[vertex_index[short_edge.bottom]] -
+                         world_data[vertex_index[short_edge.top]]).dehomo() / height_2;
+
     float x1 = long_top_x + y_offset * x1_delta;
     float x2 = short_top_x;
     float z1 = long_top_z + y_offset * z1_delta;
@@ -184,11 +191,13 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float u2 = vertex_uv[short_edge.top].x();
     float v1 = vertex_uv[long_edge.top].y() + y_offset * v1_delta;
     float v2 = vertex_uv[short_edge.top].y();
-    float min_y = short_top_y;
+    vector3f n1 = normal_data[normal_index[long_edge.top]].dehomo() + y_offset * n1_delta;
+    vector3f n2 = normal_data[normal_index[short_edge.top]].dehomo();
+    vector3f w1 = world_data[vertex_index[long_edge.top]].dehomo() + y_offset * w1_delta;
+    vector3f w2 = world_data[vertex_index[short_edge.top]].dehomo();
+
+    float min_y = short_top_y; // screen y coordinate
     float max_y = short_bottom_y;
-    float z, z_delta;
-    float u, u_delta;
-    float v, v_delta;
 
     if (min_y < 0) {
         x1 += -min_y * x1_delta;
@@ -199,6 +208,10 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         u2 += -min_y * u2_delta;
         v1 += -min_y * v1_delta;
         v2 += -min_y * v2_delta;
+        n1 += -min_y * n1_delta;
+        n2 += -min_y * n2_delta;
+        w1 += -min_y * w1_delta;
+        w2 += -min_y * w2_delta;
         min_y = 0;
     }
 
@@ -207,16 +220,18 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     // TODO: check z-coords as well
 
     const texture *tex = mat->get_texture_map(); // TODO: refactor
-
-    // shading
-    vector3f surface_normal = (normal_data[normal_index[0]] +
-                               normal_data[normal_index[1]] +
-                               normal_data[normal_index[2]]).dehomo().unit();
-
+    vector3f eye = parent_scene.get_eye_position();
+    const light_list &light_sources = parent_scene.light_sources();
+    
+    int min_x, max_x;
+    float z, z_delta;
+    float u, u_delta;
+    float v, v_delta;
+    vector3f n, n_delta;
+    vector3f w, w_delta;
+    
     for (int y = min_y; y <= max_y; ++y) {
         // TODO: precompute min and max, don't redo once per line
-        int min_x, max_x;
-
         if (x1 <= x2) {
             min_x = x1;
             max_x = x2;
@@ -226,6 +241,10 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
             u_delta = (u2 - u1) / (x2 - x1 + 1);
             v = v1;
             v_delta = (v2 - v1) / (x2 - x1 + 1);
+            n = n1;
+            n_delta = (n2 - n1) / (x2 - x1 + 1);
+            w = w1;
+            w_delta = (w2 - w1) / (x2 - x1 + 1);
         }
         else {
             min_x = x2;
@@ -236,28 +255,36 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
             u_delta = (u1 - u2) / (x1 - x2 + 1);
             v = v2;
             v_delta = (v1 - v2) / (x1 - x2 + 1);
+            n = n2;
+            n_delta = (n1 - n2) / (x1 - x2 + 1);
+            w = w2;
+            w_delta = (w1 - w2) / (x1 - x2 + 1);
         }
 
         if (min_x < 0) {
             z += -min_x * z_delta;
             u += -min_x * u_delta;
             v += -min_x * v_delta;
+            n += -min_x * n_delta;
+            w += -min_x * w_delta;
             min_x = 0;
         }
 
         max_x = std::min(max_x, target.pixel_width() - 1);
-        color white(1.0f, 1.0f, 1.0f, 1.0f);
-
+                
         if (tex)
-            for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta) {
-                color shade = mat->shade(surface_normal, eye_position, light_sources, tex->at(u, v));
+            for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta, n += n_delta, w += w_delta) {
+                color shade = mat->shade(n, (eye - w).unit(), light_sources, tex->at(u, v));
                 target.set_pixel_unchecked(x, y, z, shade);
             }
-        else
-            for (int x = min_x; x <= max_x; ++x, z += z_delta) {
-                color shade = mat->shade(surface_normal, eye_position, light_sources, white);
+        else {
+            color white(1.0f, 1.0f, 1.0f, 1.0f);
+
+            for (int x = min_x; x <= max_x; ++x, z += z_delta, n += n_delta, w += w_delta) {
+                color shade = mat->shade(n, (eye - w).unit(), light_sources, white);
                 target.set_pixel_unchecked(x, y, z, shade);
             }
+        }
 
         x1 += x1_delta;
         x2 += x2_delta;
@@ -267,5 +294,9 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         u2 += u2_delta;
         v1 += v1_delta;
         v2 += v2_delta;
+        n1 += n1_delta;
+        n2 += n2_delta;
+        w1 += w1_delta;
+        w2 += w2_delta;
     }
 }

@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
         if (cl.valid()) {
             if (cl.scene_mode() == command_line::auto_scene) {
-                auto_scene sc(cl.object_filename(), cl.verbose(), auto_scene::bounding_box_touches_origin);
+                auto_scene sc(cl.object_filename(), cl.verbose(), auto_scene::as_is);
                 window win(cl.width(), cl.height());
                 return win.run(sc);
             }

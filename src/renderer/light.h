@@ -15,8 +15,7 @@ public:
     light &operator=(light&&);
 
     virtual const math::vector3f &light_vector_unit() const = 0;
-    virtual color diffuse() const = 0;
-    virtual color specular() const = 0;
+    virtual color get_color() const = 0;
 };
 
 #endif

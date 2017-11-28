@@ -8,8 +8,6 @@
 class directional_light : public light {
 public:
     directional_light(const math::vector3f &direction, const color &light_color);
-    directional_light(const math::vector3f &direction,
-                      const color &diffuse_color, const color &specular_color);
     ~directional_light();
 
     directional_light(const directional_light &rhs);
@@ -18,13 +16,11 @@ public:
     directional_light &operator=(directional_light &&rhs);
 
     const math::vector3f &light_vector_unit() const override;
-    color diffuse() const override;
-    color specular() const override;
+    color get_color() const override;
 
 private:
     math::vector3f direction_to_light;
-    color diffuse_color;
-    color specular_color;
+    color light_color;
 };
 
 #endif

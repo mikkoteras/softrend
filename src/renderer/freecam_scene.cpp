@@ -12,7 +12,7 @@ freecam_scene::freecam_scene(float initial_eye_radius) :
     coords(color(0.7f, 0.6f, 0.6f, 1.0f),
            color(0.6f, 0.7f, 0.6f, 1.0f),
            color(0.6f, 0.6f, 0.7f, 1.0f)),
-    eye_azimuth_angle(0.0f),
+    eye_azimuth_angle(1.5f * detail::pi<float>()),
     eye_polar_angle(0.0f),
     eye_radius(initial_eye_radius),
     eye_twist_angle(0.0f) {
@@ -53,7 +53,7 @@ void freecam_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {
         if (sdl_keycode == SDLK_c)
             show_coords = !show_coords;
         else if (sdl_keycode == SDLK_r) { // reset scene
-            eye_azimuth_angle = 0.0f;
+            eye_azimuth_angle = 1.5f * detail::pi<float>();
             eye_polar_angle = 0.0f;
             eye_radius = 10.0f;
             eye_twist_angle = 0.0f;
