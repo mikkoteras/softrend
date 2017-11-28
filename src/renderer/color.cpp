@@ -51,6 +51,15 @@ color &color::operator+=(const color &rhs) {
     return *this;
 }
 
+color &color::operator*=(const color &rhs) {
+    r *= rhs.r;
+    g *= rhs.g;
+    b *= rhs.b;
+    a *= rhs.a;
+
+    return *this;
+}
+
 void color::clamp() {
     math::clamp<float>(r, 0.0f, 1.0f);
     math::clamp<float>(g, 0.0f, 1.0f);

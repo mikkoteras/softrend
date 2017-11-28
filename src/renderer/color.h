@@ -16,6 +16,7 @@ public:
     color operator*(float rhs) const;
     color operator/(float rhs) const;
     color &operator+=(const color &rhs);
+    color &operator*=(const color &rhs);
 
     void clamp();
 
