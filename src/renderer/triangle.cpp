@@ -114,8 +114,10 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     edge e[3] = { create_edge(0, 1, view_data), create_edge(1, 2, view_data), create_edge(0, 2, view_data) };
     int long_edge_index = find_long_edge(e, view_data);
 
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3], target, view_data, normal_data, light_sources);
-    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, view_data, normal_data, light_sources);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 1) % 3],
+                       target, view_data, normal_data, parent_scene.get_eye_position().unit(), light_sources);
+    draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3],
+                       target, view_data, normal_data, parent_scene.get_eye_position().unit(), light_sources);
 }
 
 triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
@@ -138,6 +140,7 @@ int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
 
 void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge, framebuffer &target,
                                   const vector4f *vertex_data, const vector4f *normal_data,
+                                  const vector3f &eye_position,
                                   const light_list &light_sources) const {
     // TODO: maybe use vector& rather than copy? Maybe create that render_context thingy?
     // TODO: split function to avoid u/v computation when there is no texture, for
@@ -209,7 +212,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     vector3f surface_normal = (normal_data[normal_index[0]] +
                                normal_data[normal_index[1]] +
                                normal_data[normal_index[2]]).dehomo().unit();
-    
+
     for (int y = min_y; y <= max_y; ++y) {
         // TODO: precompute min and max, don't redo once per line
         int min_x, max_x;
@@ -247,12 +250,12 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
 
         if (tex)
             for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta) {
-                color shade = mat->shade(surface_normal, light_sources, tex->at(u, v));
+                color shade = mat->shade(surface_normal, eye_position, light_sources, tex->at(u, v));
                 target.set_pixel_unchecked(x, y, z, shade);
             }
         else
             for (int x = min_x; x <= max_x; ++x, z += z_delta) {
-                color shade = mat->shade(surface_normal, light_sources, white);
+                color shade = mat->shade(surface_normal, eye_position, light_sources, white);
                 target.set_pixel_unchecked(x, y, z, shade);
             }
 

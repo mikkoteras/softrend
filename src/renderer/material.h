@@ -14,8 +14,10 @@ public:
 
     // TODO: texture_color could be replaced with uvw because the texture is known
     // TODO: maybe make this polymorphic for when there is texture, Gouraud only, etc
-    color shade(const math::vector3f &surface_normal_unit, const vector3f &surface_to_eye_unit,
+    color shade(const math::vector3f &surface_normal_unit, const math::vector3f &eye_position,
                 const light_list &light_sources, const color &texture_color) const;
+    color shade_x(const math::vector3f &surface_normal_unit, const math::vector3f &eye_position,
+                  const light_list &light_sources, const color &texture_color) const;
 
 public:
     const color &get_ambient_reflectivity() const;
@@ -30,10 +32,10 @@ public:
     int get_illumination_model() const;
     const texture *get_texture_map() const;
     
-    void set_ambient_reflectivity(const color &vec);
-    void set_diffuse_reflectivity(const color &vec);
-    void set_specular_reflectivity(const color &vec);
-    void set_transmission_filter(const color &vec);
+    void set_ambient_reflectivity(const color &col);
+    void set_diffuse_reflectivity(const color &col);
+    void set_specular_reflectivity(const color &col);
+    void set_transmission_filter(const color &col);
     void set_dissolve(float value, bool halo);
     void set_specular_exponent(float value);
     void set_sharpness(float value);

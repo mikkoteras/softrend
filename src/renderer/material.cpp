@@ -9,7 +9,7 @@ using namespace math;
 material::material() :
     dissolve(0.0f),
     dissolve_halo(false),
-    specular_exponent(0.0f),
+    specular_exponent(2.0f),
     sharpness(60.0),
     illumination_model(-1),
     tex(nullptr) {
@@ -18,16 +18,23 @@ material::material() :
 material::~material() {
 }
 
-color material::shade(const vector3f &surface_normal_unit, const vector3f &surface_to_eye_unit,
+color material::shade(const vector3f &surface_normal_unit, const vector3f &eye_position,
                       const light_list &light_sources, const color &texture_color) const {
     color result = ambient_reflectivity * light_sources.ambient_coeff();
     color diffuse_term, specular_term;
-    
+
     for (const light *source: light_sources.get()) {
         diffuse_term += source->diffuse() * source->light_vector_unit().dot(surface_normal_unit);
-        specular_term += l.diffuse(surface_normal);
+        vector3f r(2.0f * source->light_vector_unit().dot(surface_normal_unit) * surface_normal_unit -
+                   source->light_vector_unit());
+        float eye_angle_scalar = r.dot(-eye_position);
+
+        if (eye_angle_scalar > 0.0f)
+            specular_term += powf(eye_angle_scalar, specular_exponent) * source->specular();
     }
 
+    diffuse_term.clamp();
+    specular_term.clamp();
     result += diffuse_reflectivity * diffuse_term + specular_reflectivity * specular_term;
     return result * texture_color;
 }
@@ -36,8 +43,7 @@ const color &material::get_ambient_reflectivity() const {
     return ambient_reflectivity;
 }
 
-const color &material::get_diffuse_reflectivity() const {
-    return diffuse_reflectivity;
+const color &material::get_diffuse_reflectivity() const {    return diffuse_reflectivity;
 }
 
 const color &material::get_specular_reflectivity() const {
@@ -68,22 +74,22 @@ const texture *material::get_texture_map() const {
     return tex;
 }
 
-void material::set_ambient_reflectivity(const color &vec) {
-    ambient_reflectivity = vec;
+void material::set_ambient_reflectivity(const color &col) {
+    ambient_reflectivity = col;
 }
 
 
-void material::set_diffuse_reflectivity(const color &vec) {
-    diffuse_reflectivity = vec;
+void material::set_diffuse_reflectivity(const color &col) {
+    diffuse_reflectivity = col;
 }
 
-void material::set_specular_reflectivity(const color &vec) {
-    specular_reflectivity = vec;
+void material::set_specular_reflectivity(const color &col) {
+    specular_reflectivity = col;
 }
 
 
-void material::set_transmission_filter(const color &vec) {
-    transmission_filter = vec;
+void material::set_transmission_filter(const color &col) {
+    transmission_filter = col;
 }
 
 void material::set_dissolve(float value, bool halo) {

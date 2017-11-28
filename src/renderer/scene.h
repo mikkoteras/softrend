@@ -30,6 +30,7 @@ public:
     const bounding_box &visible_volume() const;
     const light_list &light_sources() const;
     light_list &light_sources();
+    const math::vector3f &get_eye_position() const;
 
 public:
     void start();
@@ -37,8 +38,6 @@ public:
     virtual bool stopped() const;
 
 protected:
-    const math::vector3f &get_eye_position() const;
-
     void set_eye_position(const math::vector3f &position);
     void set_eye_direction(const math::vector3f &direction);           // option 1
     void set_eye_reference_point(const math::vector3f &look_at_point); // option 2

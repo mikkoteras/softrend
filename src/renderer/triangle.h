@@ -33,6 +33,7 @@ private: // render helpers
     int find_long_edge(edge *edges, const math::vector4f *vertex_data) const;
     void draw_half_triangle(const edge &long_edge, const edge &short_edge, framebuffer &target,
                             const math::vector4f *vertex_data, const math::vector4f *normal_data,
+                            const math::vector3f &eye_position,
                             const light_list &light_sources) const;
 
 private:
