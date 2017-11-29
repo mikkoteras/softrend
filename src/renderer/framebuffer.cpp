@@ -78,6 +78,29 @@ void framebuffer::clear() {
 #endif
 }
 
+void framebuffer::clear(float gray) {
+#ifdef OPTIMIZE_FRAMEBUFFER_CLEAR
+    // Kludgy but fast implementation, equivalent to below version
+    float *color_data = reinterpret_cast<float*>(pixels);
+
+    for (int i = 0, max = width * height * 4; i < max;) {
+        color_data[i++] = gray;
+        color_data[i++] = gray;
+        color_data[i++] = gray;
+        color_data[i++] = 0.0f;
+    }
+
+    for (int i = 0, max = width * height; i < max; ++i)
+        depth_buffer[i] = std::numeric_limits<float>::infinity();
+#else
+    // Standard implementation
+    for (int i = 0, max = width * height; i < max; ++i) {
+        pixels[i] = color();
+        depth_buffer[i] = std::numeric_limits<float>::infinity();
+    }
+#endif
+}
+
 uint8_t *framebuffer::get_rgba_byte_buffer() {
     float *float_buffer = reinterpret_cast<float*>(pixels); // TODO: not quite evil, but slightly naughty.
 
