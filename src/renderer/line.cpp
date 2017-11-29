@@ -51,13 +51,13 @@ line &line::operator=(line &&rhs) {
 line::~line() {
 }
 
-void line::render(framebuffer &target, const mesh &parent, const scene &grandparent) const {
-    const vector4f *view_coordinates = parent.view_coordinate_data();
+void line::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+    const vector4f *view_coordinates = parent_mesh.view_coordinate_data();
     vector4f v1 = view_coordinates[vertex_index[0]];
     vector4f v2 = view_coordinates[vertex_index[1]];
 
     // plane clip
-    if (grandparent.visible_volume().clip(v1, v2))
+    if (parent_scene.visible_volume().clip(v1, v2))
         return;
 
     int width = fabs(v2.x() - v1.x());
