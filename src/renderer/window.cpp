@@ -4,6 +4,10 @@
 #include "scene.h"
 #include "SDL.h"
 #include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
 
 window::window(int w, int h) :
     width(w),
@@ -11,7 +15,9 @@ window::window(int w, int h) :
     sdl_context_initialized(false),
     sdl_window(nullptr),
     sdl_renderer(nullptr),
-    sdl_texture(nullptr) {
+    sdl_texture(nullptr),
+    text_overlay_visible(true),
+    text_overlay_font(nullptr) {
 
     if (!init_sdl()) {
         deinit_sdl();
@@ -41,6 +47,8 @@ int window::run(scene &s) {
         SDL_RenderClear(sdl_renderer);
         SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), stride);
         SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
+        s.get_scene_info().update_benchmark_stats(b);
+        render_text_overlay(s);
         SDL_RenderPresent(sdl_renderer);
         b.copy_finished();
 
@@ -106,10 +114,32 @@ bool window::init_sdl() {
     if (!sdl_texture)
         return false;
 
+    if (TTF_Init() < 0) {
+        std::cerr << "can't init SDL TTF rendering" << std::endl;
+        return false;
+    }
+    
+    std::string font_path("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf");
+    text_overlay_font = TTF_OpenFont(font_path.c_str(), 16);
+
+    if (!text_overlay_font) {
+        std::cerr << "can't load font file " << font_path << std::endl;
+        return false;
+    }
+    
     return true;
 }
 
 void window::deinit_sdl() {
+    if (text_overlay_font) {
+        TTF_CloseFont(text_overlay_font);
+        text_overlay_font = nullptr;
+    }
+
+    if (TTF_WasInit())
+        TTF_Quit();
+
+    
     if (sdl_texture) {
         SDL_DestroyTexture(sdl_texture);
         sdl_texture = nullptr;
@@ -128,5 +158,31 @@ void window::deinit_sdl() {
     if (sdl_context_initialized) {
         SDL_Quit();
         sdl_context_initialized = false;
+    }
+}
+
+void window::render_text_overlay(scene &s) {
+    if (!text_overlay_visible)
+        return;
+    
+    SDL_Color text_color = {255, 255, 255};
+    vector<string> info(s.get_scene_info().get());
+
+    for (unsigned i = 0; i < info.size(); ++i) {
+        int w = 1, h = 1;
+        TTF_SizeText(text_overlay_font, info[i].c_str(), &w, &h);
+        
+        SDL_Surface* message_surface = TTF_RenderText_Solid(text_overlay_font, info[i].c_str(), text_color);
+        SDL_Texture* message_texture = SDL_CreateTextureFromSurface(sdl_renderer, message_surface);
+
+        SDL_Rect rect;
+        rect.x = 10;
+        rect.y = 10 + i * (h + 4);
+        rect.w = w;
+        rect.h = h;
+
+        SDL_RenderCopy(sdl_renderer, message_texture, nullptr, &rect);
+        SDL_DestroyTexture(message_texture);
+        SDL_FreeSurface(message_surface);
     }
 }

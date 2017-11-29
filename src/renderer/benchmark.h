@@ -3,6 +3,8 @@
 
 #include <chrono>
 #include <deque>
+#include <string>
+#include <vector>
 
 class benchmark {
 public:
@@ -14,6 +16,8 @@ public:
     void render_finished();
     void copy_finished();
 
+    std::string get_stats() const;
+    
 private:
     typedef std::chrono::high_resolution_clock::time_point tp;
 

@@ -1,6 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include "SDL_ttf.h"
+
 class scene;
 class SDL_Window;
 class SDL_Renderer;
@@ -18,6 +20,7 @@ public:
 private:
     bool init_sdl();
     void deinit_sdl();
+    void render_text_overlay(scene &s);
 
 private:
     int width, height;
@@ -25,6 +28,10 @@ private:
     SDL_Window *sdl_window;
     SDL_Renderer *sdl_renderer;
     SDL_Texture *sdl_texture;  // TODO maybe multiple
+
+private:
+    bool text_overlay_visible;
+    TTF_Font *text_overlay_font;
 };
 
 #endif

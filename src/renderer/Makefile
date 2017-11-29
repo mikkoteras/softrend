@@ -21,6 +21,7 @@ SOURCES=animation_clock.cpp \
         mesh.cpp \
         point_light.cpp \
         scene.cpp \
+        scene_info.cpp \
         texture.cpp \
         triangle.cpp \
         util.cpp \
@@ -39,7 +40,7 @@ LDFLAGS=-o $(TARGET)
 DEBUGFLAGS=-g
 OPTIMIZATIONFLAGS=-O3
 LIBDIRS=-L/usr/lib/x86_64-linux-gnu
-LIBS=-lstdc++ -lstdc++fs -lSDL2
+LIBS=-lstdc++ -lstdc++fs -lSDL2 -lSDL2_ttf
 
 all: default
 default: debug

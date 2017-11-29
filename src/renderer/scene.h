@@ -6,7 +6,9 @@
 #include "light_list.h"
 #include "matrix.h"
 #include "material_library.h"
+#include "scene_info.h"
 #include "vector.h"
+#include <string>
 #include <vector>
 
 class light;
@@ -23,7 +25,8 @@ public: // for window
     virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
     virtual void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down);
     virtual void mouse_wheel_event(int delta_x, int delta_y);
-
+    scene_info &get_scene_info();
+    
 public:
     math::matrix4x4f world_to_view();
     material_library &materials();
@@ -60,6 +63,7 @@ private:
     
 private:
     bool stop_requested;
+    scene_info info;
 };
 
 #endif
