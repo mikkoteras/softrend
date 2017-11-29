@@ -35,11 +35,11 @@ color color::operator*(const color &rhs) const {
 }
 
 color color::operator*(float rhs) const {
-    return color(r * rhs, g * rhs, b * rhs, a * rhs);
+    return color(r * rhs, g * rhs, b * rhs, a);
 }
 
 color color::operator/(float rhs) const {
-    return color(r / rhs, g / rhs, b / rhs, a / rhs);
+    return color(r / rhs, g / rhs, b / rhs, a);
 }
 
 color &color::operator+=(const color &rhs) {
