@@ -32,7 +32,7 @@ directional_light &directional_light::operator=(directional_light &&rhs) {
     return *this;
 }
 
-const vector3f &directional_light::light_vector_unit() const {
+vector3f directional_light::light_vector_unit(const vector3f&) const {
     return direction_to_light;
 }
 

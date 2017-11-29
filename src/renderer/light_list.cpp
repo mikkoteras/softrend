@@ -1,6 +1,7 @@
 #include "light_list.h"
 #include "directional_light.h"
 #include "light.h"
+#include "point_light.h"
 
 using namespace std;
 
@@ -19,8 +20,12 @@ void light_list::set_ambient_light(const color &col) {
     ambient_light = col;
 }
 
-void light_list::add_directional_light(const directional_light &l) {
+void light_list::add_light(const directional_light &l) {
     per_pixel_lights.push_back(new directional_light(l));
+}
+
+void light_list::add_light(const point_light &l) {
+    per_pixel_lights.push_back(new point_light(l));
 }
 
 color light_list::ambient_coeff() const {

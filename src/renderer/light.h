@@ -14,7 +14,7 @@ public:
     const light &operator=(const light&);
     light &operator=(light&&);
 
-    virtual const math::vector3f &light_vector_unit() const = 0;
+    virtual math::vector3f light_vector_unit(const math::vector3f &surface_point) const = 0;
     virtual color get_color() const = 0;
 };
 

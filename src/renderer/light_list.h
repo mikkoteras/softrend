@@ -7,6 +7,7 @@
 
 class light;
 class directional_light;
+class point_light;
 
 class light_list {
 public:
@@ -14,7 +15,8 @@ public:
     ~light_list();
     
     void set_ambient_light(const color &col);
-    void add_directional_light(const directional_light &l);
+    void add_light(const directional_light &l);
+    void add_light(const point_light &l);
 
     const std::vector<light*> &get() const; // TODO refactor
     color ambient_coeff() const;

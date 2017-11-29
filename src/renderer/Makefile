@@ -19,6 +19,7 @@ SOURCES=animation_clock.cpp \
         material.cpp \
         material_library.cpp \
         mesh.cpp \
+        point_light.cpp \
         scene.cpp \
         texture.cpp \
         triangle.cpp \
