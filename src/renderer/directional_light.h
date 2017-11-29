@@ -15,7 +15,7 @@ public:
     const directional_light &operator=(const directional_light &rhs);
     directional_light &operator=(directional_light &&rhs);
 
-    const math::vector3f &light_vector_unit() const override;
+    math::vector3f light_vector_unit(const math::vector3f &surface_point) const override;
     color get_color() const override;
 
 private:
