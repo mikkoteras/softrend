@@ -274,14 +274,14 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
                 
         if (tex)
             for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta, n += n_delta, w += w_delta) {
-                color shade = mat->shade(n, (eye - w).unit(), light_sources, tex->at(u, v));
+                color shade = mat->shade(w, n, (eye - w).unit(), light_sources, tex->at(u, v));
                 target.set_pixel_unchecked(x, y, z, shade);
             }
         else {
             color white(1.0f, 1.0f, 1.0f, 1.0f);
 
             for (int x = min_x; x <= max_x; ++x, z += z_delta, n += n_delta, w += w_delta) {
-                color shade = mat->shade(n, (eye - w).unit(), light_sources, white);
+                color shade = mat->shade(w, n, (eye - w).unit(), light_sources, white);
                 target.set_pixel_unchecked(x, y, z, shade);
             }
         }
