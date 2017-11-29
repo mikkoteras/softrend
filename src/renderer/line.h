@@ -19,7 +19,7 @@ public:
     ~line();
 
 public:
-    void render(framebuffer &target, const mesh &parent, const scene &grandparent) const;
+    void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:
     int vertex_index[2];
