@@ -3,6 +3,7 @@
 
 #include "scene.h"
 #include "color.h"
+#include "coordinate_system.h"
 #include "mesh.h"
 
 class demo : public scene {
@@ -20,13 +21,20 @@ public:
 private:
     void create_fern();
     void create_fern_recursive(const math::vector3f &root, const math::vector3f &tip, int generations);
-    
+
 private:
-    enum stage_t { fern_still, fern_3d,
-                   min_stage=fern_still, max_stage=fern_3d };
+    enum stage_t {
+        fern_still,
+        fern_3d,
+        min_stage = fern_still,
+        max_stage = fern_3d
+    };
+
     stage_t stage = fern_still;
-        
+
+    coordinate_system coords;
     mesh fern;
 };
 
 #endif
+
