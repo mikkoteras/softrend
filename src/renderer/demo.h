@@ -21,16 +21,21 @@ public:
 private:
     void create_fern();
     void create_fern_recursive(const math::vector3f &root, const math::vector3f &tip, int generations);
-    
-private:
-    enum stage_t { fern_still, fern_3d,
-                   min_stage=fern_still, max_stage=fern_3d };
-    stage_t stage = fern_still;
 
+private:
+    enum stage_t {
+        fern_still,
+        fern_3d,
+        min_stage = fern_still,
+        max_stage = fern_3d
+    };
+
+    stage_t stage = fern_still;
     bool show_coord_sys = false;;
-    
+
     coordinate_system coord_sys;
     mesh fern;
 };
 
 #endif
+

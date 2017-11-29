@@ -51,7 +51,7 @@ void demo::render_fern_3d(framebuffer &fb) {
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
     set_view_to_view_plane_distance(2.0f);
-    
+
     fern.render(*this, fb);
 }
 
@@ -85,15 +85,20 @@ void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int 
     color c;
 
     if (generations >= 4)
-        c = color(156 / 255.0f, 122 / 255.0f, 75 / 255.0f, 1);
+        c = color(.61f, 0.47f, .29f, 1);
     else if (generations == 3)
-        c = color(64 / 255.0f, 126 / 255.0f, 1 / 255.0f, 1);
+        c = color(.25f, .50f, .0f, 1);
     else if (generations == 2)
-        c = color(15 / 255.0f, 228 / 255.0f, 10 / 255.0f, 1);
+        c = color(.06f, .89f, .04f, 1);
     else
-        c = color(95 / 255.0f, 226 / 255.0f, 128 / 255.0f, 1);
+        c = color(.37f, .89f, .50f, 1);
+
+    color c1 = 0.7f * c;
+    color c2 = 1.3f * c;
+    c1.clamp();
+    c2.clamp();
     
-    fern.add_line(root, tip, c, c);
+    fern.add_line(root, tip, c1, c2);
 
     if (generations <= 1)
         return;
