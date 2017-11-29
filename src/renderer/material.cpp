@@ -11,7 +11,7 @@ using namespace math;
 material::material() :
     dissolve(0.0f),
     dissolve_halo(false),
-    specular_exponent(2.0f),
+    specular_exponent(100.0f),
     sharpness(60.0),
     illumination_model(-1),
     tex(nullptr) {
@@ -20,25 +20,27 @@ material::material() :
 material::~material() {
 }
 
-color material::shade(const vector3f &surface_normal_unit, const vector3f &pixel_to_eye_unit,
-                      const light_list &light_sources, const color &texture_color) const {
+color material::shade(const vector3f &surface_point, const vector3f &surface_normal_unit,
+                      const vector3f &pixel_to_eye_unit, const light_list &light_sources,
+                      const color &texture_color) const {
     color result = ambient_reflectivity * light_sources.ambient_coeff();
     color diffuse_term, specular_term;
 
     for (const light *source: light_sources.get()) {
-        float light_vector_dot_surface_normal(source->light_vector_unit().dot(surface_normal_unit));
+        vector3f light_vector = source->light_vector_unit(surface_point);
+        float normal_dot_light(surface_normal_unit.dot(light_vector));
 
-        if (light_vector_dot_surface_normal > 0.0f)
-            diffuse_term += source->get_color() * light_vector_dot_surface_normal;
+        if (normal_dot_light > 0.0f)
+            diffuse_term += source->get_color() * normal_dot_light;
         
-        vector3f r(2.0f * light_vector_dot_surface_normal * surface_normal_unit - source->light_vector_unit());
-        r.normalize();
-        float eye_angle_scalar = r.dot(pixel_to_eye_unit);
+        vector3f reflection_vector(2.0f * normal_dot_light * surface_normal_unit - light_vector);
+        reflection_vector.normalize();
+        float specular_base = pixel_to_eye_unit.dot(reflection_vector);
 
-        if (eye_angle_scalar > 0.0f)
-            specular_term += powf(eye_angle_scalar, specular_exponent) * source->get_color();
+        if (specular_base > 0.0f)
+            specular_term += powf(specular_base, specular_exponent) * source->get_color();
     }
-
+    
     result += diffuse_reflectivity * diffuse_term + specular_reflectivity * specular_term;
     result *= texture_color;
     result.clamp();
@@ -49,7 +51,8 @@ const color &material::get_ambient_reflectivity() const {
     return ambient_reflectivity;
 }
 
-const color &material::get_diffuse_reflectivity() const {    return diffuse_reflectivity;
+const color &material::get_diffuse_reflectivity() const {
+    return diffuse_reflectivity;
 }
 
 const color &material::get_specular_reflectivity() const {
