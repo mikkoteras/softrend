@@ -34,23 +34,29 @@ int window::run(scene &s) {
     bool quit = false;
     framebuffer fb(width, height);
     int stride = 4 * width;
-    benchmark b;
     s.start();
 
+    benchmark::timestamp_t ts, fts;
+    benchmark &mark = s.get_benchmark();
+
     while (!quit && !s.stopped()) {
-        b.update_starting();
+        fts = mark.frame_starting();
+        ts = mark.clear_starting();
         fb.clear();
-        b.clear_finished();
+        mark.clear_finished(ts);
+        ts = mark.render_starting();
         s.prerender(fb);
         s.render(fb);
-        b.render_finished();
+        mark.render_finished(ts);
+        ts = mark.copy_starting();
         SDL_RenderClear(sdl_renderer);
         SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), stride);
         SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
-        s.get_scene_info().update_benchmark_stats(b);
+        s.get_scene_info().update_benchmark_stats(mark);
         render_text_overlay(s);
         SDL_RenderPresent(sdl_renderer);
-        b.copy_finished();
+        mark.copy_finished(ts);
+        mark.frame_finished(fts);
 
         SDL_Event event;
         int mouse_x_tally = 0, mouse_y_tally = 0;

@@ -42,6 +42,10 @@ scene_info &scene::get_scene_info() {
     return info;
 }
 
+benchmark &scene::get_benchmark() {
+    return mark;
+}
+
 matrix4x4f scene::world_to_view() {
     using namespace math::viewport_transforms;
 

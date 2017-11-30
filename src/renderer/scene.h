@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include "animation_clock.h"
+#include "benchmark.h"
 #include "bounding_box.h"
 #include "light_list.h"
 #include "matrix.h"
@@ -25,7 +26,10 @@ public: // for window
     virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
     virtual void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down);
     virtual void mouse_wheel_event(int delta_x, int delta_y);
+
+public:
     scene_info &get_scene_info();
+    benchmark &get_benchmark();
     
 public:
     math::matrix4x4f world_to_view();
@@ -64,6 +68,7 @@ private:
 private:
     bool stop_requested;
     scene_info info;
+    benchmark mark;
 };
 
 #endif

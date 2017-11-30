@@ -5,56 +5,107 @@
 using namespace std;
 using namespace std::chrono;
 
-benchmark::benchmark() :
-    first_frame(false),
-    frames_rendered(0),
-    total_time_spent(0.0),
-    time_spent_clearing(0.0),
-    time_spent_rendering(0.0),
-    time_spent_copying(0.0) {
+typedef benchmark::timestamp_t timestamp_t;
+
+benchmark::benchmark() {
 }
 
 benchmark::~benchmark() {
 }
 
-void benchmark::update_starting() {
+timestamp_t benchmark::frame_starting() {
     auto entered = high_resolution_clock::now();
 
-    if (!first_frame)
-        total_time_spent += duration<double, milli>(entered - previous_update_start).count();
+    frame_in_progress = frame();
+    frame_in_progress.frame_number = frames_created;
+    frame_in_progress.frame_started = entered;
+    frames_created += 1;
 
-    // TODO: how to clear this now?
-    
-    previous_update_start = entered;
-    previous_time_point = high_resolution_clock::now();
+    return entered;
 }
 
-void benchmark::clear_finished() {
-    auto now = high_resolution_clock::now();
-    time_spent_clearing += duration<double, milli>(now - previous_time_point).count();
-    previous_time_point = now;
+void benchmark::frame_finished(timestamp_t start_timestamp) {
+    auto entered = high_resolution_clock::now();
+    frame_in_progress.frame_finished = entered;
+
+    if (frame_history.size() >= max_history_length) {
+        history_sum -= frame_history.front();
+        frame_history.pop_front();
+    }
+
+    history_sum += frame_in_progress;
+    frame_history.push_back(frame_in_progress);
 }
 
-void benchmark::render_finished() {
-    auto now = high_resolution_clock::now();
-    time_spent_rendering += duration<double, milli>(now - previous_time_point).count();
-    previous_time_point = now;
+timestamp_t benchmark::clear_starting() {
+    return high_resolution_clock::now();
 }
 
-void benchmark::copy_finished() {
-    ++frames_rendered;
-    auto now = high_resolution_clock::now();
-    time_spent_copying += duration<double, milli>(now - previous_time_point).count();
-    previous_time_point = now;
+void benchmark::clear_finished(timestamp_t start_timestamp) {
+    frame_in_progress.clear_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
+}
+
+timestamp_t benchmark::compute_starting() {
+    return high_resolution_clock::now();
+}
+
+void benchmark::compute_finished(timestamp_t start_timestamp) {
+    frame_in_progress.compute_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
+}
+
+timestamp_t benchmark::render_starting() {
+    return high_resolution_clock::now();
+}
+
+void benchmark::render_finished(timestamp_t start_timestamp) {
+    frame_in_progress.render_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
+}
+
+timestamp_t benchmark::copy_starting() {
+    return high_resolution_clock::now();
+}
+
+void benchmark::copy_finished(timestamp_t start_timestamp) {
+    frame_in_progress.copy_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
 }
 
 string benchmark::get_stats() const {
+    if (frame_history.empty())
+        return "no benchmark data";
+
+    int frames = frame_history.size();
+    double total_time = duration<double, milli>(frame_history.back().frame_finished -
+                                                frame_history.front().frame_started).count();
+    double frame_time = total_time / frames;
+    double fps = 1000 * frames / total_time;
+    double clearing = history_sum.clear_time / frame_history.size();
+    double computing = history_sum.compute_time / frame_history.size();
+    double rendering = history_sum.render_time / frame_history.size();
+    double copying = history_sum.copy_time / frame_history.size();
+
     ostringstream result;
     result << fixed << setw(6) << setprecision(2)
-           << " avg frame time = " << (total_time_spent / frames_rendered) << " ms "
-           << " (" << (1000.0 * frames_rendered / total_time_spent) << " fps;"
-           << " clear=" << (100.0 * time_spent_clearing / total_time_spent) << "%"
-           << " render=" << (100.0 * time_spent_rendering / total_time_spent) << "%"
-           << " copy_data=" << (100.0 * time_spent_copying / total_time_spent) << "%";
+           << "frame time: " << frame_time
+           << " ms | fps: " << fps
+           << " | clear: " << clearing
+           << " ms | compute: " << computing
+           << " ms | render: " << rendering
+           << " ms | copying: " << copying << " ms";
     return result.str();
+}
+
+const benchmark::frame &benchmark::frame::operator+=(const frame &rhs) {
+    clear_time += rhs.clear_time;
+    compute_time += rhs.compute_time;
+    render_time += rhs.render_time;
+    copy_time += rhs.copy_time;
+    return *this;
+}
+
+const benchmark::frame &benchmark::frame::operator-=(const frame &rhs) {
+    clear_time -= rhs.clear_time;
+    compute_time -= rhs.compute_time;
+    render_time -= rhs.render_time;
+    copy_time -= rhs.copy_time;
+    return *this;
 }
