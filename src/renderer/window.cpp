@@ -16,7 +16,7 @@ window::window(int w, int h) :
     sdl_window(nullptr),
     sdl_renderer(nullptr),
     sdl_texture(nullptr),
-    text_overlay_visible(true),
+    text_overlay_visible(false),
     text_overlay_font(nullptr) {
 
     if (!init_sdl()) {
