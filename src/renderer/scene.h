@@ -8,6 +8,7 @@
 #include "matrix.h"
 #include "material_library.h"
 #include "scene_info.h"
+#include "types.h"
 #include "vector.h"
 #include <string>
 #include <vector>
@@ -20,7 +21,13 @@ public:
     scene();
     virtual ~scene();
 
-public: // for window
+public: // for runtime options
+    void cycle_reflection_model();
+    void set_reflection_model(reflection_model_t rm);
+    reflection_model_t get_reflection_model() const;
+    double get_animation_time() const;
+
+public: // for window render loop
     void prerender(const framebuffer &fb);
     virtual void render(framebuffer &fb) = 0;
     void postrender();
@@ -31,7 +38,7 @@ public: // for window
 public:
     scene_info &get_scene_info();
     benchmark &get_benchmark();
-    
+
 public:
     math::matrix4x4f world_to_view();
     material_library &materials();
@@ -55,7 +62,10 @@ protected:
 protected:
     animation_clock clock;
     material_library mat_lib;
-    
+
+private:
+    reflection_model_t reflection_model;
+
 private:
     math::vector3f eye_position;
     math::vector3f eye_direction;

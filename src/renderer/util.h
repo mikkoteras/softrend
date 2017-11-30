@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "types.h"
 #include "vector.h"
 #include <sstream>
 #include <string>
@@ -20,6 +21,8 @@ namespace util {
         result << "]";
         return result.str();
     }
+
+    std::string to_string(reflection_model_t model);
 }
 
 #endif

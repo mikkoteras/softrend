@@ -68,7 +68,11 @@ int window::run(scene &s) {
             else if (event.type == SDL_KEYDOWN) {
                 SDL_KeyboardEvent key = event.key;
 
-                if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
+                if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_i)
+                    text_overlay_visible = !text_overlay_visible;
+                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
+                    s.cycle_reflection_model();
+                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
                     quit = true;
                 else if (key.repeat == 0)
                     s.key_down_event(key.keysym.sym, key.keysym.mod & KMOD_CTRL);

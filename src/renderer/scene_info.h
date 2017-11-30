@@ -16,7 +16,6 @@ public:
     std::vector<std::string> get() const;
     
 private:
-    std::string scene_stats;
     std::string benchmark_stats;
     std::string render_stats;
 };
