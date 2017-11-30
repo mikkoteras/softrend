@@ -32,22 +32,24 @@ void demo::render(framebuffer &fb) {
 }
 
 void demo::render_fern_still(framebuffer &fb) {
-    float t = 0.0f;
-
-    set_eye_position(vector3f{12 * cosf(0.3 * t), 6.0f - 2 * cosf(0.75f * t), 12 * sinf(0.3f * t)});
-    set_eye_reference_point(vector3f{0.0f, 3.0f, 0.0f});
+    set_eye_position(vector3f{3, 4, 10});
+    set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
     set_view_to_view_plane_distance(2.0f);
-    
+
     fern.render(*this, fb);
 }
 
 void demo::render_fern_3d(framebuffer &fb) {
     float t = clock.seconds();
 
-    set_eye_position(vector3f{12 * cosf(0.3 * t), 6.0f - 2 * cosf(0.75f * t), 12 * sinf(0.3f * t)});
-    set_eye_reference_point(vector3f{0.0f, 3.0f, 0.0f});
+    float eye_x = 3.0f * cosf(0.4 * t);
+    float eye_y = 4.0f + 3.0f * sinf(0.5f * t);
+    float eye_z = 10.0f + sinf(0.6f * t);
+
+    set_eye_position(vector3f{eye_x, eye_y, eye_z});
+    set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
     set_view_to_view_plane_distance(2.0f);
@@ -93,8 +95,8 @@ void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int 
     else
         c = color(.37f, .89f, .50f, 1);
 
-    color c1 = 0.7f * c;
-    color c2 = 1.3f * c;
+    color c1 = (0.2f * root.z() + 1.0f) * 0.7f * c;
+    color c2 = (0.2f * tip.z() + 1.0f) * 1.3f * c;
     c1.clamp();
     c2.clamp();
     
