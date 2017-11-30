@@ -26,7 +26,11 @@ void scene::prerender(const framebuffer &fb) {
     framebuffer_visible_volume = bounding_box(vector3f{0.0f, 0.0f, 0.0f});
     framebuffer_visible_volume.stretch(vector3f{static_cast<float>(fb.pixel_width()),
                                                 static_cast<float>(fb.pixel_height()),
-                                                -std::numeric_limits<float>::infinity()});    
+                                                -std::numeric_limits<float>::infinity()});
+}
+
+void scene::postrender() {
+    get_scene_info().update(*this);
 }
 
 void scene::key_down_event(int, bool) {

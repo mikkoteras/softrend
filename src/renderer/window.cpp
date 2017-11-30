@@ -47,12 +47,12 @@ int window::run(scene &s) {
         ts = mark.render_starting();
         s.prerender(fb);
         s.render(fb);
+        s.postrender();
         mark.render_finished(ts);
         ts = mark.copy_starting();
         SDL_RenderClear(sdl_renderer);
         SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), stride);
         SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
-        s.get_scene_info().update_benchmark_stats(mark);
         render_text_overlay(s);
         SDL_RenderPresent(sdl_renderer);
         mark.copy_finished(ts);

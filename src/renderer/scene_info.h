@@ -12,10 +12,7 @@ public:
     scene_info();
     ~scene_info();
 
-    void update_scene_stats(const scene &s);
-    void update_benchmark_stats(const benchmark &b);
-    void update_render_info(const scene &s);
-
+    void update(scene &parent);
     std::vector<std::string> get() const;
     
 private:

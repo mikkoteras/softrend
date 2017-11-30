@@ -21,8 +21,9 @@ public:
     virtual ~scene();
 
 public: // for window
-    virtual void prerender(const framebuffer &fb);
+    void prerender(const framebuffer &fb);
     virtual void render(framebuffer &fb) = 0;
+    void postrender();
     virtual void key_down_event(int sdl_keycode, bool ctrl_is_down);
     virtual void mouse_move_event(int delta_x, int delta_y, bool left_button_is_down);
     virtual void mouse_wheel_event(int delta_x, int delta_y);
@@ -50,7 +51,7 @@ protected:
     void set_eye_reference_point(const math::vector3f &look_at_point); // option 2
     void set_eye_orientation(const math::vector3f &up_direction);
     void set_view_to_view_plane_distance(float distance);
-    
+
 protected:
     animation_clock clock;
     material_library mat_lib;
@@ -64,7 +65,7 @@ private:
     bool world_to_view_matrix_dirty;
     bounding_box framebuffer_visible_volume;
     light_list lights;
-    
+
 private:
     bool stop_requested;
     scene_info info;

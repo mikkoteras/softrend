@@ -10,14 +10,8 @@ scene_info::scene_info() {
 scene_info::~scene_info() {
 }
 
-void scene_info::update_scene_stats(const scene &) {
-}
-
-void scene_info::update_benchmark_stats(const benchmark &b) {
-    benchmark_stats = b.get_stats();
-}
-
-void scene_info::update_render_info(const scene &) {
+void scene_info::update(scene &parent) {
+    benchmark_stats = parent.get_benchmark().get_stats();
 }
 
 vector<string> scene_info::get() const {
