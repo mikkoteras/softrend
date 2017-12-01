@@ -32,8 +32,16 @@ point_light &point_light::operator=(point_light &&rhs) {
     return *this;
 }
 
-vector3f point_light::light_vector_unit(const vector3f &surface_point) const {
-    vector3f result = position - surface_point;
+vector3f point_light::light_to_surface_unit(const vector3f &surface_point) const {
+    vector3f result = surface_point;
+    result -= position;
+    result.normalize();
+    return result;
+}
+
+vector3f point_light::surface_to_light_unit(const vector3f &surface_point) const {
+    vector3f result = position;
+    result -= surface_point;
     result.normalize();
     return result;
 }

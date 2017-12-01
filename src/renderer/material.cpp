@@ -5,6 +5,7 @@
 #include "vector.h"
 
 #include <iostream>
+#include "util.h"
 
 using namespace math;
 
@@ -27,12 +28,12 @@ color material::shade(const vector3f &surface_point, const vector3f &surface_nor
     color diffuse_term, specular_term;
 
     for (const light *source: light_sources.get()) {
-        vector3f light_vector = source->light_vector_unit(surface_point);
+        vector3f light_vector = source->surface_to_light_unit(surface_point);
         float normal_dot_light(surface_normal_unit.dot(light_vector));
 
         if (normal_dot_light > 0.0f)
             diffuse_term += source->get_color() * normal_dot_light;
-        
+
         vector3f reflection_vector(2.0f * normal_dot_light * surface_normal_unit - light_vector);
         reflection_vector.normalize();
         float specular_base = pixel_to_eye_unit.dot(reflection_vector);

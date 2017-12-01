@@ -15,7 +15,8 @@ public:
     const point_light &operator=(const point_light &rhs);
     point_light &operator=(point_light &&rhs);
 
-    math::vector3f light_vector_unit(const math::vector3f &surface_point) const override;
+    math::vector3f light_to_surface_unit(const math::vector3f &surface_point) const override;
+    math::vector3f surface_to_light_unit(const math::vector3f &surface_point) const override;
     color get_color() const override;
 
 private:
