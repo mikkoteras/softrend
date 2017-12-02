@@ -4,7 +4,6 @@
 #include "point_light.h"
 #include "vector.h"
 #include "SDL.h"
-#include <iostream>
 
 using namespace math;
 using namespace std;

@@ -4,9 +4,6 @@
 #include "texture.h"
 #include "vector.h"
 
-#include <iostream>
-#include "util.h"
-
 using namespace math;
 
 material::material() :
