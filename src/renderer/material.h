@@ -15,7 +15,7 @@ public:
     // TODO: texture_color could be replaced with uvw because the texture is known
     // TODO: maybe make this polymorphic for when there is texture, Gouraud only, etc
     color shade(const math::vector3f &surface_point, const math::vector3f &surface_normal_unit,
-                const math::vector3f &pixel_to_eye_unit, const light_list &light_sources,
+                const math::vector3f &point_to_eye_unit, const light_list &light_sources,
                 const color &texture_color) const;
 
 public:

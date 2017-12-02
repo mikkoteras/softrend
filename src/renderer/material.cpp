@@ -22,7 +22,7 @@ material::~material() {
 }
 
 color material::shade(const vector3f &surface_point, const vector3f &surface_normal_unit,
-                      const vector3f &pixel_to_eye_unit, const light_list &light_sources,
+                      const vector3f &point_to_eye_unit, const light_list &light_sources,
                       const color &texture_color) const {
     color result = ambient_reflectivity * light_sources.ambient_coeff();
     color diffuse_term, specular_term;
@@ -36,7 +36,7 @@ color material::shade(const vector3f &surface_point, const vector3f &surface_nor
 
         vector3f reflection_vector(2.0f * normal_dot_light * surface_normal_unit - light_vector);
         reflection_vector.normalize();
-        float specular_base = pixel_to_eye_unit.dot(reflection_vector);
+        float specular_base = point_to_eye_unit.dot(reflection_vector);
 
         if (specular_base > 0.0f)
             specular_term += powf(specular_base, specular_exponent) * source->get_color();
