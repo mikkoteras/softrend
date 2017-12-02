@@ -19,7 +19,7 @@ void scene_info::update(scene &parent) {
     ostringstream o;
     o << fixed << setw(6) << setprecision(2)
       << "animation time: " << parent.get_animation_time()
-      << " | reflection model: " << util::to_string(parent.get_reflection_model());
+      << " | reflection model: " << util::to_string(parent.get_shading_model());
     render_stats = o.str();
 }
 

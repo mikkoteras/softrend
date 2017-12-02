@@ -22,9 +22,9 @@ public:
     virtual ~scene();
 
 public: // for runtime options
-    void cycle_reflection_model();
-    void set_reflection_model(reflection_model_t rm);
-    reflection_model_t get_reflection_model() const;
+    void cycle_shading_model();
+    void set_shading_model(shading_model_t rm);
+    shading_model_t get_shading_model() const;
     double get_animation_time() const;
 
 public: // for window render loop
@@ -64,7 +64,7 @@ protected:
     material_library mat_lib;
 
 private:
-    reflection_model_t reflection_model;
+    shading_model_t shading_model;
 
 private:
     math::vector3f eye_position;

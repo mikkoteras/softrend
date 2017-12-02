@@ -71,7 +71,7 @@ int window::run(scene &s) {
                 if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_i)
                     text_overlay_visible = !text_overlay_visible;
                 else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
-                    s.cycle_reflection_model();
+                    s.cycle_shading_model();
                 else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
                     quit = true;
                 else if (key.repeat == 0)

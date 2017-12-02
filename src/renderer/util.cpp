@@ -1,10 +1,10 @@
 #include "util.h"
 
 namespace util {
-    std::string to_string(reflection_model_t model) {
+    std::string to_string(shading_model_t model) {
         switch (model) {
-        case lambert:
-            return "lambert";
+        case flat:
+            return "flat";
         case gouraud:
             return "gouraud";
         case phong:

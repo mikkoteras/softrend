@@ -22,7 +22,7 @@ namespace util {
         return result.str();
     }
 
-    std::string to_string(reflection_model_t model);
+    std::string to_string(shading_model_t model);
 }
 
 #endif

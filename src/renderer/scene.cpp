@@ -9,7 +9,7 @@ using namespace math;
 using namespace std;
 
 scene::scene() :
-    reflection_model(phong),
+    shading_model(phong),
     eye_position{0, 0, 1},
     eye_direction{0, 0, -1},
     eye_up{0, 1, 0},
@@ -30,17 +30,17 @@ void scene::prerender(const framebuffer &fb) {
                                                 -std::numeric_limits<float>::infinity()});
 }
 
-void scene::cycle_reflection_model() {
-    int rm = (reflection_model + 1) % (max_reflection_model + 1);
-    reflection_model = static_cast<reflection_model_t>(rm);
+void scene::cycle_shading_model() {
+    int rm = (shading_model + 1) % (max_shading_model + 1);
+    shading_model = static_cast<shading_model_t>(rm);
 }
 
-void scene::set_reflection_model(reflection_model_t rm) {
-    reflection_model = rm;
+void scene::set_shading_model(shading_model_t rm) {
+    shading_model = rm;
 }
 
-reflection_model_t scene::get_reflection_model() const {
-    return reflection_model;
+shading_model_t scene::get_shading_model() const {
+    return shading_model;
 }
 
 double scene::get_animation_time() const {

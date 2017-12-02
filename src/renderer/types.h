@@ -1,12 +1,12 @@
 #ifndef SOFTREND_TYPES_H
 #define SOFTREND_TYPES_H
 
-enum reflection_model_t {
-    lambert,
+enum shading_model_t {
+    flat,
     gouraud,
     phong,
     blinn_phong,
-    max_reflection_model = blinn_phong
+    max_shading_model = blinn_phong
 };
 
 #endif
