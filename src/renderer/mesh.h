@@ -36,7 +36,9 @@ public:
     void set_rotation(float x, float y, float z);
     void set_position(float x, float y, float z);
 
-    void render(scene &sc, framebuffer &fb);
+    void render(scene &sc, framebuffer &fb, bool visualize_normals, bool visualize_reflection_vectors);
+    void visualize_normals(framebuffer &fb, scene &sc);
+    void visualize_reflection_vectors(framebuffer &fb, scene &sc);
     bounding_box local_bounding_box() const;
 
 public: // for child geometries (lines, triangles...)

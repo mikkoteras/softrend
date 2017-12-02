@@ -2,8 +2,10 @@
 #include "color.h"
 #include "framebuffer.h"
 #include "light_list.h"
+#include "linear_transforms.h"
 #include "material.h"
 #include "math_util.h"
+#include "matrix.h"
 #include "mesh.h"
 #include "scene.h"
 #include <algorithm>
@@ -299,4 +301,27 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         w1 += w1_delta;
         w2 += w2_delta;
     }
+}
+
+void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
+                                 scene &parent_scene, const matrix4x4f &world_to_view) const {
+    const vector4f *view_data = parent_mesh.view_coordinate_data();
+    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    const vector4f *normal_data = parent_mesh.world_normal_data();
+    color yellow(1, 1, 0, 1);
+
+    for (int i = 0; i < 3; ++i) {
+        int vi = vertex_index[i], ni = normal_index[i];
+        vector4f v(view_data[vi]); // view vertex
+        vector4f wn(world_data[vi] + 0.3f * normal_data[ni]); // world normal, offset from vertex
+
+        vector4f vn = world_to_view * wn;
+        vn.divide_by_h();
+        line::render(target, v.x(), v.y(), v.z(), yellow, vn.x(), vn.y(), vn.z(), yellow);
+    }
+}
+
+void triangle::visualize_reflection_vectors(framebuffer &/*target*/, const mesh &/*parent_mesh*/,
+                                            scene &/*parent_scene*/, const matrix4x4f &/*world_to_view*/) const {
+    //const vector4f *view_data = parent_mesh.view_coordinate_data();
 }

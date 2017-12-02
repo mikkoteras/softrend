@@ -39,7 +39,7 @@ int window::run(scene &s) {
     benchmark::timestamp_t ts, fts;
     benchmark &mark = s.get_benchmark();
 
-    while (!quit && !s.stopped()) {
+    while (!quit && !s.stopped()) { // TODO refactor this
         fts = mark.frame_starting();
         ts = mark.clear_starting();
         fb.clear();
@@ -70,6 +70,10 @@ int window::run(scene &s) {
 
                 if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_i)
                     text_overlay_visible = !text_overlay_visible;
+                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_n)
+                    s.set_normal_visualization(!s.get_normal_visualization());
+                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_l)
+                    s.set_reflection_vector_visualization(!s.get_reflection_vector_visualization());
                 else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
                     s.cycle_shading_model();
                 else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)

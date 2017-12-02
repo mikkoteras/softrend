@@ -53,5 +53,5 @@ coordinate_system::~coordinate_system() {
 }
 
 void coordinate_system::render(scene &sc, framebuffer &fb) {
-    m.render(sc, fb);
+    m.render(sc, fb, false, false);
 }

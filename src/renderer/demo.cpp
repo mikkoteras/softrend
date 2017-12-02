@@ -38,7 +38,7 @@ void demo::render_fern_still(framebuffer &fb) {
     
     set_view_to_view_plane_distance(2.0f);
 
-    fern.render(*this, fb);
+    fern.render(*this, fb, false, false);
 }
 
 void demo::render_fern_3d(framebuffer &fb) {
@@ -54,7 +54,7 @@ void demo::render_fern_3d(framebuffer &fb) {
     
     set_view_to_view_plane_distance(2.0f);
 
-    fern.render(*this, fb);
+    fern.render(*this, fb, false, false);
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {

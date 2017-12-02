@@ -124,8 +124,8 @@ void mesh::set_rotation(float x, float y, float z) {
 void mesh::set_position(float x, float y, float z) {
     position = linear_transforms::translate3<float>(x, y, z);
 }
-
-void mesh::render(scene &sc, framebuffer &fb) {
+#include <iostream>
+void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visualize_reflection_vectors) {
     using namespace math::linear_transforms;
     float min_axis = fb.pixel_width() < fb.pixel_height() ? fb.pixel_width() : fb.pixel_height();
 
@@ -150,6 +150,15 @@ void mesh::render(scene &sc, framebuffer &fb) {
 
     for (const line &l: lines)
         l.render(fb, *this, sc);
+
+    if (visualize_normals) {
+        for (const triangle &t: triangles)
+            t.visualize_normals(fb, *this, sc, world_to_view);
+
+    }
+
+    if (visualize_reflection_vectors) {
+    }
 }
 
 bounding_box mesh::local_bounding_box() const {

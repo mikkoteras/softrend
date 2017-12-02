@@ -1,6 +1,7 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include "matrix.h"
 #include "vector.h"
 
 class color;
@@ -26,6 +27,10 @@ public:
 
 public:
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void visualize_normals(framebuffer &target, const mesh &parent_mesh,
+                           scene &parent_scene, const math::matrix4x4f &local_to_view) const;
+    void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
+                                      scene &parent_scene, const math::matrix4x4f &local_to_view) const;
 
 private: // render helpers
     struct edge { int top, bottom; }; // indices to vertex_index

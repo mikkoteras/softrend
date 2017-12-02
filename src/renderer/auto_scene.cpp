@@ -85,5 +85,5 @@ void auto_scene::render(framebuffer &fb) {
     object.set_rotation(0.0f, y_rotation, 0.0f);
     
     freecam_scene::render(fb);
-    object.render(*this, fb);
+    object.render(*this, fb, visualize_normals, visualize_reflection_vectors);
 }

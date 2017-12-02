@@ -21,10 +21,14 @@ public:
     scene();
     virtual ~scene();
 
-public: // for runtime options
+public: // for runtime options and info
     void cycle_shading_model();
     void set_shading_model(shading_model_t rm);
     shading_model_t get_shading_model() const;
+    void set_normal_visualization(bool setting);
+    bool get_normal_visualization() const;
+    void set_reflection_vector_visualization(bool setting);
+    bool get_reflection_vector_visualization() const;
     double get_animation_time() const;
 
 public: // for window render loop
@@ -63,8 +67,10 @@ protected:
     animation_clock clock;
     material_library mat_lib;
 
-private:
-    shading_model_t shading_model;
+protected:
+    shading_model_t shading_model = phong;
+    bool visualize_normals = false;
+    bool visualize_reflection_vectors = false;
 
 private:
     math::vector3f eye_position;

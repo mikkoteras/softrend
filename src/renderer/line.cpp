@@ -161,3 +161,108 @@ void line::render(framebuffer &target, const mesh &parent_mesh, const scene &par
         }
     }
 }
+
+void line::render(framebuffer &target,
+                  float x1, float y1, float z1, const color &c1,
+                  float x2, float y2, float z2, const color &c2) {
+    int width = abs(x2 - x1);
+    int height = abs(y2 - y1);
+
+    if (width == 0 && height == 0) {
+        float z = std::min(z1, z2);
+        color c = (c1 + c2) / 2.0f;
+        target.set_pixel(x1, y1, z, c);
+    }
+    else if (width >= height) {
+        float y, y_delta;
+        int x, x_max;
+        float z, z_delta;
+        color c, c_delta;
+
+        if (x1 < x2) {
+            x = x1;
+            x_max = x2;
+            y = y1;
+            y_delta = (y2 - y1) / width;
+            z = z1;
+            z_delta = (z2 - z1) / width;
+            c = c1;
+            c_delta = (c2 - c1) / width;
+        }
+        else {
+            x = x2;
+            x_max = x1;
+            y = y2;
+            y_delta = (y1 - y2) / width;
+            z = z2;
+            z_delta = (z1 - z2) / width;
+            c = c2;
+            c_delta = (c1 - c2) / width;
+        }
+
+        if (x < 0) {
+            y += -x * y_delta;
+            z += -x * z_delta;
+            c += -x * c_delta;
+            x = 0;
+        }
+
+        if (x_max >= target.pixel_width())
+            x_max = target.pixel_width() - 1;
+
+        for (; x <= x_max; ++x) {
+            if (z <= 0.0f)
+                target.set_pixel(x, y, z, c);
+
+            y += y_delta;
+            z += z_delta;
+            c += c_delta;
+        }
+    }
+    else {
+        float x, x_delta;
+        int y, y_max;
+        float z, z_delta;
+        color c, c_delta;
+
+        if (y1 < y2) {
+            y = y1;
+            y_max = y2;
+            x = x1;
+            x_delta = (x2 - x1) / height;
+            z = z1;
+            z_delta = (z2 - z1) / height;
+            c = c1;
+            c_delta = (c2 - c1) / height;
+        }
+        else {
+            y = y2;
+            y_max = y1;
+            x = x2;
+            x_delta = (x1 - x2) / height;
+            z = z2;
+            z_delta = (z1 - z2) / height;
+            c = c2;
+            c_delta = (c1 - c2) / height;
+        }
+
+        if (y < 0) {
+            x += -y * x_delta;
+            z += -y * z_delta;
+            c += -y * c_delta;
+            y = 0;
+        }
+
+        if (y_max >= target.pixel_height())
+            y_max = target.pixel_height() - 1;
+
+        for (; y <= y_max; ++y) {
+            if (z <= 0.0f)
+                target.set_pixel(x, y, z, c);
+
+            x += x_delta;
+            z += z_delta;
+            c += c_delta;
+        }
+    }
+}

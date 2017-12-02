@@ -30,7 +30,7 @@ void freecam_scene::render(framebuffer &fb) {
     const float pi = math::detail::pi<float>();
 
     eye_azimuth_angle = period<float>(eye_azimuth_angle, 0.0f, 2.0f * pi);
-    math::clamp<float>(eye_polar_angle, -pi / 2.0f + 0.0001f, pi / 2.0f - 0.0001f);  // -pi < polar < pi
+    math::clamp<float>(eye_polar_angle, -pi / 2.0f + 0.0001f, pi / 2.0f - 0.0001f); // -pi < polar < pi
     eye_radius = std::max(2.00001f, eye_radius); // viewer to plane distance < eye distance
     eye_twist_angle = period<float>(eye_twist_angle, 0.0f, 2.0f * pi);
 
