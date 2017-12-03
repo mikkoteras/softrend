@@ -13,6 +13,8 @@ public:
 
     void render(framebuffer &fb) override;
 
+    void render_dot_curve(framebuffer &fb);
+    void render_line_spiral(framebuffer &fb);
     void render_fern_still(framebuffer &fb);
     void render_fern_3d(framebuffer &fb);
 
@@ -24,14 +26,16 @@ private:
 
 private:
     enum stage_t {
+        dot_curve,
+        line_spiral,
         fern_still,
         fern_3d,
-        min_stage = fern_still,
+        min_stage = dot_curve,
         max_stage = fern_3d
     };
 
-    stage_t stage = fern_still;
-    bool show_coord_sys = false;;
+    stage_t stage = dot_curve;
+    bool show_coord_sys = false;
 
     coordinate_system coord_sys;
     mesh fern;
