@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "vector_util.h"
 #include "SDL.h"
+#include <algorithm>
 #include <cmath>
 
 using namespace math;
@@ -19,6 +20,12 @@ demo::~demo() {
 
 void demo::render(framebuffer &fb) {
     switch (stage) {
+    case dot_curve:
+        render_dot_curve(fb);
+        break;
+    case line_spiral:
+        render_line_spiral(fb);
+        break;
     case fern_still:
         render_fern_still(fb);
         break;
@@ -29,6 +36,33 @@ void demo::render(framebuffer &fb) {
 
     if (show_coord_sys)
         coord_sys.render(*this, fb);
+}
+
+void demo::render_dot_curve(framebuffer &fb) {
+    float cx = fb.pixel_width() / 2.0f;
+    float cy = fb.pixel_height() / 2.0f;
+
+    for (float t = 10.0f; t < 200.0f ; t += 0.002f) {
+        float x1 = cx + (t + t * cos(5 * t)) * cosf(t);
+        float y1 = cy + (t + t * sin(3 * t)) * sinf(t);
+        fb.set_pixel(x1, y1, color(fabs(sinf(t)),
+                                   fabs(sin(t / 200.0f * detail::pi<float>())),
+                                   fabs(sinf(t + detail::pi<float>() / 2.0f)),
+                                   1.0f));
+    }
+}
+
+void demo::render_line_spiral(framebuffer &fb) {
+    float cx = fb.pixel_width() / 2.0f;
+    float cy = fb.pixel_height() / 2.0f;
+
+    for (float t = 10.0f; t < 500.0f; t += 1.5f) {
+        float x1 = cx + t * cosf(0.1f * t);
+        float y1 = cy + t * sinf(0.1f * t);
+        float x2 = cx + 1.2f * t * cosf(0.1f * t + detail::pi<float>() / 4.0f);
+        float y2 = cy + 1.2f * t * sinf(0.1f * t + detail::pi<float>() / 4.0f);
+        line::render(fb, x1, y1, 0, color(1, t / 500.0f, 0, 1), x2, y2, 0, color(0, t / 500.f, 1, 1));
+    }
 }
 
 void demo::render_fern_still(framebuffer &fb) {
