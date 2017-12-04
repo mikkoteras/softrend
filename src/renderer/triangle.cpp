@@ -306,6 +306,35 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     }
 }
 
+void triangle::render2(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+    const vector4f *view_coord = parent_mesh.view_coordinate_data();
+
+    for (int i = 0; i < 3; ++i)
+        render_context.vtx(i).view_position = view_coord[vertex_index[i]].dehomo();
+
+    if (triangle_winds_clockwise())
+        return;
+    
+    const vector4f *world_coord = parent_mesh.world_coordinate_data();
+    const vector4f *world_normal = parent_mesh.world_normal_data();
+
+    for (int i = 0; i < 3; ++i) {
+        vertex_data vtx = render_context.vtx(i);
+        vtx.world_position = world_coord[vertex_index[i]].dehomo(); // TODO: this can be missing
+        vtx.normal = world_normal[normal_index[i]].dehomo();  // TODO: can this be missing?
+    }
+
+    // plane clip
+    if (parent_scene.visible_volume().clip(render_context.vtx(0).view_position.homo(), // TODO no homo
+                                           render_context.vtx(1).view_position.homo(), // TODO extent clip() instead
+                                           render_context.vtx(2).view_position.homo()))
+        return;
+
+    render_context.sort_by_y();
+    
+    
+}
+
 void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
                                  scene &parent_scene, const matrix4x4f &world_to_view) const {
     const vector4f *view_data = parent_mesh.view_coordinate_data();
@@ -370,3 +399,25 @@ void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &par
         line::render(target, p.x(), p.y(), p.z(), white, n.x(), n.y(), n.z(), white);
     }
 }
+
+bool triangle::triangle_winds_clockwise() {
+    float x[3], y[3];
+
+    for (int i = 0; i < 3; ++i) {
+        const vector3f &v = render_context.vtx(i).view_position;
+        x[i] = v.x();
+        y[i] = v.y();
+    }
+
+    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
+                (x[2] - x[1]) * (y[2] + y[1]) +
+                (x[0] - x[2]) * (y[0] + y[2]);
+    
+    return sum < 0.0f;
+}
+
+void triangle::fill_phong() {
+    
+}
+
+triangle_render triangle::render_context;

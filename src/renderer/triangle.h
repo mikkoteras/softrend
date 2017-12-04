@@ -2,6 +2,7 @@
 #define TRIANGLE_H
 
 #include "matrix.h"
+#include "triangle_render.h"
 #include "vector.h"
 
 class color;
@@ -27,11 +28,20 @@ public:
 
 public:
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void render2(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void visualize_normals(framebuffer &target, const mesh &parent_mesh,
                            scene &parent_scene, const math::matrix4x4f &local_to_view) const;
     void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
                                       scene &parent_scene, const math::matrix4x4f &local_to_view) const;
 
+
+
+private:
+    static triangle_render render_context;
+    static bool triangle_winds_clockwise();
+
+    void fill_phong();
+    
 private: // render helpers
     struct edge { int top, bottom; }; // indices to vertex_index
     edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;

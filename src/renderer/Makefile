@@ -24,6 +24,7 @@ SOURCES=animation_clock.cpp \
         scene_info.cpp \
         texture.cpp \
         triangle.cpp \
+        triangle_render.cpp \
         util.cpp \
         window.cpp
 
