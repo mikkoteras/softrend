@@ -143,8 +143,10 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
         view_coordinates[i].divide_by_h();
     }
 
-    for (unsigned i = 0, max = local_normals.size(); i < max; ++i)
+    for (unsigned i = 0, max = local_normals.size(); i < max; ++i) {
         world_normals[i] = local_to_world * local_normals[i];
+        world_normals[i].normalize();
+    }
 
     for (const triangle &t: triangles)
         t.render(fb, *this, sc);
