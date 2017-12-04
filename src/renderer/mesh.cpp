@@ -6,6 +6,7 @@
 #include "scene.h"
 #include "texture.h"
 #include "util.h"
+#include <algorithm>
 
 using namespace std;
 using namespace math;
@@ -158,6 +159,11 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
     }
 
     if (visualize_reflection_vectors) {
+        unsigned step = triangles.size() / 25;
+        step = max(step, 1u);
+
+        for (unsigned i = 0; i < triangles.size(); i += step)
+            triangles[i].visualize_reflection_vectors(fb, *this, sc, world_to_view);
     }
 }
 

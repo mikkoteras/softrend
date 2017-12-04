@@ -1,6 +1,7 @@
 #include "triangle.h"
 #include "color.h"
 #include "framebuffer.h"
+#include "light.h"
 #include "light_list.h"
 #include "linear_transforms.h"
 #include "material.h"
@@ -320,8 +321,45 @@ void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
         line::render(target, v.x(), v.y(), v.z(), yellow, vn.x(), vn.y(), vn.z(), yellow);
     }
 }
+#include <iostream>
+#include "util.h"
+void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
+                                            scene &parent_scene, const matrix4x4f &world_to_view) const {
+    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    const vector4f *normal_data = parent_mesh.world_normal_data();
 
-void triangle::visualize_reflection_vectors(framebuffer &/*target*/, const mesh &/*parent_mesh*/,
-                                            scene &/*parent_scene*/, const matrix4x4f &/*world_to_view*/) const {
-    //const vector4f *view_data = parent_mesh.view_coordinate_data();
+    vector3f wv[3] = {
+        world_data[vertex_index[0]].dehomo(),
+        world_data[vertex_index[1]].dehomo(),
+        world_data[vertex_index[2]].dehomo()
+    };
+
+    vector3f wn[3] = {
+        normal_data[normal_index[0]].dehomo(),
+        normal_data[normal_index[1]].dehomo(),
+        normal_data[normal_index[2]].dehomo()
+    };
+
+    // choose a point roughly in the middle of the triangle
+    vector3f mid_point = ((wv[0] + wv[1]) / 2.0f + wv[2]) / 2.0f;
+    vector3f mid_normal = ((wn[0] + wn[1]) / 2.0f + wn[2]) / 2.0f;
+
+    // phong vectors
+    for (const light *source: parent_scene.light_sources().get()) {
+        vector3f light_vector = source->surface_to_light_unit(mid_point);
+        float normal_dot_light(mid_normal.dot(light_vector));
+        vector3f reflection_vector(2.0f * normal_dot_light * mid_normal - light_vector);
+
+        vector4f p = world_to_view * mid_point.homo();
+        vector4f l = world_to_view * (mid_point + light_vector).homo();
+        vector4f r = world_to_view * (mid_point + reflection_vector).homo();
+        p.divide_by_h();
+        l.divide_by_h();
+        r.divide_by_h();
+
+        color lc(source->get_color());
+        color rc(lc * mat->get_specular_reflectivity());
+        line::render(target, p.x(), p.y(), p.z(), lc, l.x(), l.y(), l.z(), lc);
+        line::render(target, p.x(), p.y(), p.z(), rc, l.x(), r.y(), r.z(), rc);
+    }
 }
