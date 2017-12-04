@@ -3,9 +3,8 @@
 
 namespace math {
     template<typename float_t, int dim> constexpr vector<float_t, dim>::vector() {
-        for (int i = 0; i < dim; ++i) {
+        for (int i = 0; i < dim; ++i)
             elements[i] = (float_t)0;
-        }
     }
 
     template<typename float_t, int dim> vector<float_t, dim>::vector(const vector &rhs) {
