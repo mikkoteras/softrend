@@ -274,17 +274,19 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
         }
 
         max_x = std::min(max_x, target.pixel_width() - 1);
-                
+
+        // TODO: n.unit() might be possible to optimize away
+
         if (tex)
             for (int x = min_x; x <= max_x; ++x, z += z_delta, u += u_delta, v += v_delta, n += n_delta, w += w_delta) {
-                color shade = mat->shade(w, n, (eye - w).unit(), light_sources, tex->at(u, v));
+                color shade = mat->shade(w, n.unit(), (eye - w).unit(), light_sources, tex->at(u, v));
                 target.set_pixel_unchecked(x, y, z, shade);
             }
         else {
             color white(1.0f, 1.0f, 1.0f, 1.0f);
 
             for (int x = min_x; x <= max_x; ++x, z += z_delta, n += n_delta, w += w_delta) {
-                color shade = mat->shade(w, n, (eye - w).unit(), light_sources, white);
+                color shade = mat->shade(w, n.unit(), (eye - w).unit(), light_sources, white);
                 target.set_pixel_unchecked(x, y, z, shade);
             }
         }
@@ -321,8 +323,7 @@ void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
         line::render(target, v.x(), v.y(), v.z(), yellow, vn.x(), vn.y(), vn.z(), yellow);
     }
 }
-#include <iostream>
-#include "util.h"
+
 void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
                                             scene &parent_scene, const matrix4x4f &world_to_view) const {
     const vector4f *world_data = parent_mesh.world_coordinate_data();
@@ -343,6 +344,7 @@ void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &par
     // choose a point roughly in the middle of the triangle
     vector3f mid_point = ((wv[0] + wv[1]) / 2.0f + wv[2]) / 2.0f;
     vector3f mid_normal = ((wn[0] + wn[1]) / 2.0f + wn[2]) / 2.0f;
+    mid_normal.normalize();
 
     // phong vectors
     for (const light *source: parent_scene.light_sources().get()) {
@@ -351,15 +353,20 @@ void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &par
         vector3f reflection_vector(2.0f * normal_dot_light * mid_normal - light_vector);
 
         vector4f p = world_to_view * mid_point.homo();
-        vector4f l = world_to_view * (mid_point + light_vector).homo();
-        vector4f r = world_to_view * (mid_point + reflection_vector).homo();
+        vector4f l = world_to_view * (mid_point + 0.3f * light_vector).homo();
+        vector4f r = world_to_view * (mid_point + 0.3f * reflection_vector).homo();
+        vector4f n = world_to_view * (mid_point + 0.3f * mid_normal).homo();
         p.divide_by_h();
         l.divide_by_h();
         r.divide_by_h();
+        n.divide_by_h();
 
         color lc(source->get_color());
         color rc(lc * mat->get_specular_reflectivity());
+        color white(1.0f, 1.0f, 1.0f, 1.0f);
+
         line::render(target, p.x(), p.y(), p.z(), lc, l.x(), l.y(), l.z(), lc);
         line::render(target, p.x(), p.y(), p.z(), rc, l.x(), r.y(), r.z(), rc);
+        line::render(target, p.x(), p.y(), p.z(), white, n.x(), n.y(), n.z(), white);
     }
 }
