@@ -19,7 +19,9 @@ void scene_info::update(scene &parent) {
     ostringstream o;
     o << fixed << setw(6) << setprecision(2)
       << "animation time: " << parent.get_animation_time()
-      << " | reflection model: " << util::to_string(parent.get_shading_model());
+      << " | shading model: " << util::to_string(parent.get_shading_model())
+      << " | normals: " << (parent.get_normal_visualization() ? "on" : "off")
+      << " | reflections: " << (parent.get_reflection_vector_visualization() ? "on" : "off");
     render_stats = o.str();
 }
 
