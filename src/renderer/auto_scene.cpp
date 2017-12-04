@@ -12,12 +12,15 @@ using namespace std::experimental::filesystem;
 auto_scene::auto_scene(const path &object_file, bool echo_comments, object_position pos) :
     freecam_scene(10.0f),
     previous_render_time(0.0f),
+    x_rotation_per_second(0.0f),
     y_rotation_per_second(0.0f),
-    y_rotation(0.0f) {
+    z_rotation_per_second(0.0f),
+    x_rotation(0.0f),
+    y_rotation(0.0f),
+    z_rotation(0.0f) {
 
     try {
         object = importer::load_3dsmax_object(object_file, materials(), echo_comments);
-
         light_sources().add_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, color(1.0f, 1.0f, 1.0f, 1.0f)));
         light_sources().set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
         
@@ -60,17 +63,37 @@ auto_scene::~auto_scene() {
 }
 
 void auto_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {
-    if (sdl_keycode == SDLK_KP_1) {
+    if (sdl_keycode == SDLK_KP_7) {
+        x_rotation_per_second -= 0.1f;
+        return;
+    }
+    else if (sdl_keycode == SDLK_KP_8) {
+        x_rotation_per_second += 0.1f;
+        return;
+    }
+    else if (sdl_keycode == SDLK_KP_4) {
         y_rotation_per_second -= 0.1f;
         return;
     }
-    else if (sdl_keycode == SDLK_KP_2) {
+    else if (sdl_keycode == SDLK_KP_5) {
         y_rotation_per_second += 0.1f;
         return;
     }
+    else if (sdl_keycode == SDLK_KP_1) {
+        z_rotation_per_second -= 0.1f;
+        return;
+    }
+    else if (sdl_keycode == SDLK_KP_2) {
+        z_rotation_per_second += 0.1f;
+        return;
+    }
     else if (ctrl_is_down && sdl_keycode == SDLK_r) {
-        y_rotation_per_second = 0.0f;
+        x_rotation = 0.0f;
         y_rotation = 0.0f;
+        z_rotation = 0.0f;
+        x_rotation_per_second = 0.0f;
+        y_rotation_per_second = 0.0f;
+        z_rotation_per_second = 0.0f;
     }
 
     freecam_scene::key_down_event(sdl_keycode, ctrl_is_down);
@@ -81,8 +104,10 @@ void auto_scene::render(framebuffer &fb) {
     float delta_t = t - previous_render_time;
     previous_render_time = t;
 
+    x_rotation += delta_t * x_rotation_per_second;
     y_rotation += delta_t * y_rotation_per_second;
-    object.set_rotation(0.0f, y_rotation, 0.0f);
+    z_rotation += delta_t * z_rotation_per_second;
+    object.set_rotation(x_rotation, y_rotation, z_rotation);
     
     freecam_scene::render(fb);
     object.render(*this, fb, visualize_normals, visualize_reflection_vectors);
