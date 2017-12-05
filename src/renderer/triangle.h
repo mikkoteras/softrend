@@ -40,8 +40,8 @@ private:
     static triangle_render render_context;
     static bool triangle_winds_clockwise();
 
-    void fill_phong();
-    
+    void render_halftriangle(framebuffer &target) const;
+     
 private: // render helpers
     struct edge { int top, bottom; }; // indices to vertex_index
     edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;

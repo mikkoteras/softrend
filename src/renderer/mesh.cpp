@@ -149,7 +149,7 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
     }
 
     for (const triangle &t: triangles)
-        t.render(fb, *this, sc);
+        t.render2(fb, *this, sc);
 
     for (const line &l: lines)
         l.render(fb, *this, sc);

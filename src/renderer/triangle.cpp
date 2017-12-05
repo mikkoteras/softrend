@@ -329,10 +329,12 @@ void triangle::render2(framebuffer &target, const mesh &parent_mesh, const scene
                                            render_context.vtx(1).view_position.homo(), // TODO extent clip() instead
                                            render_context.vtx(2).view_position.homo()))
         return;
-
-    render_context.sort_by_y();
-    
-    
+ 
+    render_context.prepare_edges();
+    render_context.prepare_upper_halftriangle();
+    render_halftriangle(target);
+    render_context.prepare_lower_halftriangle();
+    render_halftriangle(target);
 }
 
 void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
@@ -416,8 +418,32 @@ bool triangle::triangle_winds_clockwise() {
     return sum < 0.0f;
 }
 
-void triangle::fill_phong() {
+void triangle::render_halftriangle(framebuffer &target) const {
+    if (render_context.halftriangle_height == 0)
+        return;
     
+    vertex_data left = *render_context.left_edge_top;
+    vertex_data right = *render_context.right_edge_top;
+    int y = left.view_position.y();
+    int max_y = y + render_context.halftriangle_height;
+    
+    for (; y <= max_y; ++y) {
+        int x = left.view_position.x();
+        int max_x = right.view_position.x();
+
+        for (; x <= max_x; ++x) {
+            target.set_pixel(x, y, 0, color(1, 1, 1, 1));
+        }
+
+        left.view_position += render_context.left_edge_delta->view_position;
+        left.world_position += render_context.left_edge_delta->world_position;
+        left.normal += render_context.left_edge_delta->normal;
+        left.uv += render_context.left_edge_delta->uv;
+        right.view_position += render_context.right_edge_delta->view_position;
+        right.world_position += render_context.right_edge_delta->world_position;
+        right.normal += render_context.right_edge_delta->normal;
+        right.uv += render_context.right_edge_delta->uv;
+    }
 }
 
 triangle_render triangle::render_context;

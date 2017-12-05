@@ -15,15 +15,24 @@ struct vertex_data {
 struct triangle_render {
 public:
     vertex_data *vertex[3]; // this enables fast vertex swapping during compute
-
-    triangle_render();
+    vertex_data *left_edge_top, *right_edge_top;
+    vertex_data *left_edge_delta, *right_edge_delta;
+    int halftriangle_height;
+    
     constexpr vertex_data &vtx(int i) { return *vertex[i]; }
-    void sort_by_y();
-    void prepare_upper_halftriangle();
-    void prepare_lower_halftriangle();
+    
+    triangle_render();
+    void prepare_edges(); // sort by y
+    void prepare_upper_halftriangle(); // prepare l/r deltas and long edge midpoint
+    void prepare_lower_halftriangle(); // prepare l/r deltas
+
+private:
+    void compute_delta(vertex_data &result, const vertex_data &start, const vertex_data &finish, float steps);
     
 private:
-    vertex_data data[3];
+    vertex_data edge_endpoint[3];
+    vertex_data long_edge_midpoint;
+    vertex_data short_edge_delta, long_edge_delta;
 };
 
 #endif
