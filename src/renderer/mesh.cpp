@@ -8,6 +8,8 @@
 #include "util.h"
 #include <algorithm>
 
+#include <iostream>
+
 using namespace std;
 using namespace math;
 

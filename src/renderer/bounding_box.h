@@ -35,6 +35,7 @@ public:
     bool contains(const math::vector3f &p) const;
 
     bool clip(const math::vector4f &v1, const math::vector4f &v2) const; // lines
+    bool clip(const math::vector3f &v1, const math::vector3f &v2, const math::vector3f &v3) const; // triangles
     bool clip(const math::vector4f &v1, const math::vector4f &v2, const math::vector4f &v3) const; // triangles
 
 private:

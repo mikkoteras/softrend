@@ -103,8 +103,6 @@ bool bounding_box::contains(const vector3f &p) const {
         p.x() <= max_corner.x() && p.y() <= max_corner.y() && p.z() <= max_corner.z();
 }
 
-#include <iostream>
-
 bool bounding_box::clip(const vector4f &v1, const vector4f &v2) const {
     // TODO: why not an intersect test while we're at it?
     if (v1.x() < min_corner.x() && v2.x() < min_corner.x())
@@ -118,6 +116,24 @@ bool bounding_box::clip(const vector4f &v1, const vector4f &v2) const {
     else if (v1.y() > max_corner.y() && v2.y() > max_corner.y())
         return true;
     else if (v1.z() > max_corner.z() && v2.z() > max_corner.z())
+        return true;
+
+    return false;
+}
+
+bool bounding_box::clip(const math::vector3f &v1, const vector3f &v2, const vector3f &v3) const {
+    // TODO: why not an intersect test while we're at it?
+    if (v1.x() < min_corner.x() && v2.x() < min_corner.x() && v3.x() < min_corner.x())
+        return true;
+    else if (v1.y() < min_corner.y() && v2.y() < min_corner.y() && v3.y() < min_corner.y())
+        return true;
+    else if (v1.z() < min_corner.z() && v2.z() < min_corner.z() && v3.z() < min_corner.z())
+        return true;
+    else if (v1.x() > max_corner.x() && v2.x() > max_corner.x() && v3.x() > max_corner.x())
+        return true;
+    else if (v1.y() > max_corner.y() && v2.y() > max_corner.y() && v3.y() > max_corner.y())
+        return true;
+    else if (v1.z() > max_corner.z() && v2.z() > max_corner.z() && v3.z() > max_corner.z())
         return true;
 
     return false;

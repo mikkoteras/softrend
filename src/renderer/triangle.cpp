@@ -11,6 +11,9 @@
 #include "scene.h"
 #include <algorithm>
 
+#include <iostream>
+#include "util.h"
+
 using namespace math;
 
 triangle::triangle() {
@@ -314,23 +317,29 @@ void triangle::render2(framebuffer &target, const mesh &parent_mesh, const scene
 
     if (triangle_winds_clockwise())
         return;
-    
+
     const vector4f *world_coord = parent_mesh.world_coordinate_data();
     const vector4f *world_normal = parent_mesh.world_normal_data();
 
     for (int i = 0; i < 3; ++i) {
-        vertex_data vtx = render_context.vtx(i);
+        vertex_data &vtx = render_context.vtx(i);
         vtx.world_position = world_coord[vertex_index[i]].dehomo(); // TODO: this can be missing
-        vtx.normal = world_normal[normal_index[i]].dehomo();  // TODO: can this be missing?
+        vtx.normal = world_normal[normal_index[i]].dehomo(); // TODO: can this be missing?
+        vtx.uv[0] = vertex_uv[i][0]; // TODO: this can definitely be missing
+        vtx.uv[1] = vertex_uv[i][1];
     }
 
     // plane clip
-    if (parent_scene.visible_volume().clip(render_context.vtx(0).view_position.homo(), // TODO no homo
-                                           render_context.vtx(1).view_position.homo(), // TODO extent clip() instead
-                                           render_context.vtx(2).view_position.homo()))
+    if (parent_scene.visible_volume().clip(render_context.vtx(0).view_position,
+                                           render_context.vtx(1).view_position,
+                                           render_context.vtx(2).view_position))
         return;
- 
+
+    render_context.eye = parent_scene.get_eye_position();
+    render_context.lights = &parent_scene.light_sources();
+    render_context.tex = mat->get_texture_map();
     render_context.prepare_edges();
+
     render_context.prepare_upper_halftriangle();
     render_halftriangle(target);
     render_context.prepare_lower_halftriangle();
@@ -421,18 +430,36 @@ bool triangle::triangle_winds_clockwise() {
 void triangle::render_halftriangle(framebuffer &target) const {
     if (render_context.halftriangle_height == 0)
         return;
-    
+
     vertex_data left = *render_context.left_edge_top;
     vertex_data right = *render_context.right_edge_top;
+
     int y = left.view_position.y();
     int max_y = y + render_context.halftriangle_height;
-    
+
     for (; y <= max_y; ++y) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
+        vertex_data p = left;
+        vertex_data d;
+        triangle_render::compute_delta(d, left, right, max_x - x);
+
+        // TODO: coord clip
+
+        p.normal.normalize();
 
         for (; x <= max_x; ++x) {
-            target.set_pixel(x, y, 0, color(1, 1, 1, 1));
+            color shade = mat->shade(p.view_position,
+                                     p.normal,
+                                     (render_context.eye - p.world_position).unit(),
+                                     *render_context.lights,
+                                     render_context.tex->at(p.uv[0], p.uv[1]));
+            target.set_pixel(x, y, 0, shade);
+
+            p.view_position += d.view_position;
+            p.world_position += d.world_position;
+            p.normal += d.normal;
+            p.uv += d.uv;
         }
 
         left.view_position += render_context.left_edge_delta->view_position;
