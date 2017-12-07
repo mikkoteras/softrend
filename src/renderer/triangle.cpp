@@ -346,6 +346,68 @@ void triangle::render2(framebuffer &target, const mesh &parent_mesh, const scene
     render_halftriangle(target);
 }
 
+bool triangle::triangle_winds_clockwise() {
+    float x[3], y[3];
+
+    for (int i = 0; i < 3; ++i) {
+        const vector3f &v = render_context.vtx(i).view_position;
+        x[i] = v.x();
+        y[i] = v.y();
+    }
+
+    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
+                (x[2] - x[1]) * (y[2] + y[1]) +
+                (x[0] - x[2]) * (y[0] + y[2]);
+    
+    return sum < 0.0f;
+}
+
+void triangle::render_halftriangle(framebuffer &target) const {
+    if (render_context.halftriangle_height == 0)
+        return;
+
+    vertex_data left = *render_context.left_edge_top;
+    vertex_data right = *render_context.right_edge_top;
+
+    int y = left.view_position.y();
+    int max_y = y + render_context.halftriangle_height;
+
+    for (; y <= max_y; ++y) {
+        int x = left.view_position.x();
+        int max_x = right.view_position.x();
+        vertex_data p = left;
+        vertex_data d;
+        triangle_render::compute_delta(d, left, right, max_x - x);
+
+        // TODO: coord clip
+
+        p.normal.normalize();
+
+        for (; x <= max_x; ++x) {
+            color shade = mat->shade(p.view_position,
+                                     p.normal,
+                                     (render_context.eye - p.world_position).unit(),
+                                     *render_context.lights,
+                                     render_context.tex->at(p.uv[0], p.uv[1]));
+            target.set_pixel(x, y, p.view_position.z(), shade); // TODO: skip view_position, use z alone
+
+            p.view_position += d.view_position;
+            p.world_position += d.world_position;
+            p.normal += d.normal;
+            p.uv += d.uv;
+        }
+
+        left.view_position += render_context.left_edge_delta->view_position;
+        left.world_position += render_context.left_edge_delta->world_position;
+        left.normal += render_context.left_edge_delta->normal;
+        left.uv += render_context.left_edge_delta->uv;
+        right.view_position += render_context.right_edge_delta->view_position;
+        right.world_position += render_context.right_edge_delta->world_position;
+        right.normal += render_context.right_edge_delta->normal;
+        right.uv += render_context.right_edge_delta->uv;
+    }
+}
+
 void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
                                  scene &parent_scene, const matrix4x4f &world_to_view) const {
     const vector4f *view_data = parent_mesh.view_coordinate_data();
@@ -408,68 +470,6 @@ void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &par
         line::render(target, p.x(), p.y(), p.z(), lc, l.x(), l.y(), l.z(), lc);
         line::render(target, p.x(), p.y(), p.z(), rc, l.x(), r.y(), r.z(), rc);
         line::render(target, p.x(), p.y(), p.z(), white, n.x(), n.y(), n.z(), white);
-    }
-}
-
-bool triangle::triangle_winds_clockwise() {
-    float x[3], y[3];
-
-    for (int i = 0; i < 3; ++i) {
-        const vector3f &v = render_context.vtx(i).view_position;
-        x[i] = v.x();
-        y[i] = v.y();
-    }
-
-    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
-                (x[2] - x[1]) * (y[2] + y[1]) +
-                (x[0] - x[2]) * (y[0] + y[2]);
-    
-    return sum < 0.0f;
-}
-
-void triangle::render_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
-        return;
-
-    vertex_data left = *render_context.left_edge_top;
-    vertex_data right = *render_context.right_edge_top;
-
-    int y = left.view_position.y();
-    int max_y = y + render_context.halftriangle_height;
-
-    for (; y <= max_y; ++y) {
-        int x = left.view_position.x();
-        int max_x = right.view_position.x();
-        vertex_data p = left;
-        vertex_data d;
-        triangle_render::compute_delta(d, left, right, max_x - x);
-
-        // TODO: coord clip
-
-        p.normal.normalize();
-
-        for (; x <= max_x; ++x) {
-            color shade = mat->shade(p.view_position,
-                                     p.normal,
-                                     (render_context.eye - p.world_position).unit(),
-                                     *render_context.lights,
-                                     render_context.tex->at(p.uv[0], p.uv[1]));
-            target.set_pixel(x, y, 0, shade);
-
-            p.view_position += d.view_position;
-            p.world_position += d.world_position;
-            p.normal += d.normal;
-            p.uv += d.uv;
-        }
-
-        left.view_position += render_context.left_edge_delta->view_position;
-        left.world_position += render_context.left_edge_delta->world_position;
-        left.normal += render_context.left_edge_delta->normal;
-        left.uv += render_context.left_edge_delta->uv;
-        right.view_position += render_context.right_edge_delta->view_position;
-        right.world_position += render_context.right_edge_delta->world_position;
-        right.normal += render_context.right_edge_delta->normal;
-        right.uv += render_context.right_edge_delta->uv;
     }
 }
 

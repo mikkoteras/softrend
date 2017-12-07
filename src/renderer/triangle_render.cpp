@@ -1,6 +1,8 @@
 #include "triangle_render.h"
 #include "light_list.h"
 #include "texture.h"
+#include "util.h"
+#include <sstream>
 
 std::string vertex_data::to_string() const {
     std::ostringstream o;
