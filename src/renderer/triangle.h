@@ -27,8 +27,8 @@ public:
     ~triangle();
 
 public:
+    void render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render2(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void visualize_normals(framebuffer &target, const mesh &parent_mesh,
                            scene &parent_scene, const math::matrix4x4f &local_to_view) const;
     void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
@@ -54,6 +54,8 @@ private:
     math::vector3f vertex_uv[3];
     int normal_index[3]; // indices to parent mesh's normal data
     const material *mat;
+    bool has_identical_normals;
+    bool has_uv_coordinates;
 };
 
 #endif

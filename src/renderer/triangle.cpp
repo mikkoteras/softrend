@@ -11,9 +11,6 @@
 #include "scene.h"
 #include <algorithm>
 
-#include <iostream>
-#include "util.h"
-
 using namespace math;
 
 triangle::triangle() {
@@ -23,31 +20,21 @@ triangle::triangle(int vi1, int vi2, int vi3,
                    const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                    int ni1, int ni2, int ni3,
                    const material *mat) :
-    mat(mat) {
-
-    vertex_index[0] = vi1;
-    vertex_index[1] = vi2;
-    vertex_index[2] = vi3;
-    vertex_uv[0] = uv1;
-    vertex_uv[1] = uv2;
-    vertex_uv[2] = uv3;
-    normal_index[0] = ni1;
-    normal_index[1] = ni2;
-    normal_index[2] = ni3;
+    vertex_index{vi1, vi2, vi3},
+    vertex_uv{uv1, uv2, uv3},
+    normal_index{ni1, ni2, ni3},
+    mat(mat),
+    has_identical_normals(ni1 == ni2 && ni1 == ni3),
+    has_uv_coordinates(true) {
 }
 
 triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) :
-    mat(mat) {
-
-    vertex_index[0] = vi1;
-    vertex_index[1] = vi2;
-    vertex_index[2] = vi3;
-    vertex_uv[0] = vector3f{0.0f, 0.0f, 0.0f};
-    vertex_uv[1] = vector3f{0.0f, 0.0f, 0.0f};
-    vertex_uv[2] = vector3f{0.0f, 0.0f, 0.0f};
-    normal_index[0] = ni1;
-    normal_index[1] = ni2;
-    normal_index[2] = ni3;
+    vertex_index{vi1, vi2, vi3},
+    vertex_uv{vector3f(), vector3f(), vector3f()},
+    normal_index{ni1, ni2, ni3},
+    mat(mat),
+    has_identical_normals(ni1 == ni2 && ni1 == ni3),
+    has_uv_coordinates(false) {
 }
 
 triangle::triangle(const triangle &rhs) {
@@ -58,6 +45,8 @@ triangle::triangle(const triangle &rhs) {
     }
 
     mat = rhs.mat;
+    has_identical_normals = rhs.has_identical_normals;
+    has_uv_coordinates = rhs.has_uv_coordinates;
 }
 
 triangle::triangle(triangle &&rhs) {
@@ -68,6 +57,8 @@ triangle::triangle(triangle &&rhs) {
     }
 
     mat = rhs.mat;
+    has_identical_normals = rhs.has_identical_normals;
+    has_uv_coordinates = rhs.has_uv_coordinates;
 }
 
 const triangle &triangle::operator=(const triangle &rhs) {
@@ -78,6 +69,8 @@ const triangle &triangle::operator=(const triangle &rhs) {
     }
 
     mat = rhs.mat;
+    has_identical_normals = rhs.has_identical_normals;
+    has_uv_coordinates = rhs.has_uv_coordinates;
     return *this;
 }
 
@@ -89,13 +82,15 @@ triangle &triangle::operator=(triangle &&rhs) {
     }
 
     mat = rhs.mat;
+    has_identical_normals = rhs.has_identical_normals;
+    has_uv_coordinates = rhs.has_uv_coordinates;
     return *this;
 }
 
 triangle::~triangle() {
 }
 
-void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+void triangle::render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
     const vector4f *view_data = parent_mesh.view_coordinate_data();
 
     // vertex winding test
@@ -309,7 +304,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     }
 }
 
-void triangle::render2(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
     const vector4f *view_coord = parent_mesh.view_coordinate_data();
 
     for (int i = 0; i < 3; ++i)
