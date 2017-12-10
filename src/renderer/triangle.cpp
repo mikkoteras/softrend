@@ -90,6 +90,174 @@ triangle &triangle::operator=(triangle &&rhs) {
 triangle::~triangle() {
 }
 
+void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+    render_phong(target, parent_mesh, parent_scene);
+}
+
+void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+    const vector4f *view_coord = parent_mesh.view_coordinate_data();
+
+    for (int i = 0; i < 3; ++i)
+        render_context.vtx(i).view_position = view_coord[vertex_index[i]].dehomo();
+
+    if (triangle_winds_clockwise())
+        return;
+
+    const vector4f *world_coord = parent_mesh.world_coordinate_data();
+    const vector4f *world_normal = parent_mesh.world_normal_data();
+
+    for (int i = 0; i < 3; ++i) {
+        vertex_data &vtx = render_context.vtx(i);
+        vtx.world_position = world_coord[vertex_index[i]].dehomo(); // TODO: this can be missing
+        vtx.normal = world_normal[normal_index[i]].dehomo(); // TODO: can this be missing?
+        vtx.uv[0] = vertex_uv[i][0]; // TODO: this can definitely be missing
+        vtx.uv[1] = vertex_uv[i][1];
+    }
+
+    // plane clip
+    if (parent_scene.visible_volume().clip(render_context.vtx(0).view_position,
+                                           render_context.vtx(1).view_position,
+                                           render_context.vtx(2).view_position))
+        return;
+
+    render_context.eye = parent_scene.get_eye_position();
+    render_context.lights = &parent_scene.light_sources();
+    render_context.tex = mat->get_texture_map();
+    render_context.prepare_edges();
+
+    render_context.prepare_upper_halftriangle();
+    render_halftriangle(target);
+    render_context.prepare_lower_halftriangle();
+    render_halftriangle(target);
+}
+
+bool triangle::triangle_winds_clockwise() {
+    float x[3], y[3];
+
+    for (int i = 0; i < 3; ++i) {
+        const vector3f &v = render_context.vtx(i).view_position;
+        x[i] = v.x();
+        y[i] = v.y();
+    }
+
+    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
+                (x[2] - x[1]) * (y[2] + y[1]) +
+                (x[0] - x[2]) * (y[0] + y[2]);
+    
+    return sum < 0.0f;
+}
+
+void triangle::render_halftriangle(framebuffer &target) const {
+    if (render_context.halftriangle_height == 0)
+        return;
+
+    vertex_data left = *render_context.left_edge_top;
+    vertex_data right = *render_context.right_edge_top;
+
+    int y = left.view_position.y();
+    int max_y = y + render_context.halftriangle_height;
+
+    for (; y <= max_y; ++y) {
+        int x = left.view_position.x();
+        int max_x = right.view_position.x();
+        vertex_data p = left;
+        vertex_data d;
+        triangle_render::compute_delta(d, left, right, max_x - x);
+
+        // TODO: coord clip
+
+        p.normal.normalize();
+
+        for (; x <= max_x; ++x) {
+            color shade = mat->shade(p.view_position,
+                                     p.normal,
+                                     (render_context.eye - p.world_position).unit(),
+                                     *render_context.lights,
+                                     render_context.tex->at(p.uv[0], p.uv[1]));
+            target.set_pixel(x, y, p.view_position.z(), shade); // TODO: skip view_position, use z alone
+
+            p.view_position += d.view_position;
+            p.world_position += d.world_position;
+            p.normal += d.normal;
+            p.uv += d.uv;
+        }
+
+        left.view_position += render_context.left_edge_delta->view_position;
+        left.world_position += render_context.left_edge_delta->world_position;
+        left.normal += render_context.left_edge_delta->normal;
+        left.uv += render_context.left_edge_delta->uv;
+        right.view_position += render_context.right_edge_delta->view_position;
+        right.world_position += render_context.right_edge_delta->world_position;
+        right.normal += render_context.right_edge_delta->normal;
+        right.uv += render_context.right_edge_delta->uv;
+    }
+}
+
+void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
+                                 scene &parent_scene, const matrix4x4f &world_to_view) const {
+    const vector4f *view_data = parent_mesh.view_coordinate_data();
+    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    const vector4f *normal_data = parent_mesh.world_normal_data();
+    color yellow(1, 1, 0, 1);
+
+    for (int i = 0; i < 3; ++i) {
+        int vi = vertex_index[i], ni = normal_index[i];
+        vector4f v(view_data[vi]); // view vertex
+        vector4f wn(world_data[vi] + 0.3f * normal_data[ni]); // world normal, offset from vertex
+
+        vector4f vn = world_to_view * wn;
+        vn.divide_by_h();
+        line::render(target, v.x(), v.y(), v.z(), yellow, vn.x(), vn.y(), vn.z(), yellow);
+    }
+}
+
+void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
+                                            scene &parent_scene, const matrix4x4f &world_to_view) const {
+    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    const vector4f *normal_data = parent_mesh.world_normal_data();
+
+    vector3f wv[3] = {
+        world_data[vertex_index[0]].dehomo(),
+        world_data[vertex_index[1]].dehomo(),
+        world_data[vertex_index[2]].dehomo()
+    };
+
+    vector3f wn[3] = {
+        normal_data[normal_index[0]].dehomo(),
+        normal_data[normal_index[1]].dehomo(),
+        normal_data[normal_index[2]].dehomo()
+    };
+
+    // choose a point roughly in the middle of the triangle
+    vector3f mid_point = ((wv[0] + wv[1]) / 2.0f + wv[2]) / 2.0f;
+    vector3f mid_normal = ((wn[0] + wn[1]) / 2.0f + wn[2]) / 2.0f;
+    mid_normal.normalize();
+
+    // phong vectors
+    for (const light *source: parent_scene.light_sources().get()) {
+        vector3f light_vector = source->surface_to_light_unit(mid_point);
+        float normal_dot_light(mid_normal.dot(light_vector));
+        vector3f reflection_vector(2.0f * normal_dot_light * mid_normal - light_vector);
+
+        vector4f p = world_to_view * mid_point.homo();
+        vector4f l = world_to_view * (mid_point + 0.3f * light_vector).homo();
+        vector4f r = world_to_view * (mid_point + 0.3f * reflection_vector).homo();
+        vector4f n = world_to_view * (mid_point + 0.3f * mid_normal).homo();
+        p.divide_by_h();
+        l.divide_by_h();
+        r.divide_by_h();
+        n.divide_by_h();
+
+        color lc(source->get_color());
+        color rc(lc * mat->get_specular_reflectivity());
+        color white(1.0f, 1.0f, 1.0f, 1.0f);
+
+        line::render(target, p.x(), p.y(), p.z(), lc, l.x(), l.y(), l.z(), lc);
+        line::render(target, p.x(), p.y(), p.z(), rc, l.x(), r.y(), r.z(), rc);
+        line::render(target, p.x(), p.y(), p.z(), white, n.x(), n.y(), n.z(), white);
+    }
+}
+
 void triangle::render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
     const vector4f *view_data = parent_mesh.view_coordinate_data();
 
@@ -304,168 +472,5 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     }
 }
 
-void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *view_coord = parent_mesh.view_coordinate_data();
-
-    for (int i = 0; i < 3; ++i)
-        render_context.vtx(i).view_position = view_coord[vertex_index[i]].dehomo();
-
-    if (triangle_winds_clockwise())
-        return;
-
-    const vector4f *world_coord = parent_mesh.world_coordinate_data();
-    const vector4f *world_normal = parent_mesh.world_normal_data();
-
-    for (int i = 0; i < 3; ++i) {
-        vertex_data &vtx = render_context.vtx(i);
-        vtx.world_position = world_coord[vertex_index[i]].dehomo(); // TODO: this can be missing
-        vtx.normal = world_normal[normal_index[i]].dehomo(); // TODO: can this be missing?
-        vtx.uv[0] = vertex_uv[i][0]; // TODO: this can definitely be missing
-        vtx.uv[1] = vertex_uv[i][1];
-    }
-
-    // plane clip
-    if (parent_scene.visible_volume().clip(render_context.vtx(0).view_position,
-                                           render_context.vtx(1).view_position,
-                                           render_context.vtx(2).view_position))
-        return;
-
-    render_context.eye = parent_scene.get_eye_position();
-    render_context.lights = &parent_scene.light_sources();
-    render_context.tex = mat->get_texture_map();
-    render_context.prepare_edges();
-
-    render_context.prepare_upper_halftriangle();
-    render_halftriangle(target);
-    render_context.prepare_lower_halftriangle();
-    render_halftriangle(target);
-}
-
-bool triangle::triangle_winds_clockwise() {
-    float x[3], y[3];
-
-    for (int i = 0; i < 3; ++i) {
-        const vector3f &v = render_context.vtx(i).view_position;
-        x[i] = v.x();
-        y[i] = v.y();
-    }
-
-    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
-                (x[2] - x[1]) * (y[2] + y[1]) +
-                (x[0] - x[2]) * (y[0] + y[2]);
-    
-    return sum < 0.0f;
-}
-
-void triangle::render_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
-        return;
-
-    vertex_data left = *render_context.left_edge_top;
-    vertex_data right = *render_context.right_edge_top;
-
-    int y = left.view_position.y();
-    int max_y = y + render_context.halftriangle_height;
-
-    for (; y <= max_y; ++y) {
-        int x = left.view_position.x();
-        int max_x = right.view_position.x();
-        vertex_data p = left;
-        vertex_data d;
-        triangle_render::compute_delta(d, left, right, max_x - x);
-
-        // TODO: coord clip
-
-        p.normal.normalize();
-
-        for (; x <= max_x; ++x) {
-            color shade = mat->shade(p.view_position,
-                                     p.normal,
-                                     (render_context.eye - p.world_position).unit(),
-                                     *render_context.lights,
-                                     render_context.tex->at(p.uv[0], p.uv[1]));
-            target.set_pixel(x, y, p.view_position.z(), shade); // TODO: skip view_position, use z alone
-
-            p.view_position += d.view_position;
-            p.world_position += d.world_position;
-            p.normal += d.normal;
-            p.uv += d.uv;
-        }
-
-        left.view_position += render_context.left_edge_delta->view_position;
-        left.world_position += render_context.left_edge_delta->world_position;
-        left.normal += render_context.left_edge_delta->normal;
-        left.uv += render_context.left_edge_delta->uv;
-        right.view_position += render_context.right_edge_delta->view_position;
-        right.world_position += render_context.right_edge_delta->world_position;
-        right.normal += render_context.right_edge_delta->normal;
-        right.uv += render_context.right_edge_delta->uv;
-    }
-}
-
-void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
-                                 scene &parent_scene, const matrix4x4f &world_to_view) const {
-    const vector4f *view_data = parent_mesh.view_coordinate_data();
-    const vector4f *world_data = parent_mesh.world_coordinate_data();
-    const vector4f *normal_data = parent_mesh.world_normal_data();
-    color yellow(1, 1, 0, 1);
-
-    for (int i = 0; i < 3; ++i) {
-        int vi = vertex_index[i], ni = normal_index[i];
-        vector4f v(view_data[vi]); // view vertex
-        vector4f wn(world_data[vi] + 0.3f * normal_data[ni]); // world normal, offset from vertex
-
-        vector4f vn = world_to_view * wn;
-        vn.divide_by_h();
-        line::render(target, v.x(), v.y(), v.z(), yellow, vn.x(), vn.y(), vn.z(), yellow);
-    }
-}
-
-void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
-                                            scene &parent_scene, const matrix4x4f &world_to_view) const {
-    const vector4f *world_data = parent_mesh.world_coordinate_data();
-    const vector4f *normal_data = parent_mesh.world_normal_data();
-
-    vector3f wv[3] = {
-        world_data[vertex_index[0]].dehomo(),
-        world_data[vertex_index[1]].dehomo(),
-        world_data[vertex_index[2]].dehomo()
-    };
-
-    vector3f wn[3] = {
-        normal_data[normal_index[0]].dehomo(),
-        normal_data[normal_index[1]].dehomo(),
-        normal_data[normal_index[2]].dehomo()
-    };
-
-    // choose a point roughly in the middle of the triangle
-    vector3f mid_point = ((wv[0] + wv[1]) / 2.0f + wv[2]) / 2.0f;
-    vector3f mid_normal = ((wn[0] + wn[1]) / 2.0f + wn[2]) / 2.0f;
-    mid_normal.normalize();
-
-    // phong vectors
-    for (const light *source: parent_scene.light_sources().get()) {
-        vector3f light_vector = source->surface_to_light_unit(mid_point);
-        float normal_dot_light(mid_normal.dot(light_vector));
-        vector3f reflection_vector(2.0f * normal_dot_light * mid_normal - light_vector);
-
-        vector4f p = world_to_view * mid_point.homo();
-        vector4f l = world_to_view * (mid_point + 0.3f * light_vector).homo();
-        vector4f r = world_to_view * (mid_point + 0.3f * reflection_vector).homo();
-        vector4f n = world_to_view * (mid_point + 0.3f * mid_normal).homo();
-        p.divide_by_h();
-        l.divide_by_h();
-        r.divide_by_h();
-        n.divide_by_h();
-
-        color lc(source->get_color());
-        color rc(lc * mat->get_specular_reflectivity());
-        color white(1.0f, 1.0f, 1.0f, 1.0f);
-
-        line::render(target, p.x(), p.y(), p.z(), lc, l.x(), l.y(), l.z(), lc);
-        line::render(target, p.x(), p.y(), p.z(), rc, l.x(), r.y(), r.z(), rc);
-        line::render(target, p.x(), p.y(), p.z(), white, n.x(), n.y(), n.z(), white);
-    }
-}
-
 triangle_render triangle::render_context;
+

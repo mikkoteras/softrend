@@ -27,22 +27,23 @@ public:
     ~triangle();
 
 public:
-    void render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+
+private:
+    void render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    static triangle_render render_context;
+    static bool triangle_winds_clockwise();
+    void render_halftriangle(framebuffer &target) const;
+
+public:
     void visualize_normals(framebuffer &target, const mesh &parent_mesh,
                            scene &parent_scene, const math::matrix4x4f &local_to_view) const;
     void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
                                       scene &parent_scene, const math::matrix4x4f &local_to_view) const;
 
-
-
-private:
-    static triangle_render render_context;
-    static bool triangle_winds_clockwise();
-
-    void render_halftriangle(framebuffer &target) const;
-     
-private: // render helpers
+public: // TODO legacy, remove
+    void render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+private: // TODO ibid
     struct edge { int top, bottom; }; // indices to vertex_index
     edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;
     int find_long_edge(edge *edges, const math::vector4f *vertex_data) const;
