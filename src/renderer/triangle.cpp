@@ -24,7 +24,7 @@ triangle::triangle(int vi1, int vi2, int vi3,
     vertex_uv{uv1, uv2, uv3},
     normal_index{ni1, ni2, ni3},
     mat(mat),
-    has_identical_normals(ni1 == ni2 && ni1 == ni3),
+    has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(true) {
 }
 
@@ -33,7 +33,7 @@ triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const m
     vertex_uv{vector3f(), vector3f(), vector3f()},
     normal_index{ni1, ni2, ni3},
     mat(mat),
-    has_identical_normals(ni1 == ni2 && ni1 == ni3),
+    has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(false) {
 }
 
@@ -45,7 +45,7 @@ triangle::triangle(const triangle &rhs) {
     }
 
     mat = rhs.mat;
-    has_identical_normals = rhs.has_identical_normals;
+    has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
 }
 
@@ -57,7 +57,7 @@ triangle::triangle(triangle &&rhs) {
     }
 
     mat = rhs.mat;
-    has_identical_normals = rhs.has_identical_normals;
+    has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
 }
 
@@ -69,7 +69,7 @@ const triangle &triangle::operator=(const triangle &rhs) {
     }
 
     mat = rhs.mat;
-    has_identical_normals = rhs.has_identical_normals;
+    has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     return *this;
 }
@@ -82,7 +82,7 @@ triangle &triangle::operator=(triangle &&rhs) {
     }
 
     mat = rhs.mat;
-    has_identical_normals = rhs.has_identical_normals;
+    has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     return *this;
 }
@@ -91,7 +91,11 @@ triangle::~triangle() {
 }
 
 void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    render_phong(target, parent_mesh, parent_scene);
+    if (has_distinct_normals)
+        render_phong(target, parent_mesh, parent_scene);
+    else {
+        render_phong(target, parent_mesh, parent_scene);
+    }
 }
 
 void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
@@ -109,7 +113,7 @@ void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const 
     for (int i = 0; i < 3; ++i) {
         vertex_data &vtx = render_context.vtx(i);
         vtx.world_position = world_coord[vertex_index[i]].dehomo(); // TODO: this can be missing
-        vtx.normal = world_normal[normal_index[i]].dehomo(); // TODO: can this be missing?
+        vtx.normal = world_normal[normal_index[i]].dehomo(); // TODO: this can be missing
         vtx.uv[0] = vertex_uv[i][0]; // TODO: this can definitely be missing
         vtx.uv[1] = vertex_uv[i][1];
     }
@@ -123,14 +127,13 @@ void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const 
     render_context.eye = parent_scene.get_eye_position();
     render_context.lights = &parent_scene.light_sources();
     render_context.tex = mat->get_texture_map();
+
     render_context.prepare_edges();
-
     render_context.prepare_upper_halftriangle();
-    render_halftriangle(target);
+    render_textured_smooth_phong_halftriangle(target);
     render_context.prepare_lower_halftriangle();
-    render_halftriangle(target);
+    render_textured_smooth_phong_halftriangle(target);
 }
-
 bool triangle::triangle_winds_clockwise() {
     float x[3], y[3];
 
@@ -147,39 +150,54 @@ bool triangle::triangle_winds_clockwise() {
     return sum < 0.0f;
 }
 
-void triangle::render_halftriangle(framebuffer &target) const {
+void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) const {
     if (render_context.halftriangle_height == 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
     vertex_data right = *render_context.right_edge_top;
-
     int y = left.view_position.y();
     int max_y = y + render_context.halftriangle_height;
+    max_y = std::min(max_y, target.pixel_height() - 1);
+
+    if (y < 0) {
+        left.view_position += -y * render_context.left_edge_delta->view_position;
+        left.world_position += -y * render_context.left_edge_delta->world_position;
+        left.normal += -y * render_context.left_edge_delta->normal;
+        left.uv += -y * render_context.left_edge_delta->uv;
+        y = 0;
+    }
+
+    // TODO: z-coord clip -- really necessary?
 
     for (; y <= max_y; ++y) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
-        vertex_data p = left;
-        vertex_data d;
-        triangle_render::compute_delta(d, left, right, max_x - x);
+        vertex_data pixel = left;
+        vertex_data delta;
+        triangle_render::compute_delta(delta, left, right, max_x - x);
+        max_x = std::min(max_x, target.pixel_width() - 1);
 
-        // TODO: coord clip
-
-        p.normal.normalize();
+        if (x < 0) {
+            pixel.view_position += -x * delta.view_position;
+            pixel.world_position += -x * delta.world_position;
+            pixel.normal += -x * delta.normal;
+            pixel.uv += -x * delta.uv;
+            x = 0;
+        }
 
         for (; x <= max_x; ++x) {
-            color shade = mat->shade(p.view_position,
-                                     p.normal,
-                                     (render_context.eye - p.world_position).unit(),
-                                     *render_context.lights,
-                                     render_context.tex->at(p.uv[0], p.uv[1]));
-            target.set_pixel(x, y, p.view_position.z(), shade); // TODO: skip view_position, use z alone
+            target.set_pixel(x, y, pixel.view_position.z(), // TODO: skip view_position, use z alone
+                             mat->shade(pixel.view_position,
+                                        pixel.normal.unit(),
+                                        (render_context.eye - pixel.world_position).unit(),
+                                        *render_context.lights,
+                                        render_context.tex->at(pixel.uv[0], pixel.uv[1])));
 
-            p.view_position += d.view_position;
-            p.world_position += d.world_position;
-            p.normal += d.normal;
-            p.uv += d.uv;
+            pixel.view_position += delta.view_position;
+            pixel.world_position += delta.world_position;
+            pixel.normal += delta.normal;
+            pixel.uv += delta.uv;
         }
 
         left.view_position += render_context.left_edge_delta->view_position;
@@ -192,7 +210,7 @@ void triangle::render_halftriangle(framebuffer &target) const {
         right.uv += render_context.right_edge_delta->uv;
     }
 }
-
+ 
 void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
                                  scene &parent_scene, const matrix4x4f &world_to_view) const {
     const vector4f *view_data = parent_mesh.view_coordinate_data();

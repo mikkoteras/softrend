@@ -57,6 +57,7 @@ void triangle_render::prepare_upper_halftriangle() {
     long_edge_midpoint.view_position = vertex[0]->view_position + top_half_height * long_edge_delta.view_position;
     long_edge_midpoint.world_position = vertex[0]->world_position + top_half_height * long_edge_delta.world_position;
     long_edge_midpoint.normal = vertex[0]->normal + top_half_height * long_edge_delta.normal;
+    long_edge_midpoint.normal.normalize();
     long_edge_midpoint.uv = vertex[0]->uv + top_half_height * long_edge_delta.uv;
 
     left_edge_top = right_edge_top = vertex[0];
@@ -74,16 +75,14 @@ void triangle_render::prepare_upper_halftriangle() {
 void triangle_render::prepare_lower_halftriangle() {
     int mid_y = vertex[1]->view_position.y();
     int bot_y = vertex[2]->view_position.y();
-
     halftriangle_height = bot_y - mid_y;
-    
+
     if (halftriangle_height == 0)
         return; // zero scanlines to draw
 
     float bot_half_height = halftriangle_height;
-
     compute_delta(short_edge_delta, *vertex[1], *vertex[2], bot_half_height);
-    
+
     if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
         left_edge_top = &long_edge_midpoint;
         left_edge_delta = &long_edge_delta;
@@ -102,5 +101,12 @@ void triangle_render::compute_delta(vertex_data &result, const vertex_data &star
     result.view_position = (finish.view_position - start.view_position) / steps;
     result.world_position = (finish.world_position - start.world_position) / steps;
     result.normal = (finish.normal - start.normal) / steps;
+    result.uv = (finish.uv - start.uv) / steps;
+}
+
+void triangle_render::compute_delta_without_normal(vertex_data &result, const vertex_data &start,
+                                                   const vertex_data &finish, float steps) {
+    result.view_position = (finish.view_position - start.view_position) / steps;
+    result.world_position = (finish.world_position - start.world_position) / steps;
     result.uv = (finish.uv - start.uv) / steps;
 }

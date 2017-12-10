@@ -12,7 +12,7 @@ class texture;
 struct vertex_data {
     math::vector3f view_position;
     math::vector3f world_position;
-    math::vector3f normal;
+    math::vector3f normal; // only used when interpolating normals
     math::vector2f uv;
 
     std::string to_string() const;
@@ -26,6 +26,7 @@ public:
     int halftriangle_height;
 
     math::vector3f eye;
+    math::vector3f plane_normal; // only used when not interpolating normals
     const light_list *lights;
     const texture *tex;
 
@@ -33,9 +34,11 @@ public:
 
     triangle_render();
     void prepare_edges(); // sort by y
-    void prepare_upper_halftriangle(); // prepare l/r deltas and long edge midpoint
-    void prepare_lower_halftriangle(); // prepare l/r deltas
+
+    void prepare_upper_halftriangle();
+    void prepare_lower_halftriangle();
     static void compute_delta(vertex_data &result, const vertex_data &start, const vertex_data &finish, float steps);
+    static void compute_delta_without_normal(vertex_data &result, const vertex_data &start, const vertex_data &finish, float steps);
 
 private:
     vertex_data edge_endpoint[3];

@@ -30,10 +30,26 @@ public:
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:
+    void render_flat(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void render_blinn_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+
+private:
     static triangle_render render_context;
     static bool triangle_winds_clockwise();
-    void render_halftriangle(framebuffer &target) const;
+
+    void render_colored_flat_halftriangle(framebuffer &target) const;
+    void render_colored_gouraud_halftriangle(framebuffer &target) const;
+    void render_colored_smooth_phong_halftriangle(framebuffer &target) const;
+    void render_colored_flat_phong_halftriangle(framebuffer &target) const;
+    void render_colored_blinn_phong_halftriangle(framebuffer &target) const;
+    
+    void render_textured_flat_halftriangle(framebuffer &target) const;
+    void render_textured_gouraud_halftriangle(framebuffer &target) const;
+    void render_textured_flat_phong_halftriangle(framebuffer &target) const;
+    void render_textured_smooth_phong_halftriangle(framebuffer &target) const;
+    void render_textured_blinn_phong_halftriangle(framebuffer &target) const;
 
 public:
     void visualize_normals(framebuffer &target, const mesh &parent_mesh,
@@ -41,9 +57,8 @@ public:
     void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
                                       scene &parent_scene, const math::matrix4x4f &local_to_view) const;
 
-public: // TODO legacy, remove
+private: // TODO legacy, remove
     void render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-private: // TODO ibid
     struct edge { int top, bottom; }; // indices to vertex_index
     edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;
     int find_long_edge(edge *edges, const math::vector4f *vertex_data) const;
@@ -55,7 +70,7 @@ private:
     math::vector3f vertex_uv[3];
     int normal_index[3]; // indices to parent mesh's normal data
     const material *mat;
-    bool has_identical_normals;
+    bool has_distinct_normals;
     bool has_uv_coordinates;
 };
 
