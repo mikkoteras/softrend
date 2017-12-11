@@ -33,8 +33,8 @@ private:
     void render_flat(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render_flat_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_smooth_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void render_flat_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_blinn_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:
@@ -49,8 +49,8 @@ private:
     
     void render_textured_flat_halftriangle(framebuffer &target) const;
     void render_textured_gouraud_halftriangle(framebuffer &target) const;
-    void render_textured_flat_phong_halftriangle(framebuffer &target) const;
     void render_textured_smooth_phong_halftriangle(framebuffer &target) const;
+    void render_textured_flat_phong_halftriangle(framebuffer &target) const;
     void render_textured_blinn_phong_halftriangle(framebuffer &target) const;
 
 public:

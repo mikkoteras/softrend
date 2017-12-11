@@ -120,7 +120,7 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     if (shading == flat)
         render_flat(target, parent_mesh, parent_scene);
     else if (shading == gouraud)
-        render_flat(target, parent_mesh, parent_scene);
+        render_gouraud(target, parent_mesh, parent_scene);
     else if (shading == phong)
         render_phong(target, parent_mesh, parent_scene);
     else if (shading == blinn_phong)
@@ -166,6 +166,41 @@ void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const s
         render_colored_flat_halftriangle(target);
         render_context.prepare_lower_halftriangle();
         render_colored_flat_halftriangle(target);
+    }
+}
+
+void triangle::render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+    render_context.eye = parent_scene.get_eye_position();
+    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    const vector4f *world_normal = parent_mesh.world_normal_data();
+    
+    for (int i = 0; i < 3; ++i) {
+        vector3f world_point = world_data[vertex_index[i]].dehomo();
+        render_context.vtx(i).shade = mat->shade_phong(world_point,
+                                                       world_normal[normal_index[i]].dehomo(),
+                                                       (render_context.eye - world_point).unit(),
+                                                       parent_scene.light_sources());
+    }
+
+    if (render_context.tex) {
+        for (int i = 0; i < 3; ++i) {
+            vertex_data &vtx = render_context.vtx(i);
+            vtx.uv[0] = vertex_uv[i][0];
+            vtx.uv[1] = vertex_uv[i][1];
+        }
+
+        render_context.prepare_edges();
+        render_context.prepare_upper_halftriangle();
+        render_textured_gouraud_halftriangle(target);
+        render_context.prepare_lower_halftriangle();
+        render_textured_gouraud_halftriangle(target);
+    }
+    else {
+        render_context.prepare_edges();
+        render_context.prepare_upper_halftriangle();
+        render_colored_gouraud_halftriangle(target);
+        render_context.prepare_lower_halftriangle();
+        render_colored_gouraud_halftriangle(target);
     }
 }
 
@@ -288,6 +323,44 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
 
         left.add_v(*render_context.left_edge_delta);
         right.add_v(*render_context.right_edge_delta);
+    }
+}
+
+void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
+    if (render_context.halftriangle_height == 0)
+        return;
+
+    vertex_data left = *render_context.left_edge_top;
+    vertex_data right = *render_context.right_edge_top;
+    int y = left.view_position.y();
+    int max_y = y + render_context.halftriangle_height;
+    max_y = std::min(max_y, target.pixel_height() - 1);
+    
+    if (y < 0) {
+        left.add_vs(-y, *render_context.left_edge_delta);
+        y = 0;
+    }
+
+    for (; y <= max_y; ++y) {
+        int x = left.view_position.x();
+        int max_x = right.view_position.x();
+        vertex_data pixel = left;
+        vertex_data delta;
+        delta.compute_delta_vs(left, right, max_x - x);
+        max_x = std::min(max_x, target.pixel_width() - 1);
+
+        if (x < 0) {
+            pixel.add_vs(-x, delta);
+            x = 0;
+        }
+
+        for (; x <= max_x; ++x) {
+            target.set_pixel(x, y, pixel.view_position.z(), pixel.shade);
+            pixel.add_vs(delta); // TODO: skip view_position, use z alone
+        }
+
+        left.add_vs(*render_context.left_edge_delta);
+        right.add_vs(*render_context.right_edge_delta);
     }
 }
 
@@ -416,6 +489,45 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
 
         left.add_vt(*render_context.left_edge_delta);
         right.add_vt(*render_context.right_edge_delta);
+    }
+}
+
+void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
+    if (render_context.halftriangle_height == 0)
+        return;
+
+    vertex_data left = *render_context.left_edge_top;
+    vertex_data right = *render_context.right_edge_top;
+    int y = left.view_position.y();
+    int max_y = y + render_context.halftriangle_height;
+    max_y = std::min(max_y, target.pixel_height() - 1);
+    
+    if (y < 0) {
+        left.add_vts(-y, *render_context.left_edge_delta);
+        y = 0;
+    }
+
+    for (; y <= max_y; ++y) {
+        int x = left.view_position.x();
+        int max_x = right.view_position.x();
+        vertex_data pixel = left;
+        vertex_data delta;
+        delta.compute_delta_vts(left, right, max_x - x);
+        max_x = std::min(max_x, target.pixel_width() - 1);
+
+        if (x < 0) {
+            pixel.add_vts(-x, delta);
+            x = 0;
+        }
+
+        for (; x <= max_x; ++x) {
+            color surface_color(render_context.tex->at(pixel.uv[0], pixel.uv[1]));
+            target.set_pixel(x, y, pixel.view_position.z(), pixel.shade * surface_color);
+            pixel.add_vts(delta); // TODO: skip view_position, use z alone
+        }
+
+        left.add_vts(*render_context.left_edge_delta);
+        right.add_vts(*render_context.right_edge_delta);
     }
 }
 

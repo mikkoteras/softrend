@@ -1,6 +1,7 @@
 #ifndef TRIANGLE_RENDER_H
 #define TRIANGLE_RENDER_H
 
+#include "color.h"
 #include "vector.h"
 #include <string>
 
@@ -14,28 +15,35 @@ struct vertex_data {
     math::vector3f world_position;
     math::vector3f normal; // only used when interpolating normals
     math::vector2f uv;
+    color shade; // only used with gouraud
 
 public:
-    // legend: v = view coords, w = world coords, n = surface normals, t = texture coords
+    // legend: v = view coords, w = world coords, n = surface normals, t = texture coords, s = shade
     void add_vwnt(const vertex_data &delta);
     void add_vwt(const vertex_data &delta);
     void add_vwn(const vertex_data &delta);
     void add_vw(const vertex_data &delta);
+    void add_vts(const vertex_data &delta);
     void add_vt(const vertex_data &delta);
+    void add_vs(const vertex_data &delta);
     void add_v(const vertex_data &delta);
 
     void add_vwnt(float multiplier, const vertex_data &delta); // lhs += multiplier * delta
     void add_vwt(float multiplier, const vertex_data &delta);  // used for clipping
     void add_vwn(float multiplier, const vertex_data &delta);
+    void add_vts(float multiplier, const vertex_data &delta);
     void add_vw(float multiplier, const vertex_data &delta);
     void add_vt(float multiplier, const vertex_data &delta);
+    void add_vs(float multiplier, const vertex_data &delta);
     void add_v(float multiplier, const vertex_data &delta);
 
     void compute_delta_vwnt(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vwt(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vwn(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vw(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_vts(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vt(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_vs(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_v(const vertex_data &v1, const vertex_data &v2, float steps);
 
     std::string to_string() const;
@@ -51,6 +59,7 @@ public:
     math::vector3f eye;
     math::vector3f surface_normal; // only used when not interpolating normals
     math::vector3f surface_midpoint; // used with flat polys
+    color shade; // used with flat gouraud polys
     const light_list *lights;
     const texture *tex;
 
