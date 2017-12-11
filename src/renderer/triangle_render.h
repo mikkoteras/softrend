@@ -15,6 +15,26 @@ struct vertex_data {
     math::vector3f normal; // only used when interpolating normals
     math::vector2f uv;
 
+public:
+    // legend: v = view coords, w = world coords, n = surface normals, t = texture coords
+    void add_vwnt(const vertex_data &delta);
+    void add_vwt(const vertex_data &delta);
+    void add_vwn(const vertex_data &delta);
+    void add_vt(const vertex_data &delta);
+    void add_v(const vertex_data &delta);
+
+    void add_vwnt(float multiplier, const vertex_data &delta); // lhs += multiplier * delta
+    void add_vwt(float multiplier, const vertex_data &delta);  // used for clipping
+    void add_vwn(float multiplier, const vertex_data &delta);
+    void add_vt(float multiplier, const vertex_data &delta);
+    void add_v(float multiplier, const vertex_data &delta);
+
+    void compute_delta_vwnt(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_vwt(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_vwn(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_vt(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_v(const vertex_data &v1, const vertex_data &v2, float steps);
+
     std::string to_string() const;
 };
 
@@ -26,20 +46,19 @@ public:
     int halftriangle_height;
 
     math::vector3f eye;
-    math::vector3f plane_normal; // only used when not interpolating normals
+    math::vector3f surface_normal; // only used when not interpolating normals
+    math::vector3f surface_midpoint; // used with flat polys
     const light_list *lights;
     const texture *tex;
 
     constexpr vertex_data &vtx(int i) { return *vertex[i]; }
-
+    
     triangle_render();
     void prepare_edges(); // sort by y
 
     void prepare_upper_halftriangle();
     void prepare_lower_halftriangle();
-    static void compute_delta(vertex_data &result, const vertex_data &start, const vertex_data &finish, float steps);
-    static void compute_delta_without_normal(vertex_data &result, const vertex_data &start, const vertex_data &finish, float steps);
-
+    
 private:
     vertex_data edge_endpoint[3];
     vertex_data long_edge_midpoint;

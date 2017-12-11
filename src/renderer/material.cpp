@@ -18,10 +18,25 @@ material::material() :
 material::~material() {
 }
 
-color material::shade(const vector3f &surface_point, const vector3f &surface_normal_unit,
-                      const vector3f &point_to_eye_unit, const light_list &light_sources,
-                      const color &texture_color) const {
-    color result = ambient_reflectivity * light_sources.ambient_coeff();
+color material::shade_flat(const vector3f &surface_midpoint, const math::vector3f &surface_normal_unit,
+                           const light_list &light_sources) const {
+    color result(ambient_reflectivity * light_sources.ambient_coeff());
+    
+    for (const light *source: light_sources.get()) {
+        vector3f light_vector = source->surface_to_light_unit(surface_midpoint);
+        float normal_dot_light(surface_normal_unit.dot(light_vector));
+
+        if (normal_dot_light > 0.0f)
+            result += source->get_color() * normal_dot_light;
+    }
+
+    result.clamp();
+    return result;
+}
+
+color material::shade_phong(const vector3f &surface_point, const vector3f &surface_normal_unit,
+                            const vector3f &point_to_eye_unit, const light_list &light_sources) const {
+    color result(ambient_reflectivity * light_sources.ambient_coeff());
     color diffuse_term, specular_term;
 
     for (const light *source: light_sources.get()) {
@@ -40,7 +55,6 @@ color material::shade(const vector3f &surface_point, const vector3f &surface_nor
     }
     
     result += diffuse_reflectivity * diffuse_term + specular_reflectivity * specular_term;
-    result *= texture_color;
     result.clamp();
     return result;
 }
