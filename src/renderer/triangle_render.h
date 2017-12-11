@@ -20,18 +20,21 @@ public:
     void add_vwnt(const vertex_data &delta);
     void add_vwt(const vertex_data &delta);
     void add_vwn(const vertex_data &delta);
+    void add_vw(const vertex_data &delta);
     void add_vt(const vertex_data &delta);
     void add_v(const vertex_data &delta);
 
     void add_vwnt(float multiplier, const vertex_data &delta); // lhs += multiplier * delta
     void add_vwt(float multiplier, const vertex_data &delta);  // used for clipping
     void add_vwn(float multiplier, const vertex_data &delta);
+    void add_vw(float multiplier, const vertex_data &delta);
     void add_vt(float multiplier, const vertex_data &delta);
     void add_v(float multiplier, const vertex_data &delta);
 
     void compute_delta_vwnt(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vwt(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vwn(const vertex_data &v1, const vertex_data &v2, float steps);
+    void compute_delta_vw(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_vt(const vertex_data &v1, const vertex_data &v2, float steps);
     void compute_delta_v(const vertex_data &v1, const vertex_data &v2, float steps);
 

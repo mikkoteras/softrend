@@ -23,6 +23,11 @@ void vertex_data::add_vwn(const vertex_data &delta) {
     normal += delta.normal;
 }
 
+void vertex_data::add_vw(const vertex_data &delta) {
+    view_position += delta.view_position;
+    world_position += delta.world_position;
+}
+
 void vertex_data::add_vt(const vertex_data &delta) {
     view_position += delta.view_position;
     uv += delta.uv;
@@ -49,6 +54,11 @@ void vertex_data::add_vwn(float multiplier, const vertex_data &delta) {
     view_position += multiplier * delta.view_position;
     world_position += multiplier * delta.world_position;
     normal += multiplier * delta.normal;
+}
+
+void vertex_data::add_vw(float multiplier, const vertex_data &delta) {
+    view_position += multiplier * delta.view_position;
+    world_position += multiplier * delta.world_position;
 }
 
 void vertex_data::add_vt(float multiplier, const vertex_data &delta) {
@@ -79,12 +89,17 @@ void vertex_data::compute_delta_vwn(const vertex_data &v1, const vertex_data &v2
     normal = (v2.normal - v1.normal) / steps;
 }
 
-void vertex_data::compute_delta_v(const vertex_data &v1, const vertex_data &v2, float steps) {
+void vertex_data::compute_delta_vw(const vertex_data &v1, const vertex_data &v2, float steps) {
+    view_position = (v2.view_position - v1.view_position) / steps;
+    world_position = (v2.world_position - v1.world_position) / steps;
+}
+
+void vertex_data::compute_delta_vt(const vertex_data &v1, const vertex_data &v2, float steps) {
     view_position = (v2.view_position - v1.view_position) / steps;
     uv = (v2.uv - v1.uv) / steps;
 }
 
-void vertex_data::compute_delta_vt(const vertex_data &v1, const vertex_data &v2, float steps) {
+void vertex_data::compute_delta_v(const vertex_data &v1, const vertex_data &v2, float steps) {
     view_position = (v2.view_position - v1.view_position) / steps;
 }
 
