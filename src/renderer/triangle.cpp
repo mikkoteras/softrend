@@ -11,9 +11,6 @@
 #include "scene.h"
 #include <algorithm>
 
-#include <iostream>
-#include "util.h"
-
 using namespace math;
 
 triangle::triangle() {
@@ -170,15 +167,14 @@ void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const s
 }
 
 void triangle::render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    render_context.eye = parent_scene.get_eye_position();
     const vector4f *world_data = parent_mesh.world_coordinate_data();
     const vector4f *world_normal = parent_mesh.world_normal_data();
     
     for (int i = 0; i < 3; ++i) {
-        vector3f world_point = world_data[vertex_index[i]].dehomo();
-        render_context.vtx(i).shade = mat->shade_phong(world_point,
+        vector3f vertex = world_data[vertex_index[i]].dehomo();
+        render_context.vtx(i).shade = mat->shade_phong(vertex,
                                                        world_normal[normal_index[i]].dehomo(),
-                                                       (render_context.eye - world_point).unit(),
+                                                       (parent_scene.get_eye_position() - vertex).unit(),
                                                        parent_scene.light_sources());
     }
 
@@ -521,8 +517,8 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            color surface_color(render_context.tex->at(pixel.uv[0], pixel.uv[1]));
-            target.set_pixel(x, y, pixel.view_position.z(), pixel.shade * surface_color);
+            target.set_pixel(x, y, pixel.view_position.z(),
+                             pixel.shade * render_context.tex->at(pixel.uv[0], pixel.uv[1]));
             pixel.add_vts(delta); // TODO: skip view_position, use z alone
         }
 
