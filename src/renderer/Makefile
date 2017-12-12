@@ -42,7 +42,7 @@ LDFLAGS=-o $(TARGET)
 DEBUGFLAGS=-g
 OPTIMIZATIONFLAGS=-O3
 LIBDIRS=-L/usr/lib/x86_64-linux-gnu
-LIBS=-lstdc++ -lstdc++fs -lSDL2 -lSDL2_ttf
+LIBS=-lstdc++ -lpthread -lstdc++fs -lSDL2 -lSDL2_ttf
 
 all: default
 default: debug
