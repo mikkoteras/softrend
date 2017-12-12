@@ -29,53 +29,57 @@ window::~window() {
     deinit_sdl();
 }
 
-int window::run(scene &s) {
+int window::run(scene &sc) {
     for (int i = 0; i < concurrent_stages; ++i)
         framebuffers[i]->clear();
     
-    s.start();
+    sc.start();
     bool quit = false;
-    benchmark &mark = s.get_benchmark();
+    benchmark &mark = sc.get_benchmark();
 
-    while (!quit && !s.stopped()) { // TODO refactor this
+    int framebuffer_index = 0;
+    
+    while (!quit && !sc.stopped()) { // TODO refactor this
         benchmark_frame frame_stats = mark.frame_starting();
         
-        clear_framebuffer(s, *framebuffers[0], frame_stats);
-        update_scene(s, *framebuffers[0], frame_stats);
-        prepare_sdl_texture(s, *framebuffers[0], frame_stats);
-        quit = read_user_input(s);
+        clear_framebuffer(*framebuffers[framebuffer_index], frame_stats);
+        update_scene(sc, *framebuffers[framebuffer_index], frame_stats);
+        prepare_sdl_texture(sc, *framebuffers[framebuffer_index], frame_stats);
+        quit = read_user_input(sc);
         
         mark.frame_finished(frame_stats);
+
+        framebuffer_index = (framebuffer_index + 1) % concurrent_stages;
     }
 
     return 0;
 }
 
-void window::clear_framebuffer(scene &s, framebuffer &fb, benchmark_frame &frame_stats) {
+void window::clear_framebuffer(framebuffer &fb, benchmark_frame &frame_stats) {
     benchmark_frame::timestamp_t timestamp = frame_stats.clear_starting();
 
-    framebuffers[0]->clear();
+    fb.clear();
     
     frame_stats.clear_finished(timestamp);
 }
 
-void window::update_scene(scene &s, framebuffer &fb, benchmark_frame &frame_stats) {
+void window::update_scene(scene &sc, framebuffer &fb, benchmark_frame &frame_stats) {
     benchmark_frame::timestamp_t timestamp = frame_stats.render_starting();
     
-    s.prerender(fb);
-    s.render(fb);
-    s.postrender();
+    sc.prerender(fb);
+    sc.render(fb);
+    sc.postrender();
     
     frame_stats.render_finished(timestamp);
 }
 
-void window::prepare_sdl_texture(scene &s, const framebuffer &fb, benchmark_frame &frame_stats) {
+void window::prepare_sdl_texture(scene &sc, framebuffer &fb, benchmark_frame &frame_stats) {
     benchmark_frame::timestamp_t timestamp = frame_stats.copy_starting();
     
     SDL_RenderClear(sdl_renderer);
-    SDL_UpdateTexture(sdl_texture, nullptr, framebuffers[0]->get_rgba_byte_buffer(), 4 * width);
+    SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), 4 * width);
     SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
-    render_text_overlay(s);
+    render_text_overlay(sc);
     SDL_RenderPresent(sdl_renderer);
 
     frame_stats.copy_finished(timestamp);
