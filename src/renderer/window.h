@@ -17,12 +17,12 @@ public:
     window(int w, int h);
     ~window();
 
-    int run(scene &s);
+    int run(scene &sc);
 
 private:
-    void clear_framebuffer(scene &s, framebuffer &fb, benchmark_frame &frame_stats);
-    void update_scene(scene &s, framebuffer &fb, benchmark_frame &frame_stats);
-    void prepare_sdl_texture(scene &s, const framebuffer &fb, benchmark_frame &frame_stats);
+    void clear_framebuffer(framebuffer &fb, benchmark_frame &frame_stats);
+    void update_scene(scene &sc, framebuffer &fb, benchmark_frame &frame_stats);
+    void prepare_sdl_texture(scene &sc, framebuffer &fb, benchmark_frame &frame_stats);
     bool read_user_input(scene &s);
 
 private:
