@@ -11,13 +11,7 @@ using namespace std;
 
 window::window(int w, int h) :
     width(w),
-    height(h),
-    sdl_context_initialized(false),
-    sdl_window(nullptr),
-    sdl_renderer(nullptr),
-    sdl_texture(nullptr),
-    text_overlay_visible(false),
-    text_overlay_font(nullptr) {
+    height(h) {
 
     if (!init_sdl()) {
         deinit_sdl();
