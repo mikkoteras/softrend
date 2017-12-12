@@ -8,7 +8,6 @@ class color {
 public:
     color();
     color(float r, float g, float b, float a);
-    color(const color &c1, const color &c2, float weight); // Interpolate between two colors
 
     color operator+(const color &rhs) const;
     color operator-(const color &rhs) const;

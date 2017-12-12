@@ -15,13 +15,6 @@ color::color(float r, float g, float b, float a) :
     a(a) {
 }
 
-color::color(const color &c1, const color &c2, float weight) :
-    r(math::clamped(0.0f, (1.0f - weight) * c1.r + weight * c2.r, 1.0f)),
-    g(math::clamped(0.0f, (1.0f - weight) * c1.g + weight * c2.g, 1.0f)),
-    b(math::clamped(0.0f, (1.0f - weight) * c1.b + weight * c2.b, 1.0f)),
-    a(math::clamped(0.0f, (1.0f - weight) * c1.a + weight * c2.a, 1.0f)) {
-}
-
 color color::operator+(const color &rhs) const {
     return color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 }
@@ -35,11 +28,11 @@ color color::operator*(const color &rhs) const {
 }
 
 color color::operator*(float rhs) const {
-    return color(r * rhs, g * rhs, b * rhs, a);
+    return color(r * rhs, g * rhs, b * rhs, a * rhs);
 }
 
 color color::operator/(float rhs) const {
-    return color(r / rhs, g / rhs, b / rhs, a);
+    return color(r / rhs, g / rhs, b / rhs, a * rhs);
 }
 
 color &color::operator+=(const color &rhs) {
