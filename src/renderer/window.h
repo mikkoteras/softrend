@@ -24,14 +24,14 @@ private:
 
 private:
     int width, height;
-    bool sdl_context_initialized;
-    SDL_Window *sdl_window;
-    SDL_Renderer *sdl_renderer;
-    SDL_Texture *sdl_texture;  // TODO maybe multiple
+    bool sdl_context_initialized = false;
+    SDL_Window *sdl_window = nullptr;
+    SDL_Renderer *sdl_renderer = nullptr;
+    SDL_Texture *sdl_texture = nullptr;  // TODO maybe multiple
 
 private:
-    bool text_overlay_visible;
-    TTF_Font *text_overlay_font;
+    bool text_overlay_visible = false;
+    TTF_Font *text_overlay_font = nullptr;
 };
 
 #endif
