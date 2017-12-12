@@ -17,86 +17,116 @@ window::window(int w, int h) :
         deinit_sdl();
         throw window_exception();
     }
+
+    for (int i = 0; i < concurrent_stages; ++i)
+        framebuffers[i] = new framebuffer(width, height);
 }
 
 window::~window() {
+    for (int i = 0; i < concurrent_stages; ++i)
+        delete framebuffers[i];
+    
     deinit_sdl();
 }
 
 int window::run(scene &s) {
+    for (int i = 0; i < concurrent_stages; ++i)
+        framebuffers[i]->clear();
+    
     s.start();
     bool quit = false;
-    framebuffer fb(width, height);
-    int stride = 4 * width;
-    s.start();
-
-    benchmark::timestamp_t ts, fts;
     benchmark &mark = s.get_benchmark();
 
     while (!quit && !s.stopped()) { // TODO refactor this
-        fts = mark.frame_starting();
-        ts = mark.clear_starting();
-        fb.clear();
-        mark.clear_finished(ts);
-        ts = mark.render_starting();
-        s.prerender(fb);
-        s.render(fb);
-        s.postrender();
-        mark.render_finished(ts);
-        ts = mark.copy_starting();
-        SDL_RenderClear(sdl_renderer);
-        SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), stride);
-        SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
-        render_text_overlay(s);
-        SDL_RenderPresent(sdl_renderer);
-        mark.copy_finished(ts);
-        mark.frame_finished(fts);
-
-        SDL_Event event;
-        int mouse_x_tally = 0, mouse_y_tally = 0;
-        int mouse_horz_wheel_tally = 0, mouse_vert_wheel_tally = 0;
-
-        while (!quit && SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                quit = true;
-            else if (event.type == SDL_KEYDOWN) {
-                SDL_KeyboardEvent key = event.key;
-
-                if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_i)
-                    text_overlay_visible = !text_overlay_visible;
-                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_n)
-                    s.set_normal_visualization(!s.get_normal_visualization());
-                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_l)
-                    s.set_reflection_vector_visualization(!s.get_reflection_vector_visualization());
-                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
-                    s.cycle_shading_model();
-                else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
-                    quit = true;
-                else if (key.repeat == 0)
-                    s.key_down_event(key.keysym.sym, key.keysym.mod & KMOD_CTRL);
-            }
-            else if (event.type == SDL_MOUSEMOTION) {
-                // don't bother calling multiple times per frame
-                mouse_x_tally += event.motion.xrel;
-                mouse_y_tally += event.motion.yrel;
-            }
-            else if (event.type == SDL_MOUSEWHEEL) {
-                mouse_horz_wheel_tally += event.wheel.x;
-                // SDL's wheel ticks point to exactly the heretic direction, dammit
-                mouse_vert_wheel_tally -= event.wheel.y;
-            }
-        }
-
-        if (mouse_x_tally != 0 || mouse_y_tally != 0) {
-            uint32_t state = SDL_GetMouseState(nullptr, nullptr);
-            s.mouse_move_event(mouse_x_tally, mouse_y_tally, state & SDL_BUTTON(SDL_BUTTON_LEFT));
-        }
-
-        if (mouse_horz_wheel_tally != 0 || mouse_vert_wheel_tally != 0)
-            s.mouse_wheel_event(mouse_horz_wheel_tally, mouse_vert_wheel_tally);
+        benchmark_frame frame_stats = mark.frame_starting();
+        
+        clear_framebuffer(s, *framebuffers[0], frame_stats);
+        update_scene(s, *framebuffers[0], frame_stats);
+        prepare_sdl_texture(s, *framebuffers[0], frame_stats);
+        quit = read_user_input(s);
+        
+        mark.frame_finished(frame_stats);
     }
 
     return 0;
+}
+
+void window::clear_framebuffer(scene &s, framebuffer &fb, benchmark_frame &frame_stats) {
+    benchmark_frame::timestamp_t timestamp = frame_stats.clear_starting();
+
+    framebuffers[0]->clear();
+    
+    frame_stats.clear_finished(timestamp);
+}
+
+void window::update_scene(scene &s, framebuffer &fb, benchmark_frame &frame_stats) {
+    benchmark_frame::timestamp_t timestamp = frame_stats.render_starting();
+    
+    s.prerender(fb);
+    s.render(fb);
+    s.postrender();
+    
+    frame_stats.render_finished(timestamp);
+}
+
+void window::prepare_sdl_texture(scene &s, const framebuffer &fb, benchmark_frame &frame_stats) {
+    benchmark_frame::timestamp_t timestamp = frame_stats.copy_starting();
+    
+    SDL_RenderClear(sdl_renderer);
+    SDL_UpdateTexture(sdl_texture, nullptr, framebuffers[0]->get_rgba_byte_buffer(), 4 * width);
+    SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
+    render_text_overlay(s);
+    SDL_RenderPresent(sdl_renderer);
+
+    frame_stats.copy_finished(timestamp);
+}
+
+bool window::read_user_input(scene &s) {
+    SDL_Event event;
+    int mouse_x_tally = 0, mouse_y_tally = 0;
+    int mouse_horz_wheel_tally = 0, mouse_vert_wheel_tally = 0;
+    bool quit = false;
+    
+    while (!quit && SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT)
+            quit = true;
+        else if (event.type == SDL_KEYDOWN) {
+            SDL_KeyboardEvent key = event.key;
+
+            if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_i)
+                text_overlay_visible = !text_overlay_visible;
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_n)
+                s.set_normal_visualization(!s.get_normal_visualization());
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_l)
+                s.set_reflection_vector_visualization(!s.get_reflection_vector_visualization());
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
+                s.cycle_shading_model();
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
+                quit = true;
+            else if (key.repeat == 0)
+                s.key_down_event(key.keysym.sym, key.keysym.mod & KMOD_CTRL);
+        }
+        else if (event.type == SDL_MOUSEMOTION) {
+            // don't bother calling multiple times per frame
+            mouse_x_tally += event.motion.xrel;
+            mouse_y_tally += event.motion.yrel;
+        }
+        else if (event.type == SDL_MOUSEWHEEL) {
+            mouse_horz_wheel_tally += event.wheel.x;
+            // SDL's wheel ticks point to exactly the heretic direction, dammit
+            mouse_vert_wheel_tally -= event.wheel.y;
+        }
+    }
+
+    if (mouse_x_tally != 0 || mouse_y_tally != 0) {
+        uint32_t state = SDL_GetMouseState(nullptr, nullptr);
+        s.mouse_move_event(mouse_x_tally, mouse_y_tally, state & SDL_BUTTON(SDL_BUTTON_LEFT));
+    }
+
+    if (mouse_horz_wheel_tally != 0 || mouse_vert_wheel_tally != 0)
+        s.mouse_wheel_event(mouse_horz_wheel_tally, mouse_vert_wheel_tally);
+
+    return quit;
 }
 
 bool window::init_sdl() {

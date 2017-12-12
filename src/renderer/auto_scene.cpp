@@ -10,10 +10,10 @@ using namespace std;
 using namespace std::experimental::filesystem;
 
 auto_scene::auto_scene(const path &object_file, bool echo_comments, object_position pos) :
-    freecam_scene(10.0f),
+    freecam_scene(5.0f),
     previous_render_time(0.0f),
     x_rotation_per_second(0.0f),
-    y_rotation_per_second(0.0f),
+    y_rotation_per_second(2.0f),
     z_rotation_per_second(0.0f),
     x_rotation(0.0f),
     y_rotation(0.0f),
