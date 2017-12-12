@@ -2,10 +2,11 @@ Missing features
 ================
 
 * Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/
-* Phong etc shading.
 * Fix line plotting bugs:
     - z-lines near the horizon are botched.
-* Optimize triangle plotting
-    - the entire vertex_data[vertex_index[edge[edge_index].top]]] scheme is demented
-    - use different function when there are no uvw coords or texture.
-* Refactor triangle ctors and mesh::add_triangle.
+* Fix triangle plotting bugs:
+    - top y clipping breaks at least some shading models.
+* Split light into diffuse and specular components.
+* Implement Blinn-Phong.
+* Add face/point/normal/etc counts to text overlay.
+* The triange_render class screams for refactoring.
