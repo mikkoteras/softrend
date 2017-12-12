@@ -29,42 +29,45 @@ int window::run(scene &sc) {
     sc.start();
     bool quit = false;
     benchmark &mark = sc.get_benchmark();
-    pipeline_context *cxt[concurrent_stages] = {nullptr, nullptr, nullptr};
+    pipeline_context *context[concurrent_stages] = {nullptr, nullptr, nullptr};
+    thread threads[concurrent_stages];
     
     while (!quit && !sc.stopped()) {
-        
+        threads[0] = thread([&]() {
+            if (!context[0])
+                context[0] = new pipeline_context(width, height);
 
-        thread t1([&]() {
-            if (!cxt[0])
-                cxt[0] = new pipeline_context(width, height);
-
-            cxt[0]->frame_stats = mark.frame_starting();
-            clear_framebuffer(cxt[0]->frame, cxt[0]->frame_stats);
+            context[0]->frame_stats = mark.frame_starting();
+            clear_framebuffer(context[0]->frame, context[0]->frame_stats);
         });
 
-        thread t2([&]() {
-            if (cxt[1])
-                update_scene(sc, cxt[1]->frame, cxt[1]->frame_stats);
+        threads[1] = thread([&]() {
+            if (context[1])
+                update_scene(sc, context[1]->frame, context[1]->frame_stats);
         });
 
-        if (cxt[2]) {
-            prepare_sdl_texture(sc, cxt[2]->frame, cxt[2]->frame_stats);
-            mark.frame_finished(cxt[2]->frame_stats);
+        if (context[2]) {
+            prepare_sdl_texture(sc, context[2]->frame, context[2]->frame_stats);
+            mark.frame_finished(context[2]->frame_stats);
         }
 
-        t1.join();
-        t2.join();
+        // wait for all stages to clear
+        for (int i = 0; i < concurrent_stages - 1; ++i)
+            threads[i].join();
 
         quit = read_user_input(sc);
-        
-        pipeline_context *swap = cxt[2]; // rotate contexts
-        cxt[2] = cxt[1];
-        cxt[1] = cxt[0];
-        cxt[0] = swap;
+
+        // rotate contexts to move each pipeline stage forward        
+        pipeline_context *swap = context[concurrent_stages - 1];
+
+        for (int i = concurrent_stages - 1; i > 0; --i)
+            context[i] = context[i - 1];
+            
+        context[0] = swap;
     }
 
     for (int i = 0; i < concurrent_stages; ++i)
-        delete cxt[i];
+        delete context[i];
     
     return 0;
 }
