@@ -33,7 +33,6 @@ private:
 private:
     int width, height;
     static const int concurrent_stages = 3;
-    framebuffer *framebuffers[concurrent_stages];
 
 private:
     bool sdl_context_initialized = false;

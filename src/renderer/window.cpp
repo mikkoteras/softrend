@@ -1,10 +1,12 @@
 #include "window.h"
 #include "benchmark.h"
 #include "framebuffer.h"
+#include "pipeline_context.h"
 #include "scene.h"
 #include "SDL.h"
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace std;
@@ -17,41 +19,53 @@ window::window(int w, int h) :
         deinit_sdl();
         throw window_exception();
     }
-
-    for (int i = 0; i < concurrent_stages; ++i)
-        framebuffers[i] = new framebuffer(width, height);
 }
 
 window::~window() {
-    for (int i = 0; i < concurrent_stages; ++i)
-        delete framebuffers[i];
-    
     deinit_sdl();
 }
 
 int window::run(scene &sc) {
-    for (int i = 0; i < concurrent_stages; ++i)
-        framebuffers[i]->clear();
-    
     sc.start();
     bool quit = false;
     benchmark &mark = sc.get_benchmark();
-
-    int framebuffer_index = 0;
+    pipeline_context *cxt[concurrent_stages] = {nullptr, nullptr, nullptr};
     
-    while (!quit && !sc.stopped()) { // TODO refactor this
-        benchmark_frame frame_stats = mark.frame_starting();
+    while (!quit && !sc.stopped()) {
         
-        clear_framebuffer(*framebuffers[framebuffer_index], frame_stats);
-        update_scene(sc, *framebuffers[framebuffer_index], frame_stats);
-        prepare_sdl_texture(sc, *framebuffers[framebuffer_index], frame_stats);
+
+        thread t1([&]() {
+            if (!cxt[0])
+                cxt[0] = new pipeline_context(width, height);
+
+            cxt[0]->frame_stats = mark.frame_starting();
+            clear_framebuffer(cxt[0]->frame, cxt[0]->frame_stats);
+        });
+
+        thread t2([&]() {
+            if (cxt[1])
+                update_scene(sc, cxt[1]->frame, cxt[1]->frame_stats);
+        });
+
+        if (cxt[2]) {
+            prepare_sdl_texture(sc, cxt[2]->frame, cxt[2]->frame_stats);
+            mark.frame_finished(cxt[2]->frame_stats);
+        }
+
+        t1.join();
+        t2.join();
+
         quit = read_user_input(sc);
         
-        mark.frame_finished(frame_stats);
-
-        framebuffer_index = (framebuffer_index + 1) % concurrent_stages;
+        pipeline_context *swap = cxt[2]; // rotate contexts
+        cxt[2] = cxt[1];
+        cxt[1] = cxt[0];
+        cxt[0] = swap;
     }
 
+    for (int i = 0; i < concurrent_stages; ++i)
+        delete cxt[i];
+    
     return 0;
 }
 
