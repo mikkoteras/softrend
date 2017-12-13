@@ -120,8 +120,6 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
         render_gouraud(target, parent_mesh, parent_scene);
     else if (shading == phong)
         render_phong(target, parent_mesh, parent_scene);
-    else if (shading == blinn_phong)
-        render_phong(target, parent_mesh, parent_scene);
 }
 
 void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {

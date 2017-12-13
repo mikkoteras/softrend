@@ -35,7 +35,6 @@ private:
     void render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_smooth_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     void render_flat_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render_blinn_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:
     static triangle_render render_context;
@@ -45,13 +44,11 @@ private:
     void render_colored_gouraud_halftriangle(framebuffer &target) const;
     void render_colored_smooth_phong_halftriangle(framebuffer &target) const;
     void render_colored_flat_phong_halftriangle(framebuffer &target) const;
-    void render_colored_blinn_phong_halftriangle(framebuffer &target) const;
     
     void render_textured_flat_halftriangle(framebuffer &target) const;
     void render_textured_gouraud_halftriangle(framebuffer &target) const;
     void render_textured_smooth_phong_halftriangle(framebuffer &target) const;
     void render_textured_flat_phong_halftriangle(framebuffer &target) const;
-    void render_textured_blinn_phong_halftriangle(framebuffer &target) const;
 
 public:
     void visualize_normals(framebuffer &target, const mesh &parent_mesh,

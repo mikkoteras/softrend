@@ -9,8 +9,6 @@ namespace util {
             return "gouraud";
         case phong:
             return "phong";
-        case blinn_phong:
-            return "blinn-phong";
         default:
             return "<not valid>";
         }

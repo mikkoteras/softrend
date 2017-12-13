@@ -5,8 +5,7 @@ enum shading_model_t {
     flat,
     gouraud,
     phong,
-    blinn_phong,
-    max_shading_model = blinn_phong
+    max_shading_model = phong
 };
 
 #endif
