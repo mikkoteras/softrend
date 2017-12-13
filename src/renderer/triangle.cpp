@@ -109,7 +109,7 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
                                            render_context.vtx(1).view_position,
                                            render_context.vtx(2).view_position))
         return;
-    
+
     render_context.lights = &parent_scene.light_sources();
     render_context.tex = mat->get_texture_map();
     shading_model_t shading = parent_scene.get_shading_model();
@@ -210,7 +210,7 @@ void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const 
 void triangle::render_smooth_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
     const vector4f *world_normal = parent_mesh.world_normal_data();
     
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i) // TODO refactor
         render_context.vtx(i).normal = world_normal[normal_index[i]].dehomo();
 
     if (render_context.tex && has_uv_coordinates) {
@@ -239,7 +239,7 @@ void triangle::render_flat_phong(framebuffer &target, const mesh &parent_mesh, c
     const vector4f *world_normal = parent_mesh.world_normal_data();
     render_context.surface_normal = vector3f{0.0f, 0.0f, 0.0f};
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i) // TODO refactor
         render_context.surface_normal += world_normal[normal_index[i]].dehomo();
 
     if (render_context.tex && has_uv_coordinates) {
@@ -292,6 +292,7 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
     
     if (y < 0) {
         left.add_v(-y, *render_context.left_edge_delta);
+        right.add_v(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -332,6 +333,7 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
     
     if (y < 0) {
         left.add_vs(-y, *render_context.left_edge_delta);
+        right.add_vs(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -370,6 +372,7 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
 
     if (y < 0) {
         left.add_vwn(-y, *render_context.left_edge_delta);
+        right.add_vwn(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -414,6 +417,7 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const
 
     if (y < 0) {
         left.add_vw(-y, *render_context.left_edge_delta);
+        right.add_vw(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -458,6 +462,7 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
     
     if (y < 0) {
         left.add_vt(-y, *render_context.left_edge_delta);
+        right.add_vt(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -498,6 +503,7 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
     
     if (y < 0) {
         left.add_vts(-y, *render_context.left_edge_delta);
+        right.add_vts(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -537,6 +543,7 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
 
     if (y < 0) {
         left.add_vwnt(-y, *render_context.left_edge_delta);
+        right.add_vwnt(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -561,6 +568,7 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
                                       pixel.normal.unit(),
                                       (render_context.eye - pixel.world_position).unit(),
                                       *render_context.lights);
+
             target.set_pixel(x, y, pixel.view_position.z(), shade);
             pixel.add_vwnt(delta); // TODO: skip view_position, use z alone
         }
@@ -582,6 +590,7 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
 
     if (y < 0) {
         left.add_vwt(-y, *render_context.left_edge_delta);
+        right.add_vwt(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
