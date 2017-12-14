@@ -29,8 +29,8 @@ int window::run(scene &sc) {
     sc.start();
     bool quit = false;
     benchmark &mark = sc.get_benchmark();
-    pipeline_context *context[concurrent_stages] = {nullptr, nullptr, nullptr};
-    thread threads[concurrent_stages];
+    pipeline_context *context[concurrent_stages] = {nullptr, nullptr, nullptr, nullptr};
+    thread threads[concurrent_stages - 1];
     
     while (!quit && !sc.stopped()) {
         threads[0] = thread([&]() {
@@ -42,13 +42,18 @@ int window::run(scene &sc) {
         });
 
         threads[1] = thread([&]() {
-            if (context[1])
-                update_scene(sc, context[1]->frame, context[1]->frame_stats);
+            if (pipeline_context *cxt = context[1])
+                update_scene(sc, cxt->frame, cxt->frame_stats);
         });
 
-        if (context[2]) {
-            prepare_sdl_texture(sc, context[2]->frame, context[2]->frame_stats);
-            mark.frame_finished(context[2]->frame_stats);
+        threads[2] = thread([&]() {
+            if (pipeline_context *cxt = context[2])
+                convert_framebuffer(cxt->frame, cxt->frame_stats);
+        });
+
+        if (pipeline_context *cxt = context[3]) {
+            render_framebuffer(sc, cxt->frame, cxt->frame_stats);
+            mark.frame_finished(cxt->frame_stats);
         }
 
         // wait for all stages to clear
@@ -62,13 +67,13 @@ int window::run(scene &sc) {
 
         for (int i = concurrent_stages - 1; i > 0; --i)
             context[i] = context[i - 1];
-            
+
         context[0] = swap;
     }
 
     for (int i = 0; i < concurrent_stages; ++i)
         delete context[i];
-    
+
     return 0;
 }
 
@@ -90,10 +95,17 @@ void window::update_scene(scene &sc, framebuffer &fb, benchmark_frame &frame_sta
     frame_stats.render_finished(timestamp);
 }
 
-void window::prepare_sdl_texture(scene &sc, framebuffer &fb, benchmark_frame &frame_stats) {
-    benchmark_frame::timestamp_t timestamp = frame_stats.copy_starting();
+void window::convert_framebuffer(framebuffer &fb, benchmark_frame &frame_stats) {
+    benchmark_frame::timestamp_t timestamp = frame_stats.compute_starting();
     
-    SDL_RenderClear(sdl_renderer);
+    fb.prepare_rgba_byte_buffer();
+
+    frame_stats.compute_finished(timestamp);
+}
+
+void window::render_framebuffer(scene &sc, framebuffer &fb, benchmark_frame &frame_stats) {
+    benchmark_frame::timestamp_t timestamp = frame_stats.copy_starting();
+
     SDL_UpdateTexture(sdl_texture, nullptr, fb.get_rgba_byte_buffer(), 4 * width);
     SDL_RenderCopy(sdl_renderer, sdl_texture, nullptr, nullptr);
     render_text_overlay(sc);
@@ -151,7 +163,7 @@ bool window::read_user_input(scene &s) {
 }
 
 bool window::init_sdl() {
-    if (sdl_context_initialized || sdl_window || sdl_renderer || sdl_texture)
+    if (sdl_context_initialized)
         return false; // already running, idiot
 
     if (SDL_Init(SDL_INIT_VIDEO))
@@ -182,7 +194,7 @@ bool window::init_sdl() {
     text_overlay_font = TTF_OpenFont(font_path.c_str(), 16);
 
     if (!text_overlay_font) {
-        std::cerr << "can't load font file " << font_path << std::endl;
+        std::cerr << "Can't load font file " << font_path << std::endl;
         return false;
     }
     
@@ -198,7 +210,6 @@ void window::deinit_sdl() {
     if (TTF_WasInit())
         TTF_Quit();
 
-    
     if (sdl_texture) {
         SDL_DestroyTexture(sdl_texture);
         sdl_texture = nullptr;
@@ -220,17 +231,16 @@ void window::deinit_sdl() {
     }
 }
 
-void window::render_text_overlay(scene &s) {
+void window::render_text_overlay(scene &sc) {
     if (!text_overlay_visible)
         return;
     
     SDL_Color text_color = {255, 255, 255};
-    vector<string> info(s.get_scene_info().get());
+    vector<string> info(sc.get_scene_info().get());
 
     for (unsigned i = 0; i < info.size(); ++i) {
         int w = 1, h = 1;
         TTF_SizeText(text_overlay_font, info[i].c_str(), &w, &h);
-        
         SDL_Surface* message_surface = TTF_RenderText_Solid(text_overlay_font, info[i].c_str(), text_color);
         SDL_Texture* message_texture = SDL_CreateTextureFromSurface(sdl_renderer, message_surface);
 

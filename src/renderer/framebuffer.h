@@ -19,6 +19,7 @@ public:
     void set_pixel_unchecked(int x, int y, float z, const color &c);
     void clear();
     void clear(float gray);
+    void prepare_rgba_byte_buffer();
     uint8_t *get_rgba_byte_buffer();
 
 private:

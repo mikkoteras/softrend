@@ -101,11 +101,13 @@ void framebuffer::clear(float gray) {
 #endif
 }
 
-uint8_t *framebuffer::get_rgba_byte_buffer() {
+void framebuffer::prepare_rgba_byte_buffer() {
     float *float_buffer = reinterpret_cast<float*>(pixels); // TODO: not quite evil, but slightly naughty.
 
     for (int i = 0, max = 4 * width * height; i < max; ++i)
         raw_rgba_buffer[i] = static_cast<uint8_t>(255.0 * float_buffer[i]);
+}
 
+uint8_t *framebuffer::get_rgba_byte_buffer() {
     return raw_rgba_buffer;
 }
