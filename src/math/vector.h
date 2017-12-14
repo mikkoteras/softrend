@@ -46,9 +46,9 @@ namespace math {
         constexpr bool operator!=(const vector &that) const { return !(*this == that); }
 
         void normalize();
-        void divide_by_h();
         constexpr vector<float_t, dim + 1> homo() const;
         constexpr vector<float_t, dim - 1> dehomo() const;
+        constexpr vector<float_t, dim - 1> dehomo_with_divide() const;
 
         constexpr float_t length() const;
         constexpr float_t length_sqr() const;

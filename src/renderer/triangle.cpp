@@ -91,18 +91,18 @@ triangle::~triangle() {
 }
 
 void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *view_coord = parent_mesh.view_coordinate_data();
+    const vector3f *view_coord = parent_mesh.view_coordinate_data();
 
     for (int i = 0; i < 3; ++i)
-        render_context.vtx(i).view_position = view_coord[vertex_index[i]].dehomo();
+        render_context.vtx(i).view_position = view_coord[vertex_index[i]];
 
     if (triangle_winds_clockwise())
         return;
 
-    const vector4f *world_coord = parent_mesh.world_coordinate_data();
+    const vector3f *world_coord = parent_mesh.world_coordinate_data();
 
     for (int i = 0; i < 3; ++i)
-        render_context.vtx(i).world_position = world_coord[vertex_index[i]].dehomo();
+        render_context.vtx(i).world_position = world_coord[vertex_index[i]];
 
     // plane clip
     if (parent_scene.visible_volume().clip(render_context.vtx(0).view_position,
@@ -123,7 +123,7 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
 }
 
 void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *world_normal = parent_mesh.world_normal_data();
+    const vector3f *world_normal = parent_mesh.world_normal_data();
     render_context.surface_midpoint = vector3f{0.0f, 0.0f, 0.0f};
     
     for (int i = 0; i < 3; ++i) {
@@ -136,11 +136,11 @@ void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const s
     render_context.surface_midpoint /= 3.0f;
     
     if (has_distinct_normals)
-        render_context.surface_normal = world_normal[normal_index[0]].dehomo();
+        render_context.surface_normal = world_normal[normal_index[0]];
     else
-        render_context.surface_normal = (world_normal[normal_index[0]].dehomo() +
-                                         world_normal[normal_index[1]].dehomo() +
-                                         world_normal[normal_index[2]].dehomo()) / 3.0f;
+        render_context.surface_normal = (world_normal[normal_index[0]] +
+                                         world_normal[normal_index[1]] +
+                                         world_normal[normal_index[2]]) / 3.0f;
 
     if (render_context.tex) {
         for (int i = 0; i < 3; ++i) {
@@ -165,13 +165,13 @@ void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const s
 }
 
 void triangle::render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *world_data = parent_mesh.world_coordinate_data();
-    const vector4f *world_normal = parent_mesh.world_normal_data();
+    const vector3f *world_data = parent_mesh.world_coordinate_data();
+    const vector3f *world_normal = parent_mesh.world_normal_data();
     
     for (int i = 0; i < 3; ++i) {
-        vector3f vertex = world_data[vertex_index[i]].dehomo();
+        vector3f vertex = world_data[vertex_index[i]];
         render_context.vtx(i).shade = mat->shade_phong(vertex,
-                                                       world_normal[normal_index[i]].dehomo(),
+                                                       world_normal[normal_index[i]],
                                                        (parent_scene.get_eye_position() - vertex).unit(),
                                                        parent_scene.light_sources());
     }
@@ -208,10 +208,10 @@ void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const 
 }
 
 void triangle::render_smooth_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *world_normal = parent_mesh.world_normal_data();
+    const vector3f *world_normal = parent_mesh.world_normal_data();
     
     for (int i = 0; i < 3; ++i) // TODO refactor
-        render_context.vtx(i).normal = world_normal[normal_index[i]].dehomo();
+        render_context.vtx(i).normal = world_normal[normal_index[i]];
 
     if (render_context.tex && has_uv_coordinates) {
         for (int i = 0; i < 3; ++i) {
@@ -236,11 +236,11 @@ void triangle::render_smooth_phong(framebuffer &target, const mesh &parent_mesh,
 }
 
 void triangle::render_flat_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *world_normal = parent_mesh.world_normal_data();
+    const vector3f *world_normal = parent_mesh.world_normal_data();
     render_context.surface_normal = vector3f{0.0f, 0.0f, 0.0f};
 
     for (int i = 0; i < 3; ++i) // TODO refactor
-        render_context.surface_normal += world_normal[normal_index[i]].dehomo();
+        render_context.surface_normal += world_normal[normal_index[i]];
 
     if (render_context.tex && has_uv_coordinates) {
         for (int i = 0; i < 3; ++i) {
@@ -626,76 +626,78 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
 
 void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
                                  scene &parent_scene, const matrix4x4f &world_to_view) const {
-    const vector4f *view_data = parent_mesh.view_coordinate_data();
-    const vector4f *world_data = parent_mesh.world_coordinate_data();
-    const vector4f *normal_data = parent_mesh.world_normal_data();
-    color yellow(1, 1, 0, 1);
+    const vector3f *view_data = parent_mesh.view_coordinate_data();
+    const vector3f *world_data = parent_mesh.world_coordinate_data();
+    const vector3f *normal_data = parent_mesh.world_normal_data();
+    color yellow(1.0f, 1.0f, 0.0f, 1.0f);
+    vector3f mid_point, mid_normal;
 
     for (int i = 0; i < 3; ++i) {
         int vi = vertex_index[i], ni = normal_index[i];
-        vector4f v(view_data[vi]); // view vertex
-        vector4f wn(world_data[vi] + 0.3f * normal_data[ni]); // world normal, offset from vertex
 
-        vector4f vn = world_to_view * wn;
-        vn.divide_by_h();
-        line::render(target, v.x(), v.y(), v.z(), yellow, vn.x(), vn.y(), vn.z(), yellow);
+        vector3f vertex(view_data[vi]); // view vertex
+        vector3f world_normal(world_data[vi] + 0.3f * normal_data[ni]); // world normal, offset from vertex
+        vector3f view_normal((world_to_view * world_normal.homo()).dehomo_with_divide());
+        line::render(target, vertex.x(), vertex.y(), vertex.z(), yellow,
+                     view_normal.x(), view_normal.y(), view_normal.z(), yellow);
+
+        mid_point += (world_data[vi] - mid_point) / (i + 1);
+        mid_normal += (normal_data[ni] - mid_normal) / (i + 1);
     }
+
+    mid_normal.normalize();
+    vector3f world_normal(mid_point + 0.3f * mid_normal); // world normal, offset from midpoint
+    vector3f view_point((world_to_view * mid_point.homo()).dehomo_with_divide());
+    vector3f view_normal((world_to_view * world_normal.homo()).dehomo_with_divide());
+
+    line::render(target, view_point.x(), view_point.y(), view_point.z(), yellow,
+                 view_normal.x(), view_normal.y(), view_normal.z(), yellow);
 }
 
 void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
                                             scene &parent_scene, const matrix4x4f &world_to_view) const {
-    const vector4f *world_data = parent_mesh.world_coordinate_data();
-    const vector4f *normal_data = parent_mesh.world_normal_data();
+    const vector3f *world_data = parent_mesh.world_coordinate_data();
+    const vector3f *normal_data = parent_mesh.world_normal_data();
 
-    vector3f wv[3] = {
-        world_data[vertex_index[0]].dehomo(),
-        world_data[vertex_index[1]].dehomo(),
-        world_data[vertex_index[2]].dehomo()
-    };
+    // triangle midpoint and the normal out of it
+    vector3f mid_point, mid_normal;
 
-    vector3f wn[3] = {
-        normal_data[normal_index[0]].dehomo(),
-        normal_data[normal_index[1]].dehomo(),
-        normal_data[normal_index[2]].dehomo()
-    };
+    for (int i = 0; i < 3; ++i) {
+        mid_point += (world_data[vertex_index[i]] - mid_point) / (i + 1);
+        mid_normal += (normal_data[normal_index[i]] - mid_normal) / (i + 1);
+    }
 
-    // choose a point roughly in the middle of the triangle
-    vector3f mid_point = ((wv[0] + wv[1]) / 2.0f + wv[2]) / 2.0f;
-    vector3f mid_normal = ((wn[0] + wn[1]) / 2.0f + wn[2]) / 2.0f;
     mid_normal.normalize();
+    vector3f midpoint_to_eye = (parent_scene.get_eye_position() - mid_point).unit();
 
-    // phong vectors
+    // phong vectors for each light
     for (const light *source: parent_scene.light_sources().get()) {
-        vector3f light_vector = source->surface_to_light_unit(mid_point);
+        vector3f light_vector(source->surface_to_light_unit(mid_point));
         float normal_dot_light(mid_normal.dot(light_vector));
+
         vector3f reflection_vector(2.0f * normal_dot_light * mid_normal - light_vector);
+        vector3f p = (world_to_view * mid_point.homo()).dehomo_with_divide();
+        vector3f l = (world_to_view * (mid_point + 0.3f * light_vector).homo()).dehomo_with_divide();
+        vector3f r = (world_to_view * (mid_point + 0.3f * reflection_vector).homo()).dehomo_with_divide();
 
-        vector4f p = world_to_view * mid_point.homo();
-        vector4f l = world_to_view * (mid_point + 0.3f * light_vector).homo();
-        vector4f r = world_to_view * (mid_point + 0.3f * reflection_vector).homo();
-        vector4f n = world_to_view * (mid_point + 0.3f * mid_normal).homo();
-        p.divide_by_h();
-        l.divide_by_h();
-        r.divide_by_h();
-        n.divide_by_h();
+        color light_color(source->get_color());
+        //color reflected_color(light_color * mat->get_specular_reflectivity());
+        color reflected_color(1,0,0,1);
 
-        color lc(source->get_color());
-        color rc(lc * mat->get_specular_reflectivity());
-        color white(1.0f, 1.0f, 1.0f, 1.0f);
+        line::render(target, p.x(), p.y(), p.z(), light_color, l.x(), l.y(), l.z(), light_color);
 
-        line::render(target, p.x(), p.y(), p.z(), lc, l.x(), l.y(), l.z(), lc);
-        line::render(target, p.x(), p.y(), p.z(), rc, l.x(), r.y(), r.z(), rc);
-        line::render(target, p.x(), p.y(), p.z(), white, n.x(), n.y(), n.z(), white);
+        if (midpoint_to_eye.dot(reflection_vector) > 0.0f)
+            line::render(target, p.x(), p.y(), p.z(), reflected_color, r.x(), r.y(), r.z(), reflected_color);
     }
 }
 
 void triangle::render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *view_data = parent_mesh.view_coordinate_data();
+    const vector3f *view_data = parent_mesh.view_coordinate_data();
 
     // vertex winding test
-    vector4f v1 = view_data[vertex_index[0]];
-    vector4f v2 = view_data[vertex_index[1]];
-    vector4f v3 = view_data[vertex_index[2]];
+    vector3f v1 = view_data[vertex_index[0]];
+    vector3f v2 = view_data[vertex_index[1]];
+    vector3f v3 = view_data[vertex_index[2]];
 
     float sum = (v2.x() - v1.x()) * (v2.y() + v1.y()) +
                 (v3.x() - v2.x()) * (v3.y() + v2.y()) +
@@ -715,14 +717,14 @@ void triangle::render_dumb(framebuffer &target, const mesh &parent_mesh, const s
     draw_half_triangle(e[long_edge_index], e[(long_edge_index + 2) % 3], target, parent_mesh, parent_scene);
 }
 
-triangle::edge triangle::create_edge(int vi1, int vi2, const vector4f *vertex_data) const {
+triangle::edge triangle::create_edge(int vi1, int vi2, const vector3f *vertex_data) const {
     if (vertex_data[vertex_index[vi1]].y() < vertex_data[vertex_index[vi2]].y())
         return edge { vi1, vi2 };
     else
         return edge { vi2, vi1 };
 }
 
-int triangle::find_long_edge(edge *edges, const vector4f *vertex_data) const {
+int triangle::find_long_edge(edge *edges, const vector3f *vertex_data) const {
     float height[3] = {
         (vertex_data[vertex_index[edges[0].bottom]].y() - vertex_data[vertex_index[edges[0].top]].y()),
         (vertex_data[vertex_index[edges[1].bottom]].y() - vertex_data[vertex_index[edges[1].top]].y()),
@@ -739,7 +741,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     // TODO: split function to avoid u/v computation when there is no texture, for
     // different reflection models etc.
 
-    const vector4f *vertex_data = parent_mesh.view_coordinate_data();
+    const vector3f *vertex_data = parent_mesh.view_coordinate_data();
 
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
@@ -762,8 +764,8 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     int short_bottom_x = vertex_data[vertex_index[short_edge.bottom]].x();
     float short_bottom_z = vertex_data[vertex_index[short_edge.bottom]].z();
 
-    const vector4f *normal_data = parent_mesh.world_normal_data();
-    const vector4f *world_data = parent_mesh.world_coordinate_data();
+    const vector3f *normal_data = parent_mesh.world_normal_data();
+    const vector3f *world_data = parent_mesh.world_coordinate_data();
     
     int y_offset = short_top_y - long_top_y; // 0 or rows already drawn
     float x1_delta = (long_bottom_x - long_top_x) / height_1; // screen x coordinate
@@ -775,13 +777,13 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float v1_delta = (vertex_uv[long_edge.bottom].y() - vertex_uv[long_edge.top].y()) / height_1; // texture v
     float v2_delta = (vertex_uv[short_edge.bottom].y() - vertex_uv[short_edge.top].y()) / height_2;
     vector3f n1_delta = (normal_data[normal_index[long_edge.bottom]] - // pixel normal in worĺd coordinate system
-                         normal_data[normal_index[long_edge.top]]).dehomo() / height_1;
+                         normal_data[normal_index[long_edge.top]]) / height_1;
     vector3f n2_delta = (normal_data[normal_index[short_edge.bottom]] -
-                         normal_data[normal_index[short_edge.top]]).dehomo() / height_2;
+                         normal_data[normal_index[short_edge.top]]) / height_2;
     vector3f w1_delta = (world_data[vertex_index[long_edge.bottom]] - // pixel in worĺd coordinate system
-                         world_data[vertex_index[long_edge.top]]).dehomo() / height_1;
+                         world_data[vertex_index[long_edge.top]]) / height_1;
     vector3f w2_delta = (world_data[vertex_index[short_edge.bottom]] -
-                         world_data[vertex_index[short_edge.top]]).dehomo() / height_2;
+                         world_data[vertex_index[short_edge.top]]) / height_2;
 
     float x1 = long_top_x + y_offset * x1_delta;
     float x2 = short_top_x;
@@ -791,10 +793,10 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     float u2 = vertex_uv[short_edge.top].x();
     float v1 = vertex_uv[long_edge.top].y() + y_offset * v1_delta;
     float v2 = vertex_uv[short_edge.top].y();
-    vector3f n1 = normal_data[normal_index[long_edge.top]].dehomo() + y_offset * n1_delta;
-    vector3f n2 = normal_data[normal_index[short_edge.top]].dehomo();
-    vector3f w1 = world_data[vertex_index[long_edge.top]].dehomo() + y_offset * w1_delta;
-    vector3f w2 = world_data[vertex_index[short_edge.top]].dehomo();
+    vector3f n1 = normal_data[normal_index[long_edge.top]] + y_offset * n1_delta;
+    vector3f n2 = normal_data[normal_index[short_edge.top]];
+    vector3f w1 = world_data[vertex_index[long_edge.top]] + y_offset * w1_delta;
+    vector3f w2 = world_data[vertex_index[short_edge.top]];
 
     float min_y = short_top_y; // screen y coordinate
     float max_y = short_bottom_y;

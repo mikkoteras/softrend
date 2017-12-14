@@ -59,8 +59,8 @@ public:
     //private: // TODO legacy, remove
     void render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     struct edge { int top, bottom; }; // indices to vertex_index
-    edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;
-    int find_long_edge(edge *edges, const math::vector4f *vertex_data) const;
+    edge create_edge(int vi1, int vi2, const math::vector3f *vertex_data) const;
+    int find_long_edge(edge *edges, const math::vector3f *vertex_data) const;
     void draw_half_triangle(const edge &long_edge, const edge &short_edge, framebuffer &target,
                             const mesh &parent_mesh, const scene &parent_scene) const;
 

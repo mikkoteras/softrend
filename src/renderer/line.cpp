@@ -52,9 +52,9 @@ line::~line() {
 }
 
 void line::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector4f *view_coordinates = parent_mesh.view_coordinate_data();
-    vector4f v1 = view_coordinates[vertex_index[0]];
-    vector4f v2 = view_coordinates[vertex_index[1]];
+    const vector3f *view_coordinates = parent_mesh.view_coordinate_data();
+    vector3f v1 = view_coordinates[vertex_index[0]];
+    vector3f v2 = view_coordinates[vertex_index[1]];
 
     // plane clip
     if (parent_scene.visible_volume().clip(v1, v2))

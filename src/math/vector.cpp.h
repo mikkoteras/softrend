@@ -79,7 +79,7 @@ namespace math {
         return elements[dim - 1];
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator+(const vector &rhs) const {
+    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator+(const vector &rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -88,7 +88,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator-(const vector &rhs) const {
+    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator-(const vector &rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -97,7 +97,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator*(const float_t rhs) const {
+    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator*(const float_t rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -106,7 +106,7 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> vector<float_t, dim> constexpr vector<float_t, dim>::operator/(const float_t rhs) const {
+    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator/(const float_t rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -172,13 +172,6 @@ namespace math {
             elements[i] /= l;
     }
 
-    template<typename float_t, int dim> void vector<float_t, dim>::divide_by_h() {
-        for (int i = 0; i < dim - 1; ++i)
-            elements[i] /= elements[dim - 1];
-
-        elements[dim - 1] = 1;
-    }
-
     template<typename float_t, int dim>
     vector<float_t, dim + 1> constexpr vector<float_t, dim>::homo() const {
         vector<float_t, dim + 1> result;
@@ -191,11 +184,21 @@ namespace math {
     }
 
     template<typename float_t, int dim>
-    vector<float_t, dim - 1> constexpr vector<float_t, dim>::dehomo() const {
+    constexpr vector<float_t, dim - 1> vector<float_t, dim>::dehomo() const {
         vector<float_t, dim - 1> result;
 
         for (int i = 0; i < dim - 1; ++i)
             result.elements[i] = elements[i];
+
+        return result;
+    }
+
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim - 1> vector<float_t, dim>::dehomo_with_divide() const {
+        vector<float_t, dim - 1> result;
+
+        for (int i = 0; i < dim - 1; ++i)
+            result.elements[i] = elements[i] / elements[dim - 1];
 
         return result;
     }

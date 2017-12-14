@@ -42,9 +42,9 @@ public:
     bounding_box local_bounding_box() const;
 
 public: // for child geometries (lines, triangles...)
-    const math::vector4f *world_coordinate_data() const;
-    const math::vector4f *world_normal_data() const;
-    const math::vector4f *view_coordinate_data() const;
+    const math::vector3f *world_coordinate_data() const;
+    const math::vector3f *world_normal_data() const;
+    const math::vector3f *view_coordinate_data() const;
 
 private:
     std::vector<math::vector4f> local_coordinates;
@@ -54,9 +54,9 @@ private:
     math::matrix4x4f scaling;
     math::matrix4x4f rotation;
     math::matrix4x4f position;
-    std::vector<math::vector4f> world_coordinates;
-    std::vector<math::vector4f> world_normals;
-    std::vector<math::vector4f> view_coordinates;
+    std::vector<math::vector3f> world_coordinates;
+    std::vector<math::vector3f> world_normals;
+    std::vector<math::vector3f> view_coordinates;
 };
 
 #endif
