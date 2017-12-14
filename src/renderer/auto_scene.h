@@ -18,9 +18,13 @@ public:
 
 private:
     mesh object;
-    float previous_render_time;
-    float x_rotation_per_second, y_rotation_per_second, z_rotation_per_second;
-    float x_rotation, y_rotation, z_rotation;
+    float previous_render_time = 0.0f;
+    float x_rotation_per_second = 0.0f;
+    float y_rotation_per_second = 0.0f;
+    float z_rotation_per_second = 0.0f;
+    float x_rotation = 0.0f;
+    float y_rotation = 0.0f;
+    float z_rotation = 0.0f;
 };
 
 #endif
