@@ -312,7 +312,7 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel(x, y, pixel.view_position.z(), shade);
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
             pixel.add_v(delta); // TODO: skip view_position, use z alone
         }
 
@@ -351,7 +351,7 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel(x, y, pixel.view_position.z(), pixel.shade);
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), pixel.shade);
             pixel.add_vs(delta); // TODO: skip view_position, use z alone
         }
 
@@ -383,7 +383,7 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
         int max_x = right.view_position.x();
         vertex_data pixel = left;
         vertex_data delta;
-        delta.compute_delta_vwn(left, right, max_x - x);
+        delta.compute_delta_vwn(left, right, right.view_position.x() - left.view_position.x());
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
@@ -392,11 +392,11 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
         }
 
         for (; x <= max_x; ++x) {
-            color shade(mat->shade_phong(pixel.view_position,
+            color shade(mat->shade_phong(pixel.world_position,
                                          pixel.normal.unit(),
                                          (render_context.eye - pixel.world_position).unit(),
                                          *render_context.lights));
-            target.set_pixel(x, y, pixel.view_position.z(), shade);
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
             pixel.add_vwn(delta); // TODO: skip view_position, use z alone
         }
 
@@ -437,11 +437,11 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const
         }
 
         for (; x <= max_x; ++x) {
-            color shade(mat->shade_phong(pixel.view_position,
+            color shade(mat->shade_phong(pixel.world_position,
                                          render_context.surface_normal,
                                          (render_context.eye - pixel.world_position).unit(),
                                          *render_context.lights));
-            target.set_pixel(x, y, pixel.view_position.z(), shade);
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
             pixel.add_vw(delta); // TODO: skip view_position, use z alone
         }
 
@@ -482,7 +482,7 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel(x, y, pixel.view_position.z(), shade * render_context.tex->at(pixel.uv[0], pixel.uv[1]));
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade * render_context.tex->at(pixel.uv[0], pixel.uv[1]));
             pixel.add_vt(delta); // TODO: skip view_position, use z alone
         }
 
@@ -521,7 +521,7 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel(x, y, pixel.view_position.z(),
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(),
                              pixel.shade * render_context.tex->at(pixel.uv[0], pixel.uv[1]));
             pixel.add_vts(delta); // TODO: skip view_position, use z alone
         }
@@ -564,12 +564,12 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
 
         for (; x <= max_x; ++x) {
             color shade(render_context.tex->at(pixel.uv[0], pixel.uv[1]));
-            shade *= mat->shade_phong(pixel.view_position,
+            shade *= mat->shade_phong(pixel.world_position,
                                       pixel.normal.unit(),
                                       (render_context.eye - pixel.world_position).unit(),
                                       *render_context.lights);
 
-            target.set_pixel(x, y, pixel.view_position.z(), shade);
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
             pixel.add_vwnt(delta); // TODO: skip view_position, use z alone
         }
 
@@ -611,11 +611,11 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
 
         for (; x <= max_x; ++x) {
             color shade(render_context.tex->at(pixel.uv[0], pixel.uv[1]));
-            shade *= mat->shade_phong(pixel.view_position,
+            shade *= mat->shade_phong(pixel.world_position,
                                       render_context.surface_normal,
                                       (render_context.eye - pixel.world_position).unit(),
                                       *render_context.lights);
-            target.set_pixel(x, y, pixel.view_position.z(), shade);
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
             pixel.add_vwt(delta); // TODO: skip view_position, use z alone
         }
 
@@ -740,7 +740,7 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
     // different reflection models etc.
 
     const vector4f *vertex_data = parent_mesh.view_coordinate_data();
-    
+
     // long_edge is the one that needs two passes to draw, reaching from top y to bottom y.
     int long_top_y = vertex_data[vertex_index[long_edge.top]].y();
     int short_top_y = vertex_data[vertex_index[short_edge.top]].y();
@@ -836,29 +836,29 @@ void triangle::draw_half_triangle(const edge &long_edge, const edge &short_edge,
             min_x = x1;
             max_x = x2;
             z = z1;
-            z_delta = (z2 - z1) / (x2 - x1 + 1);
+            z_delta = (z2 - z1) / (x2 - x1);
             u = u1;
-            u_delta = (u2 - u1) / (x2 - x1 + 1);
+            u_delta = (u2 - u1) / (x2 - x1);
             v = v1;
-            v_delta = (v2 - v1) / (x2 - x1 + 1);
+            v_delta = (v2 - v1) / (x2 - x1);
             n = n1;
-            n_delta = (n2 - n1) / (x2 - x1 + 1);
+            n_delta = (n2 - n1) / (x2 - x1);
             w = w1;
-            w_delta = (w2 - w1) / (x2 - x1 + 1);
+            w_delta = (w2 - w1) / (x2 - x1);
         }
         else {
             min_x = x2;
             max_x = x1;
             z = z2;
-            z_delta = (z1 - z2) / (x1 - x2 + 1);
+            z_delta = (z1 - z2) / (x1 - x2);
             u = u2;
-            u_delta = (u1 - u2) / (x1 - x2 + 1);
+            u_delta = (u1 - u2) / (x1 - x2);
             v = v2;
-            v_delta = (v1 - v2) / (x1 - x2 + 1);
+            v_delta = (v1 - v2) / (x1 - x2);
             n = n2;
-            n_delta = (n1 - n2) / (x1 - x2 + 1);
+            n_delta = (n1 - n2) / (x1 - x2);
             w = w2;
-            w_delta = (w1 - w2) / (x1 - x2 + 1);
+            w_delta = (w1 - w2) / (x1 - x2);
         }
 
         if (min_x < 0) {

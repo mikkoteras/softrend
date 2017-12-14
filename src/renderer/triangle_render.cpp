@@ -176,6 +176,14 @@ triangle_render::triangle_render() {
 }
 
 void triangle_render::prepare_edges() {
+    // round the view x/y positions to avoid gradient rounding artifacts
+    // TODO could this be done during transformation already?
+
+    for (int i = 0; i < 3; ++i) {
+        edge_endpoint[i].view_position.x() = roundf(edge_endpoint[i].view_position.x());
+        edge_endpoint[i].view_position.y() = roundf(edge_endpoint[i].view_position.y());
+    }
+
     if (vtx(0).view_position.y() > vtx(1).view_position.y()) {
         vertex_data *tmp = vertex[0];
         vertex[0] = vertex[1];
@@ -210,7 +218,6 @@ void triangle_render::prepare_upper_halftriangle() {
 
     float top_half_height = halftriangle_height;
     short_edge_delta.compute_delta_vwnts(*vertex[0], *vertex[1], top_half_height);
-
 
     left_edge_top = right_edge_top = vertex[0];
     long_edge_midpoint = *vertex[0];

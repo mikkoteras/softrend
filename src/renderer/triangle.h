@@ -56,7 +56,7 @@ public:
     void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
                                       scene &parent_scene, const math::matrix4x4f &local_to_view) const;
 
-private: // TODO legacy, remove
+    //private: // TODO legacy, remove
     void render_dumb(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
     struct edge { int top, bottom; }; // indices to vertex_index
     edge create_edge(int vi1, int vi2, const math::vector4f *vertex_data) const;
