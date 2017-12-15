@@ -7,9 +7,11 @@
 class light_list;
 class texture;
 
+class unsupported_material_exception {};
+
 class material {
 public:
-    material();
+    material(int illum);
     ~material();
 
     static material *create(int illumination_model);
@@ -44,18 +46,18 @@ public:
     void set_texture_map(const texture *t);
 
 private:
-    color ambient_reflectivity;
-    color diffuse_reflectivity;
-    color specular_reflectivity;
-    color transmission_filter;
-    float dissolve;
-    float dissolve_halo;
-    float specular_exponent;
-    float sharpness;
-    float optical_density;
     int illumination_model;
+    color ambient_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
+    color diffuse_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
+    color specular_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
+    color transmission_filter = color(1.0f, 1.0f, 1.0f, 1.0f);
+    float dissolve = 0.0f;
+    float dissolve_halo = false;
+    float specular_exponent = 100.0f;
+    float sharpness = 60.0f;
+    float optical_density = 1.0f;
 
-    const texture *tex;
+    const texture *tex = nullptr;
 };
 
 #endif

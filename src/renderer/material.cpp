@@ -1,62 +1,30 @@
 #include "material.h"
+#include "constant_color_material.h"
+#include "diffuse_material.h"
 #include "light.h"
 #include "light_list.h"
+#include "specular_material.h"
 #include "texture.h"
 #include "vector.h"
 
 using namespace math;
 
-material::material() :
-    dissolve(0.0f),
-    dissolve_halo(false),
-    specular_exponent(100.0f),
-    sharpness(60.0),
-    illumination_model(-1),
-    tex(nullptr) {
+material::material(int illum) :
+    illumination_model(illum) {
 }
 
 material::~material() {
 }
 
-color material::shade_flat(const vector3f &surface_midpoint, const math::vector3f &surface_normal_unit,
-                           const light_list &light_sources) const {
-    color result(ambient_reflectivity * light_sources.ambient_coeff());
-    
-    for (const light *source: light_sources.get()) {
-        vector3f light_vector = source->surface_to_light_unit(surface_midpoint);
-        float normal_dot_light(surface_normal_unit.dot(light_vector));
-
-        if (normal_dot_light > 0.0f)
-            result += source->get_color() * normal_dot_light;
-    }
-
-    result.clamp();
-    return result;
-}
-
-color material::shade_phong(const vector3f &surface_point, const vector3f &surface_normal_unit,
-                            const vector3f &point_to_eye_unit, const light_list &light_sources) const {
-    color result(ambient_reflectivity * light_sources.ambient_coeff());
-    color diffuse_term, specular_term;
-
-    for (const light *source: light_sources.get()) {
-        vector3f light_vector = source->surface_to_light_unit(surface_point);
-        float normal_dot_light(surface_normal_unit.dot(light_vector));
-
-        if (normal_dot_light > 0.0f)
-            diffuse_term += source->get_color() * normal_dot_light;
-
-        vector3f reflection_vector(2.0f * normal_dot_light * surface_normal_unit - light_vector);
-        reflection_vector.normalize();
-        float specular_base = point_to_eye_unit.dot(reflection_vector);
-
-        if (specular_base > 0.0f)
-            specular_term += powf(specular_base, specular_exponent) * source->get_color();
-    }
-    
-    result += diffuse_reflectivity * diffuse_term + specular_reflectivity * specular_term;
-    result.clamp();
-    return result;
+material *material::create(int illum) {
+    if (illum == 0)
+        return new constant_color_material();
+    else if (illum == 1)
+        return new diffuse_material();
+    else if (illum == 2)
+        return new specular_material();
+    else
+        throw unsupported_material_exception();
 }
 
 const color &material::get_ambient_reflectivity() const {
@@ -137,10 +105,6 @@ float material::get_optical_density() const {
 
 void material::set_optical_density(float value) {
     optical_density = value;
-}
-
-void material::set_illumination_model(int value) {
-    illumination_model = value;
 }
 
 void material::set_texture_map(const texture *t) {
