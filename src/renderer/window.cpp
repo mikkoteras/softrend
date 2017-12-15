@@ -96,11 +96,11 @@ void window::update_scene(scene &sc, framebuffer &fb, benchmark_frame &frame_sta
 }
 
 void window::convert_framebuffer(framebuffer &fb, benchmark_frame &frame_stats) {
-    benchmark_frame::timestamp_t timestamp = frame_stats.compute_starting();
+    benchmark_frame::timestamp_t timestamp = frame_stats.convert_starting();
     
     fb.prepare_rgba_byte_buffer();
 
-    frame_stats.compute_finished(timestamp);
+    frame_stats.convert_finished(timestamp);
 }
 
 void window::render_framebuffer(scene &sc, framebuffer &fb, benchmark_frame &frame_stats) {

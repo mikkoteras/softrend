@@ -27,20 +27,20 @@ void benchmark_frame::clear_finished(timestamp_t start_timestamp) {
     clear_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
 }
 
-benchmark_frame::timestamp_t benchmark_frame::compute_starting() {
-    return high_resolution_clock::now();
-}
-
-void benchmark_frame::compute_finished(timestamp_t start_timestamp) {
-    compute_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
-}
-
 benchmark_frame::timestamp_t benchmark_frame::render_starting() {
     return high_resolution_clock::now();
 }
 
 void benchmark_frame::render_finished(timestamp_t start_timestamp) {
     render_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
+}
+
+benchmark_frame::timestamp_t benchmark_frame::convert_starting() {
+    return high_resolution_clock::now();
+}
+
+void benchmark_frame::convert_finished(timestamp_t start_timestamp) {
+    convert_time += duration<double, milli>(high_resolution_clock::now() - start_timestamp).count();
 }
 
 benchmark_frame::timestamp_t benchmark_frame::copy_starting() {
@@ -59,12 +59,12 @@ double benchmark_frame::time_spent_clearing() const {
     return clear_time;
 }
 
-double benchmark_frame::time_spent_computing() const {
-    return compute_time;
-}
-
 double benchmark_frame::time_spent_rendering() const {
     return render_time;
+}
+
+double benchmark_frame::time_spent_converting() const {
+    return convert_time;
 }
 
 double benchmark_frame::time_spent_copying() const {
@@ -88,7 +88,7 @@ double benchmark_frame::average_frames_per_second(const benchmark_frame &rhs) co
 
 const benchmark_frame &benchmark_frame::operator+=(const benchmark_frame &rhs) {
     clear_time += rhs.clear_time;
-    compute_time += rhs.compute_time;
+    convert_time += rhs.convert_time;
     render_time += rhs.render_time;
     copy_time += rhs.copy_time;
     return *this;
@@ -96,7 +96,7 @@ const benchmark_frame &benchmark_frame::operator+=(const benchmark_frame &rhs) {
 
 const benchmark_frame &benchmark_frame::operator-=(const benchmark_frame &rhs) {
     clear_time -= rhs.clear_time;
-    compute_time -= rhs.compute_time;
+    convert_time -= rhs.convert_time;
     render_time -= rhs.render_time;
     copy_time -= rhs.copy_time;
     return *this;

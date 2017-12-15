@@ -35,8 +35,8 @@ string benchmark::get_stats() const {
     double avg_frame_time = frame_history.front().average_frame_time(frame_history.back());
     double fps = frame_history.front().average_frames_per_second(frame_history.back());
     double clearing = history_sum.time_spent_clearing() / frames;
-    double computing = history_sum.time_spent_computing() / frames;
     double rendering = history_sum.time_spent_rendering() / frames;
+    double converting = history_sum.time_spent_converting() / frames;
     double copying = history_sum.time_spent_copying() / frames;
 
     ostringstream result;
@@ -44,8 +44,8 @@ string benchmark::get_stats() const {
            << "frame time: " << avg_frame_time
            << " ms | fps: " << fps
            << " | clear: " << clearing
-           << " ms | compute: " << computing
            << " ms | render: " << rendering
-           << " ms | copying: " << copying << " ms";
+           << " ms | convert: " << converting
+           << " ms | blit: " << copying << " ms";
     return result.str();
 }
