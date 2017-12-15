@@ -1,9 +1,11 @@
 #ifndef MATERIAL_LIBRARY_H
 #define MATERIAL_LIBRARY_H
 
+#include "constant_color_material.h"
 #include "material.h"
 #include "texture.h"
 #include <map>
+#include <memory>
 #include <string>
 
 class material_library_exception {};
@@ -14,15 +16,15 @@ public:
     ~material_library();
 
     bool add_texture(const std::string &name, const std::string &filename);
-    bool add_material(const std::string &name, const material &mat);
+    bool add_material(const std::string &name, std::unique_ptr<material> mat);
     const material *get_material(const std::string &name) const;
     const material *get_null_material() const;
     const texture *get_texture(const std::string &name) const;
 
 private:
     std::map<std::string, texture> textures;
-    std::map<std::string, material> materials;
-    material null_material;
+    std::map<std::string, unique_ptr<material>> materials;
+    constant_color_material null_material;
 };
 
 #endif
