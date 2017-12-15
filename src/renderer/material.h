@@ -2,6 +2,7 @@
 #define MATERIAL_H
 
 #include "color.h"
+#include "types.h"
 #include "vector.h"
 
 class light_list;
@@ -11,7 +12,7 @@ class unsupported_material_exception {};
 
 class material {
 public:
-    material(int illum);
+    material(illumination_model_t illum);
     ~material();
 
     static material *create(int illumination_model);
@@ -23,16 +24,16 @@ public:
 
 
 public:
+    illumination_model_t get_illumination_model() const;
     const color &get_ambient_reflectivity() const;
     const color &get_diffuse_reflectivity() const;
     const color &get_specular_reflectivity() const;
     const color &get_transmission_filter() const;
-    bool get_dissolve_halo() const;
     float get_specular_exponent() const;
     float get_dissolve() const;
+    bool get_dissolve_halo() const;
     float get_sharpness() const;
     float get_optical_density() const;
-    int get_illumination_model() const;
     const texture *get_texture_map() const;
     
     void set_ambient_reflectivity(const color &col);
@@ -46,7 +47,7 @@ public:
     void set_texture_map(const texture *t);
 
 private:
-    int illumination_model;
+    illumination_model_t illumination_model;
     color ambient_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color diffuse_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color specular_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);

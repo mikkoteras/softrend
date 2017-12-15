@@ -137,7 +137,7 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
         color transmission_filter = color(0.0f, 0.0f, 0.0f, 1.0f);
         float specular_exponent = 60.0f;
         int illumination_model = 2;
-        float dissolve = 0.0f;
+        float dissolve = 1.0f;
         bool dissolve_halo = false;
         float sharpness = 0.0f;
         float optical_density = 0.0f;

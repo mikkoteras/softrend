@@ -1,12 +1,13 @@
 #include "diffuse_material.h"
 #include "light.h"
 #include "light_list.h"
+#include "types.h"
 #include "vector.h"
 
 using namespace math;
 
 diffuse_material::diffuse_material() :
-    material(1) {
+    material(diffuse) {
 }
 
 diffuse_material::~diffuse_material() {

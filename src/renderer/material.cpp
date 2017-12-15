@@ -9,7 +9,7 @@
 
 using namespace math;
 
-material::material(int illum) :
+material::material(illumination_model_t illum) :
     illumination_model(illum) {
 }
 
@@ -25,6 +25,10 @@ material *material::create(int illum) {
         return new specular_material();
     else
         throw unsupported_material_exception();
+}
+
+illumination_model_t material::get_illumination_model() const {
+    return illumination_model;
 }
 
 const color &material::get_ambient_reflectivity() const {
@@ -43,20 +47,16 @@ const color &material::get_transmission_filter() const {
     return transmission_filter;
 }
 
+float material::get_specular_exponent() const {
+    return specular_exponent;
+}
+
 float material::get_dissolve() const {
     return dissolve;
 }
 
 bool material::get_dissolve_halo() const {
     return dissolve_halo;
-}
-
-float material::get_specular_exponent() const {
-    return specular_exponent;
-}
-
-int material::get_illumination_model() const {
-    return illumination_model;
 }
 
 const texture *material::get_texture_map() const {
