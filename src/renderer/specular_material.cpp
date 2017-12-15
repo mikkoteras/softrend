@@ -1,15 +1,12 @@
 #include "specular_material.h"
 #include "light.h"
 #include "light_list.h"
-#include "types.h"
 #include "vector.h"
 
 using namespace math;
 
 specular_material::specular_material() :
-    material(specular) {
-
-    std::cout << "specular material created" << std::endl;
+    material(2) {
 }
 
 specular_material::~specular_material() {
@@ -32,7 +29,7 @@ color specular_material::shade_flat(const math::vector3f &surface_midpoint, cons
 }
 
 color specular_material::shade_phong(const math::vector3f &surface_point, const math::vector3f &surface_normal_unit,
-                                     const math::vector3f &point_to_eye_unit, const light_list &light_sources) const {
+                                    const math::vector3f &point_to_eye_unit, const light_list &light_sources) const {
     color result(get_ambient_reflectivity() * light_sources.ambient_coeff());
     color diffuse_term, specular_term;
 
@@ -41,7 +38,7 @@ color specular_material::shade_phong(const math::vector3f &surface_point, const 
         float normal_dot_light(surface_normal_unit.dot(light_vector));
 
         if (normal_dot_light > 0.0f)
-            diffuse_term += source->diffuse() * normal_dot_light;
+            specular_term += source->diffuse() * normal_dot_light;
 
         vector3f reflection_vector(2.0f * normal_dot_light * surface_normal_unit - light_vector);
         reflection_vector.normalize();
