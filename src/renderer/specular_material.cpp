@@ -1,12 +1,13 @@
 #include "specular_material.h"
 #include "light.h"
 #include "light_list.h"
+#include "types.h"
 #include "vector.h"
 
 using namespace math;
 
 specular_material::specular_material() :
-    material(2) {
+    material(specular) {
 }
 
 specular_material::~specular_material() {

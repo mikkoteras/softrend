@@ -12,7 +12,7 @@ class unsupported_material_exception {};
 
 class material {
 public:
-    material(int illum);
+    material(illumination_model_t illum);
     ~material();
 
     static material *create(int illumination_model);
@@ -47,7 +47,7 @@ public:
     void set_texture_map(const texture *t);
 
 private:
-    int illumination_model;
+    illumination_model_t illumination_model;
     color ambient_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color diffuse_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color specular_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);

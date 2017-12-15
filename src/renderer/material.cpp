@@ -9,7 +9,7 @@
 
 using namespace math;
 
-material::material(int illum) :
+material::material(illumination_model_t illum) :
     illumination_model(illum) {
 }
 
