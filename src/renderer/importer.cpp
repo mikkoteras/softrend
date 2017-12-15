@@ -129,13 +129,27 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
 }
 
 void importer::load_3dsmax_materials(const std::string &filename, material_library &lib, bool echo_comments = false) {
+    struct material_spec {
+        string material_name = "";
+        color ambient_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
+        color diffuse_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
+        color specular_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
+        color transmission_filter = color(0.0f, 0.0f, 0.0f, 1.0f);
+        float specular_exponent = 60.0f;
+        int illumination_model = 2;
+        float dissolve = 0.0f;
+        bool dissolve_halo = false;
+        float sharpness = 0.0f;
+        float optical_density = 0.0f;
+        texture *texture_map = nullptr;
+    };
+
     try {
         importer imp(filename);
         
-        bool material_constructed = false;
-        material constructed_material;
-        string constructed_material_name;
-        
+        bool material_being_constructed = false;
+        material_spec spec;
+
         while (!imp.eof()) {
             string command = imp.accept_command();
             
@@ -144,25 +158,35 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
                     cout << imp.full_line() << endl;
             }
             else if (command == "newmtl") {
-                if (material_constructed)
-                    lib.add_material(constructed_material_name, constructed_material);
+                if (material_being_constructed) {
+                    material *mat = material::create(spec.illumination_model);
+                    mat->set_ambient_reflectivity(spec.ambient_reflectivity);
+                    mat->set_diffuse_reflectivity(spec.diffuse_reflectivity);
+                    mat->set_specular_reflectivity(spec.specular_reflectivity);
+                    mat->set_specular_exponent(spec.specular_exponent);
+
+                    if (spec.texture_map)
+                        mat->set_texture_map(spec.texture_map);
+
+                    lib.add_material(spec.material_name, mat);
+                    spec = material_spec();
+                }
 
                 material_constructed = true;
-                constructed_material = material();
-                constructed_material_name = imp.accept_until_eol();
+                spec.material_name = imp.accept_until_eol();
             }
             else if (command == "Ka")
-                constructed_material.set_ambient_reflectivity(imp.parse_material_vector());
+                spec.ambient_reflectivity = imp.parse_material_vector();
             else if (command == "Kd")
-                constructed_material.set_diffuse_reflectivity(imp.parse_material_vector());
+                spec.diffuse_reflectivity = imp.parse_material_vector();
             else if (command == "Ks")
-                constructed_material.set_specular_reflectivity(imp.parse_material_vector());
+                spec.specular_reflectivity = imp.parse_material_vector();
             else if (command == "Tf")
-                constructed_material.set_transmission_filter(imp.parse_material_vector());
+                spec.transmission_filter = imp.parse_material_vector();
             else if (command == "illum")
-                constructed_material.set_illumination_model(imp.accept_int());
+                spec.illumination_model = imp.accept_int();
             else if (command == "d") {
-                bool halo = false;
+                spec.halo = false;
 
                 if (imp.next_char_is('-')) {
                     string token = imp.accept_command();
@@ -172,17 +196,17 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
                         throw importer_exception();
                     }
 
-                    halo = true;
+                    spec.halo = true;
                 }
 
-                constructed_material.set_dissolve(imp.accept_float(), halo);
+                spec.dissolve = accept_float();
             }
             else if (command == "Ns")
-                constructed_material.set_specular_exponent(imp.accept_float());
+                spec.specular_exponent = imp.accept_float();
             else if (command == "sharpness")
-                constructed_material.set_sharpness(imp.accept_float());
+                spec.sharpness = imp.accept_float();
             else if (command == "Ni")
-                constructed_material.set_optical_density(imp.accept_float());
+                spec.optical_density = imp.accept_float();
             else if (command == "map_Ka") {
                 cerr << "map_Ka is not yet supported." << endl;
                 throw importer_exception();
@@ -190,7 +214,7 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
             else if (command == "map_Kd") {
                 string png_filename = imp.accept_until_eol();
                 lib.add_texture(png_filename, png_filename);
-                constructed_material.set_texture_map(lib.get_texture(png_filename));
+                spec.texture_map(lib.get_texture(png_filename));
             }
             else if (command == "map_Ks" || command == "map_Ns" || command == "map_d" ||
                      command == "disp" || command == "decal" || command == "bump" || command == "refl") {
@@ -205,8 +229,18 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
             imp.advance_to_next_line();
         }
 
-        if (material_constructed)
-            lib.add_material(constructed_material_name, constructed_material);
+        if (material_being_constructed) {
+            material *mat = material::create(spec.illumination_model);
+            mat->set_ambient_reflectivity(spec.ambient_reflectivity);
+            mat->set_diffuse_reflectivity(spec.diffuse_reflectivity);
+            mat->set_specular_reflectivity(spec.specular_reflectivity);
+            mat->set_specular_exponent(spec.specular_exponent);
+            
+            if (spec.texture_map)
+                mat->set_texture_map(lib.get_texture(png_filename));
+
+            lib.add_material(spec.material_name, mat);
+        }
     }
     catch (...) {
         cerr << "error loading " << filename << endl;

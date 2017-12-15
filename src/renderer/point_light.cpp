@@ -4,7 +4,14 @@ using namespace math;
 
 point_light::point_light(const vector3f &position, const color &light_color) :
     position(position),
-    light_color(light_color) {
+    diffuse_color(light_color),
+    specular_color(light_color) {
+}
+
+point_light::point_light(const vector3f &position, const color &diffuse_color, const color &specular_color) :
+    position(position),
+    diffuse_color(diffuse_color),
+    specular_color(specular_color) {
 }
 
 point_light::~point_light() {
@@ -12,23 +19,27 @@ point_light::~point_light() {
 
 point_light::point_light(const point_light &rhs) :
     position(rhs.position),
-    light_color(rhs.light_color) {
+    diffuse_color(rhs.diffuse_color),
+    specular_color(rhs.specular_color) {
 }
 
 point_light::point_light(point_light &&rhs) :
     position(rhs.position),
-    light_color(rhs.light_color) {
+    diffuse_color(rhs.diffuse_color),
+    specular_color(rhs.specular_color) {
 }
 
 const point_light &point_light::operator=(const point_light &rhs) {
     position = rhs.position;
-    light_color = rhs.light_color;
+    diffuse_color = rhs.diffuse_color;
+    specular_color = rhs.specular_color;
     return *this;
 }
 
 point_light &point_light::operator=(point_light &&rhs) {
     position = rhs.position;
-    light_color = rhs.light_color;
+    diffuse_color = rhs.diffuse_color;
+    specular_color = rhs.specular_color;
     return *this;
 }
 
@@ -46,6 +57,10 @@ vector3f point_light::surface_to_light_unit(const vector3f &surface_point) const
     return result;
 }
 
-color point_light::get_color() const {
-    return light_color;
+color point_light::diffuse() const {
+    return diffuse_color;
+}
+
+color point_light::specular() const {
+    return specular_color;
 }
