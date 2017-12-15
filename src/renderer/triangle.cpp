@@ -680,9 +680,8 @@ void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &par
         vector3f l = (world_to_view * (mid_point + 0.3f * light_vector).homo()).dehomo_with_divide();
         vector3f r = (world_to_view * (mid_point + 0.3f * reflection_vector).homo()).dehomo_with_divide();
 
-        color light_color(source->get_color());
-        //color reflected_color(light_color * mat->get_specular_reflectivity());
-        color reflected_color(1,0,0,1);
+        color light_color(source->specular());
+        color reflected_color(light_color * mat->get_specular_reflectivity());
 
         line::render(target, p.x(), p.y(), p.z(), light_color, l.x(), l.y(), l.z(), light_color);
 

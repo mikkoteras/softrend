@@ -23,7 +23,7 @@ public:
 
 private:
     std::map<std::string, texture> textures;
-    std::map<std::string, unique_ptr<material>> materials;
+    std::map<std::string, std::unique_ptr<material>> materials;
     constant_color_material null_material;
 };
 

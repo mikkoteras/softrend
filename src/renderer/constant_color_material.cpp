@@ -1,7 +1,7 @@
 #include "constant_color_material.h"
 
 constant_color_material::constant_color_material() :
-    illumination_model(0) {
+    material(0) {
 }
 
 constant_color_material::~constant_color_material() {
