@@ -141,7 +141,7 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
         bool dissolve_halo = false;
         float sharpness = 0.0f;
         float optical_density = 0.0f;
-        texture *texture_map = nullptr;
+        const texture *texture_map = nullptr;
     };
 
     try {
@@ -168,11 +168,11 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
                     if (spec.texture_map)
                         mat->set_texture_map(spec.texture_map);
 
-                    lib.add_material(spec.material_name, mat);
+                    lib.add_material(spec.material_name, unique_ptr<material>(mat));
                     spec = material_spec();
                 }
 
-                material_constructed = true;
+                material_being_constructed = true;
                 spec.material_name = imp.accept_until_eol();
             }
             else if (command == "Ka")
@@ -186,8 +186,6 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
             else if (command == "illum")
                 spec.illumination_model = imp.accept_int();
             else if (command == "d") {
-                spec.halo = false;
-
                 if (imp.next_char_is('-')) {
                     string token = imp.accept_command();
 
@@ -196,10 +194,10 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
                         throw importer_exception();
                     }
 
-                    spec.halo = true;
+                    spec.dissolve_halo = true;
                 }
 
-                spec.dissolve = accept_float();
+                spec.dissolve = imp.accept_float();
             }
             else if (command == "Ns")
                 spec.specular_exponent = imp.accept_float();
@@ -214,7 +212,7 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
             else if (command == "map_Kd") {
                 string png_filename = imp.accept_until_eol();
                 lib.add_texture(png_filename, png_filename);
-                spec.texture_map(lib.get_texture(png_filename));
+                spec.texture_map = lib.get_texture(png_filename);
             }
             else if (command == "map_Ks" || command == "map_Ns" || command == "map_d" ||
                      command == "disp" || command == "decal" || command == "bump" || command == "refl") {
@@ -237,9 +235,9 @@ void importer::load_3dsmax_materials(const std::string &filename, material_libra
             mat->set_specular_exponent(spec.specular_exponent);
             
             if (spec.texture_map)
-                mat->set_texture_map(lib.get_texture(png_filename));
+                mat->set_texture_map(spec.texture_map);
 
-            lib.add_material(spec.material_name, mat);
+            lib.add_material(spec.material_name, unique_ptr<material>(mat));
         }
     }
     catch (...) {

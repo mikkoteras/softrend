@@ -24,7 +24,7 @@ bool material_library::add_material(const std::string &name, unique_ptr<material
     if (materials.find(name) != materials.end())
         return false;
     else {
-        materials[name] = mat;
+        materials[name] = move(mat);
         return true;
     }
 }
@@ -35,7 +35,7 @@ const material *material_library::get_material(const std::string &name) const {
     if (it == materials.end())
         throw material_library_exception();
 
-    return it->second;
+    return it->second.get();
 }
 
 const material *material_library::get_null_material() const {
