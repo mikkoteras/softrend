@@ -12,10 +12,13 @@ public:
     material();
     ~material();
 
-    color shade_flat(const math::vector3f &surface_midpoint, const math::vector3f &surface_normal_unit,
-                     const light_list &light_sources) const;
-    color shade_phong(const math::vector3f &surface_point, const math::vector3f &surface_normal_unit,
-                      const math::vector3f &point_to_eye_unit, const light_list &light_sources) const;
+    static material *create(int illumination_model);
+    
+    virtual color shade_flat(const math::vector3f &surface_midpoint, const math::vector3f &surface_normal_unit,
+                             const light_list &light_sources) const = 0;
+    virtual color shade_phong(const math::vector3f &surface_point, const math::vector3f &surface_normal_unit,
+                              const math::vector3f &point_to_eye_unit, const light_list &light_sources) const = 0;
+
 
 public:
     const color &get_ambient_reflectivity() const;
@@ -38,7 +41,6 @@ public:
     void set_specular_exponent(float value);
     void set_sharpness(float value);
     void set_optical_density(float value);
-    void set_illumination_model(int value);
     void set_texture_map(const texture *t);
 
 private:

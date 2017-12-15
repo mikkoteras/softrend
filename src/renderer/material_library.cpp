@@ -1,6 +1,7 @@
 #include "material_library.h"
 
 using namespace math;
+using namespace std;
 
 material_library::material_library() {
     null_material.set_ambient_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
@@ -19,7 +20,7 @@ bool material_library::add_texture(const std::string &name, const std::string &f
     return true;
 }
 
-bool material_library::add_material(const std::string &name, const material &mat) {
+bool material_library::add_material(const std::string &name, unique_ptr<material> mat) {
     if (materials.find(name) != materials.end())
         return false;
     else {
@@ -34,7 +35,7 @@ const material *material_library::get_material(const std::string &name) const {
     if (it == materials.end())
         throw material_library_exception();
 
-    return &it->second;
+    return it->second;
 }
 
 const material *material_library::get_null_material() const {
