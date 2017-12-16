@@ -188,14 +188,20 @@ bool window::init_sdl() {
         std::cerr << "can't init SDL TTF rendering" << std::endl;
         return false;
     }
-    
-    //std::string font_path("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf");
-    std::string font_path("C:/Windows/WinSxS/amd64_microsoft-windows-font-truetype-arial_31bf3856ad364e35_10.0.15063.0_none_83974968e629cd54/arial.ttf");
+
+    std::string font_path;
+
+#if defined _WIN32
+    font_path = "C:/Windows/WinSxS/amd64_microsoft-windows-font-truetype-arial_31bf3856ad364e35_10.0.15063.0_none_83974968e629cd54/arial.ttf";
+#elif defined LINUX
+    font_path = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+#endif
+
     text_overlay_font = TTF_OpenFont(font_path.c_str(), 16);
 
     if (!text_overlay_font) {
         std::cerr << "Can't load font file " << font_path << std::endl;
-        return false;
+        std::cerr << "Continuing, but text overlay (Ctrl+i) will be unavailable." << std::endl;
     }
 
     return true;
@@ -232,7 +238,7 @@ void window::deinit_sdl() {
 }
 
 void window::render_text_overlay(scene &sc) {
-    if (!text_overlay_visible)
+    if (!text_overlay_visible || !text_overlay_font)
         return;
 
     SDL_Color text_color = {255, 255, 255};

@@ -291,8 +291,8 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
     max_y = std::min(max_y, target.pixel_height() - 1);
     
     if (y < 0) {
-        left.add_v(static_cast<float>(-y), *render_context.left_edge_delta);
-        right.add_v(static_cast<float>(-y), *render_context.right_edge_delta);
+        left.add_v(-y, *render_context.left_edge_delta);
+        right.add_v(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -332,8 +332,8 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
     max_y = std::min(max_y, target.pixel_height() - 1);
     
     if (y < 0) {
-        left.add_vs(static_cast<float>(-y), *render_context.left_edge_delta);
-        right.add_vs(static_cast<float>(-y), *render_context.right_edge_delta);
+        left.add_vs(-y, *render_context.left_edge_delta);
+        right.add_vs(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
@@ -346,7 +346,7 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vs(static_cast<float>(-x), delta);
+            pixel.add_vs(-x, delta);
             x = 0;
         }
 

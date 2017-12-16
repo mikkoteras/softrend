@@ -163,7 +163,7 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
 
     if (visualize_reflection_vectors) {
         size_t step = triangles.size() / 150;
-        step = max(step, static_cast<size_t>(1));
+        step = max<size_t>(step, 1);
 
         for (size_t i = 0; i < triangles.size(); i += step)
             triangles[i].visualize_reflection_vectors(fb, *this, sc, world_to_view);
