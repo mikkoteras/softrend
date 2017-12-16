@@ -402,7 +402,7 @@ string importer::accept_command() {
 }
 
 void importer::chomp(string &s) {
-    int i = s.size() - 1;
+    size_t i = s.size() - 1;
 
     while (i >= 0 && (s[i] == '\r' || s[i] == '\n'))
         --i;

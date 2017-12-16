@@ -20,6 +20,8 @@ int main(int argc, char *argv[]) {
                 return win.run(sc);
             }
         }
+
+        return 1;
     }
     catch (...) {
         std::cerr << "caught stray exception, aborting." << std::endl;

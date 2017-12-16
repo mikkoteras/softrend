@@ -39,28 +39,33 @@ void demo::render(framebuffer &fb) {
 }
 
 void demo::render_dot_curve(framebuffer &fb) {
+    const float pi = 3.151926536f;
+
     float cx = fb.pixel_width() / 2.0f;
     float cy = fb.pixel_height() / 2.0f;
 
     for (float t = 10.0f; t < 200.0f ; t += 0.002f) {
-        float x1 = cx + (t + t * cos(5 * t)) * cosf(t);
-        float y1 = cy + (t + t * sin(3 * t)) * sinf(t);
-        fb.set_pixel(x1, y1, color(fabs(sinf(t)),
-                                   fabs(sin(t / 200.0f * detail::pi<float>())),
-                                   fabs(sinf(t + detail::pi<float>() / 2.0f)),
-                                   1.0f));
+        float x1 = cx + (t + t * cos(5.0f * t)) * cosf(t);
+        float y1 = cy + (t + t * sin(3.0f * t)) * sinf(t);
+        fb.set_pixel(static_cast<int>(x1), static_cast<int>(y1),
+                     color(fabs(sinf(t)),
+                           fabs(sinf(t / 200.0f * pi)),
+                           fabs(sinf(t + pi / 2.0f)),
+                           1.0f));
     }
 }
 
 void demo::render_line_spiral(framebuffer &fb) {
+    float pi = 3.1415926536f;
+
     float cx = fb.pixel_width() / 2.0f;
     float cy = fb.pixel_height() / 2.0f;
 
     for (float t = 10.0f; t < 500.0f; t += 1.5f) {
         float x1 = cx + t * cosf(0.1f * t);
         float y1 = cy + t * sinf(0.1f * t);
-        float x2 = cx + 1.2f * t * cosf(0.1f * t + detail::pi<float>() / 4.0f);
-        float y2 = cy + 1.2f * t * sinf(0.1f * t + detail::pi<float>() / 4.0f);
+        float x2 = cx + 1.2f * t * cosf(0.1f * t + pi / 4.0f);
+        float y2 = cy + 1.2f * t * sinf(0.1f * t + pi / 4.0f);
         line::render(fb, x1, y1, 0, color(1, t / 500.0f, 0, 1), x2, y2, 0, color(0, t / 500.f, 1, 1));
     }
 }
@@ -78,7 +83,7 @@ void demo::render_fern_still(framebuffer &fb) {
 void demo::render_fern_3d(framebuffer &fb) {
     float t = clock.seconds();
 
-    float eye_x = 3.0f * cosf(0.4 * t);
+    float eye_x = 3.0f * cosf(0.4f * t);
     float eye_y = 4.0f + 3.0f * sinf(0.5f * t);
     float eye_z = 10.0f + sinf(0.6f * t);
 
@@ -117,7 +122,9 @@ void demo::create_fern() {
 }
 
 void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int generations) {
-    const float pi = detail::pi<float>();
+    //const float pi = detail::pi<float>();
+    const float pi = 3.1415926536f;
+
     color c;
 
     if (generations >= 4)
@@ -148,7 +155,7 @@ void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int 
 
     for (int n = 0; n < nodes; ++n) {
         float node_pos_on_stem = (n + 1.0f) / nodes;
-        float branch_length_from_node =  0.7f * stem_length * (0.3f + 0.7 * (1.0f - node_pos_on_stem));
+        float branch_length_from_node =  0.7f * stem_length * (0.3f + 0.7f * (1.0f - node_pos_on_stem));
         vector3f branch_root = root + node_pos_on_stem * stem;
         
         // create a line parallel to stem, p1->p2, that is guaranteed to != stem, then use

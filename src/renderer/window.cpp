@@ -3,7 +3,6 @@
 #include "framebuffer.h"
 #include "pipeline_context.h"
 #include "scene.h"
-#include "SDL.h"
 #include <iostream>
 #include <string>
 #include <thread>
@@ -190,14 +189,15 @@ bool window::init_sdl() {
         return false;
     }
     
-    std::string font_path("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf");
+    //std::string font_path("/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf");
+    std::string font_path("C:/Windows/WinSxS/amd64_microsoft-windows-font-truetype-arial_31bf3856ad364e35_10.0.15063.0_none_83974968e629cd54/arial.ttf");
     text_overlay_font = TTF_OpenFont(font_path.c_str(), 16);
 
     if (!text_overlay_font) {
         std::cerr << "Can't load font file " << font_path << std::endl;
         return false;
     }
-    
+
     return true;
 }
 
@@ -234,7 +234,7 @@ void window::deinit_sdl() {
 void window::render_text_overlay(scene &sc) {
     if (!text_overlay_visible)
         return;
-    
+
     SDL_Color text_color = {255, 255, 255};
     vector<string> info(sc.get_scene_info().get());
 

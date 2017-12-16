@@ -83,13 +83,13 @@ int mesh::add_vertex(const vector3f &v) {
     local_coordinates.push_back(vector4f(v, 1.0f));
     world_coordinates.push_back(vector3f());
     view_coordinates.push_back(vector3f());
-    return local_coordinates.size() - 1;
+    return static_cast<int>(local_coordinates.size() - 1);
 }
 
 int mesh::add_vertex_normal(const vector3f &vn) {
     local_normals.push_back(vector4f(vn, 0.0f));
     world_normals.push_back(vector3f());
-    return local_normals.size() - 1;
+    return static_cast<int>(local_normals.size() - 1);
 }
 
 void mesh::add_triangle(int vi1, int vi2, int vi3,
@@ -140,13 +140,13 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
     matrix4x4f world_to_view = translate_to_screen_coords * scale_to_screen_coords * sc.world_to_view();
     matrix4x4f local_to_view = world_to_view * local_to_world;
 
-    for (unsigned i = 0, max = local_coordinates.size(); i < max; ++i)
+    for (size_t i = 0, max = local_coordinates.size(); i < max; ++i)
         world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo();
 
-    for (unsigned i = 0, max = local_coordinates.size(); i < max; ++i)
+    for (size_t i = 0, max = local_coordinates.size(); i < max; ++i)
         view_coordinates[i] = (local_to_view * local_coordinates[i]).dehomo_with_divide();
 
-    for (unsigned i = 0, max = local_normals.size(); i < max; ++i) {
+    for (size_t i = 0, max = local_normals.size(); i < max; ++i) {
         world_normals[i] = (local_to_world * local_normals[i]).dehomo();
         world_normals[i].normalize();
     }
@@ -162,10 +162,10 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
             t.visualize_normals(fb, *this, sc, world_to_view);
 
     if (visualize_reflection_vectors) {
-        unsigned step = triangles.size() / 150;
-        step = max(step, 1u);
+        size_t step = triangles.size() / 150;
+        step = max(step, static_cast<size_t>(1));
 
-        for (unsigned i = 0; i < triangles.size(); i += step)
+        for (size_t i = 0; i < triangles.size(); i += step)
             triangles[i].visualize_reflection_vectors(fb, *this, sc, world_to_view);
     }
 }

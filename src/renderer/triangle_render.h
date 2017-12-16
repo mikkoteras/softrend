@@ -66,7 +66,7 @@ public:
     const light_list *lights;
     const texture *tex;
 
-    constexpr vertex_data &vtx(int i) { return *vertex[i]; }
+    vertex_data &vtx(int i) { return *vertex[i]; }
     
     triangle_render();
     void prepare_edges(); // sort by y

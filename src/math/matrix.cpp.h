@@ -101,7 +101,7 @@ namespace math {
 
     template<typename float_t, int rows, int columns>
         typename matrix<float_t, rows, columns>::column_vector_t
-        matrix<float_t, rows, columns>::operator*(const matrix<float_t, rows, columns>::column_vector_t &rhs) const {
+        matrix<float_t, rows, columns>::operator*(const column_vector_t &rhs) const {
 
         column_vector_t result;
         int matrix_element_index = 0;

@@ -1,14 +1,12 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include "SDL.h"
 #include "SDL_ttf.h"
 
 class benchmark_frame;
 class framebuffer;
 class scene;
-class SDL_Window;
-class SDL_Renderer;
-class SDL_Texture;
 
 class window_exception {};
 

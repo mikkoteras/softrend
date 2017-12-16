@@ -2,6 +2,7 @@
 #include "light_list.h"
 #include "texture.h"
 #include "util.h"
+#include <cmath>
 #include <sstream>
 
 void vertex_data::add_vwnts(const vertex_data &delta) {
@@ -204,19 +205,19 @@ void triangle_render::prepare_edges() {
 }
 
 void triangle_render::prepare_upper_halftriangle() {
-    int top_y = vertex[0]->view_position.y();
-    int mid_y = vertex[1]->view_position.y();
-    int bot_y = vertex[2]->view_position.y();
+    int top_y = static_cast<int>(std::roundf(vertex[0]->view_position.y()));
+    int mid_y = static_cast<int>(std::roundf(vertex[1]->view_position.y()));
+    int bot_y = static_cast<int>(std::roundf(vertex[2]->view_position.y()));
 
     halftriangle_height = mid_y - top_y;
-    long_edge_delta.compute_delta_vwnts(*vertex[0], *vertex[2], bot_y - top_y); // TODO vwnts?
+    long_edge_delta.compute_delta_vwnts(*vertex[0], *vertex[2], static_cast<float>(bot_y - top_y)); // TODO vwnts?
     
     if (halftriangle_height == 0) {
         long_edge_midpoint = *vertex[0];
         return; // zero scanlines to draw
     }
 
-    float top_half_height = halftriangle_height;
+    float top_half_height = static_cast<float>(halftriangle_height);
     short_edge_delta.compute_delta_vwnts(*vertex[0], *vertex[1], top_half_height);
 
     left_edge_top = right_edge_top = vertex[0];
@@ -234,14 +235,14 @@ void triangle_render::prepare_upper_halftriangle() {
 }
 
 void triangle_render::prepare_lower_halftriangle() {
-    int mid_y = vertex[1]->view_position.y();
-    int bot_y = vertex[2]->view_position.y();
+    int mid_y = static_cast<int>(std::roundf(vertex[1]->view_position.y()));
+    int bot_y = static_cast<int>(std::roundf(vertex[2]->view_position.y()));
     halftriangle_height = bot_y - mid_y;
 
     if (halftriangle_height == 0)
         return; // zero scanlines to draw
 
-    float bot_half_height = halftriangle_height;
+    float bot_half_height = static_cast<float>(halftriangle_height);
     short_edge_delta.compute_delta_vwnts(*vertex[1], *vertex[2], bot_half_height);
 
     if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l

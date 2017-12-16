@@ -23,10 +23,10 @@ coordinate_system::coordinate_system(const color &x,const color &y, const color 
     for (float i = 1.0f; i < t + 0.5f; i += 1.0f) {
         m.add_line(vector3f{i, -0.05f, 0.0f}, vector3f{i, 0.05f, 0.0f}, x, x);
         m.add_line(vector3f{-i, -0.05f, 0.0f}, vector3f{-i, 0.05f, 0.0f}, x, x);
-        m.add_line(vector3f{-0.05, i, 0.0f}, vector3f{0.05f, i, 0.0f}, y, y);
-        m.add_line(vector3f{-0.05, -i, 0.0f}, vector3f{0.05f, -i, 0.0f}, y, y);
-        m.add_line(vector3f{-0.05, 0.0f, i}, vector3f{0.05f, 0.0f, i}, z, z);
-        m.add_line(vector3f{-0.05, 0.0f, -i}, vector3f{0.05f, 0.0f, -i}, z, z);
+        m.add_line(vector3f{-0.05f, i, 0.0f}, vector3f{0.05f, i, 0.0f}, y, y);
+        m.add_line(vector3f{-0.05f, -i, 0.0f}, vector3f{0.05f, -i, 0.0f}, y, y);
+        m.add_line(vector3f{-0.05f, 0.0f, i}, vector3f{0.05f, 0.0f, i}, z, z);
+        m.add_line(vector3f{-0.05f, 0.0f, -i}, vector3f{0.05f, 0.0f, -i}, z, z);
     }
 
     // Axis labels

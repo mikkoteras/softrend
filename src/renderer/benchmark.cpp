@@ -27,7 +27,7 @@ void benchmark::frame_finished(benchmark_frame &frame) {
 }
 
 string benchmark::get_stats() const {
-    int frames = frame_history.size();
+    size_t frames = frame_history.size();
 
     if (frames < 2)
         return "no benchmark data";

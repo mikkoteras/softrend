@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "scene.h"
 #include "framebuffer.h"
+#include <algorithm>
 
 using namespace math;
 
