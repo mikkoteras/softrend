@@ -192,7 +192,7 @@ bool window::init_sdl() {
     std::string font_path;
 
 #if defined _WIN32
-    font_path = "C:/Windows/WinSxS/amd64_microsoft-windows-font-truetype-arial_31bf3856ad364e35_10.0.15063.0_none_83974968e629cd54/arial.ttf";
+    font_path = "C:/Windows/Fonts/Arial.ttf";
 #elif defined LINUX
     font_path = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
 #endif
