@@ -1,4 +1,5 @@
 #include "math_detail.h"
+#include <cmath>
 
 namespace math {
     template<typename float_t, int dim> constexpr vector<float_t, dim>::vector() {

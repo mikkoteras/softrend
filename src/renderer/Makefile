@@ -41,8 +41,8 @@ LD=g++
 LDFLAGS=-o $(TARGET)
 DEBUGFLAGS=-g
 OPTIMIZATIONFLAGS=-O3
-LIBDIRS=-L/usr/lib/x86_64-linux-gnu
-LIBS=-lstdc++ -lpthread -lstdc++fs -lSDL2 -lSDL2_ttf
+LIBDIRS=-L/usr/lib/x86_64-linux-gnu -L../math
+LIBS=-lmath -lstdc++ -lpthread -lstdc++fs -lSDL2 -lSDL2_ttf
 
 all: default
 default: debug

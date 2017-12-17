@@ -193,7 +193,7 @@ bool window::init_sdl() {
 
 #if defined _WIN32
     font_path = "C:/Windows/Fonts/Calibri.ttf";
-#elif defined LINUX
+#elif defined __linux__
     font_path = "/usr/share/fonts/truetype/freefont/FreeMono.ttf";
 #endif
 
