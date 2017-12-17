@@ -192,7 +192,7 @@ bool window::init_sdl() {
     std::string font_path;
 
 #if defined _WIN32
-    font_path = "C:/Windows/Fonts/Arial.ttf";
+    font_path = "C:/Windows/Fonts/Calibri.ttf";
 #elif defined LINUX
     font_path = "/usr/share/fonts/truetype/freefont/FreeMono.ttf";
 #endif
