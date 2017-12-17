@@ -194,7 +194,7 @@ bool window::init_sdl() {
 #if defined _WIN32
     font_path = "C:/Windows/Fonts/Arial.ttf";
 #elif defined LINUX
-    font_path = "/usr/share/fonts/truetype/ubuntu-font-family/Ubuntu-R.ttf";
+    font_path = "/usr/share/fonts/truetype/freefont/FreeMono.ttf";
 #endif
 
     text_overlay_font = TTF_OpenFont(font_path.c_str(), 16);
