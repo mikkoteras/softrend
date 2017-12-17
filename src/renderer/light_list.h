@@ -13,7 +13,8 @@ class light_list {
 public:
     light_list();
     ~light_list();
-    
+
+    void clear();
     void set_ambient_light(const color &col);
     void add_light(const directional_light &l);
     void add_light(const point_light &l);

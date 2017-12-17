@@ -14,8 +14,7 @@ auto_scene::auto_scene(const path &object_file, bool echo_comments, object_posit
 
     try {
         object = importer::load_3dsmax_object(object_file, materials(), echo_comments);
-        light_sources().add_light(directional_light(vector3f{-0.1f, -1.0f, 0.0f}, color(1.0f, 1.0f, 1.0f, 1.0f)));
-        light_sources().set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
+        toggle_lights();
         
         bounding_box box = object.local_bounding_box();
         float max_semiaxis = box.max_semiaxis();
@@ -80,6 +79,8 @@ void auto_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {
         z_rotation_per_second += 0.1f;
         return;
     }
+    else if (ctrl_is_down && sdl_keycode == SDLK_l)
+        toggle_lights();
     else if (ctrl_is_down && sdl_keycode == SDLK_r) {
         x_rotation = 0.0f;
         y_rotation = 0.0f;
@@ -90,6 +91,19 @@ void auto_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {
     }
 
     freecam_scene::key_down_event(sdl_keycode, ctrl_is_down);
+}
+
+void auto_scene::toggle_lights() {
+    light_list &lights = light_sources();
+    lights.clear();
+    lights_on = !lights_on;
+
+    if (lights_on) {
+        lights.add_light(directional_light(vector3f{-0.1f, -1.0f, 0.0f}, color(1.0f, 1.0f, 1.0f, 1.0f)));
+        lights.set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
+    }
+    else
+        lights.set_ambient_light(color(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void auto_scene::render(framebuffer &fb) {

@@ -129,7 +129,7 @@ bool window::read_user_input(scene &s) {
                 text_overlay_visible = !text_overlay_visible;
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_n)
                 s.set_normal_visualization(!s.get_normal_visualization());
-            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_l)
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_p)
                 s.set_reflection_vector_visualization(!s.get_reflection_vector_visualization());
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
                 s.cycle_shading_model();

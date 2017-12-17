@@ -16,6 +16,11 @@ light_list::~light_list() {
     per_pixel_lights.clear();
 }
 
+void light_list::clear() {
+    ambient_light = color(0.0f, 0.0f, 0.0f, 0.0f);
+    per_pixel_lights.clear();
+}
+
 void light_list::set_ambient_light(const color &col) {
     ambient_light = col;
 }

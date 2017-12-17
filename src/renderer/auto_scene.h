@@ -13,7 +13,8 @@ public:
     ~auto_scene();
 
     void key_down_event(int sdk_keycode, bool ctrl_is_down) override;
-
+    void toggle_lights();
+    
     void render(framebuffer &fb);
 
 private:
@@ -25,6 +26,7 @@ private:
     float x_rotation = 0.0f;
     float y_rotation = 0.0f;
     float z_rotation = 0.0f;
+    bool lights_on = false;
 };
 
 #endif
