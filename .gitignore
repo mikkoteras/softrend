@@ -4,8 +4,8 @@
 # Binaries
 *.o
 *.d
-src/renderer/softrend
-src/math_tests/math_tests
+bin
+lib
 # Crashes
 core
 core.*

@@ -1,4 +1,5 @@
-TARGET=softrend
+BINDIR=../../bin
+TARGET=$(BINDIR)/softrend
 SOURCES=animation_clock.cpp \
         auto_scene.cpp \
         benchmark.cpp \
@@ -41,8 +42,8 @@ LD=g++
 LDFLAGS=-o $(TARGET)
 DEBUGFLAGS=-g
 OPTIMIZATIONFLAGS=-O3
-LIBDIRS=-L/usr/lib/x86_64-linux-gnu -L../math
-LIBS=-lmath -lstdc++ -lpthread -lstdc++fs -lSDL2 -lSDL2_ttf
+LIBDIRS=-L../../lib -L/usr/lib/x86_64-linux-gnu
+LIBS=-lmath -lstdc++ -lstdc++fs -lpthread -lSDL2 -lSDL2_ttf
 
 all: default
 default: debug
@@ -55,7 +56,7 @@ release: CFLAGS += $(OPTIMIZATIONFLAGS)
 release: LDFLAGS += $(OPTIMIZATIONFLAGS)
 release: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(BINDIR) $(OBJS)
 	@echo linking
 	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
 
@@ -66,6 +67,9 @@ $(TARGET): $(OBJS)
 %.d: %.cpp
 	@echo computing dependencies for $<
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
+
+$(BINDIR):
+	mkdir $(BINDIR)
 
 -include $(DEPS)
 

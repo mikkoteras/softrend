@@ -1,4 +1,5 @@
-TARGET=math_tests
+BINDIR=../../bin
+TARGET=$(BINDIR)/math_tests
 SOURCES=linear_transform_tests.cpp \
         main.cpp \
         matrix_tests.cpp \
@@ -16,13 +17,15 @@ CC=g++
 CFLAGS=-c -g -Wall -ansi -Wall -Werror -std=c++17
 LD=g++
 LDFLAGS=-o $(TARGET)
-LIBDIRS=-L/usr/lib/x86_64-linux-gnu
-LIBS=-lstdc++
+LIBDIRS=-L/usr/lib/x86_64-linux-gnu -L../../lib
+LIBS=-lmath -lstdc++
 
 all: default
+debug: default
+release: default
 default: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(BINDIR) $(OBJS)
 	@echo linking
 	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
 
@@ -33,6 +36,9 @@ $(TARGET): $(OBJS)
 %.d: %.cpp
 	@echo computing dependencies for $<
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
+
+$(BINDIR):
+	mkdir $(BINDIR)
 
 -include $(DEPS)
 
