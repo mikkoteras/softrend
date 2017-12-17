@@ -402,10 +402,12 @@ string importer::accept_command() {
 }
 
 void importer::chomp(string &s) {
-    size_t i = s.size() - 1;
+    if (!s.empty()) {
+        size_t i = s.size() - 1;
 
-    while (i >= 0 && (s[i] == '\r' || s[i] == '\n'))
-        --i;
+        while (i >= 0 && (s[i] == '\r' || s[i] == '\n'))
+            --i;
 
-    s.resize(i + 1);
+        s.resize(i + 1);
+    }
 }
