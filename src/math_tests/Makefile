@@ -42,5 +42,3 @@ $(BINDIR):
 
 -include $(DEPS)
 
-clean:
-	rm -f *.o *.d *~

@@ -26,3 +26,10 @@ $(EXE): $(BINDIR)
 
 $(BINDIR):
 	mkdir $(BINDIR)
+
+clean:
+	for d in math math_tests renderer; do cd $$d; rm -f *.o *.d *~; cd ..; done
+
+clobber: clean
+	rm -rf ../bin ../lib
+

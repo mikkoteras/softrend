@@ -43,6 +43,3 @@ $(TARGETDIR):
 
 loc:
 	@wc -l $(ls ../*/*.{h,cpp} | grep -v lodepng)
-
-clean:
-	rm -f *.o *.d *~
