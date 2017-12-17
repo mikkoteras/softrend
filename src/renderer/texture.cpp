@@ -1,5 +1,6 @@
 #include "texture.h"
 #include "lodepng.h"
+#include "math_detail.h"
 #include <cmath>
 #include <iostream>
 
@@ -93,7 +94,7 @@ int texture::pixel_height() const {
 const color &texture::at(float u, float v) const {
     // Normalize coords to get wraparound effect when
     // a coordinate <0 or >1.
-    int xi = (u - floorf(u)) * max_x;
-    int yi = (1.0f - (v - floor(v))) * max_y;
+    int xi = (u - math::detail::floor<float>(u)) * max_x;
+    int yi = (1.0f - (v - math::detail::floor<float>(v))) * max_y;
     return pixels[yi * width + xi];
 }

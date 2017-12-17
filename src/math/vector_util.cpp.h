@@ -28,8 +28,8 @@ namespace math {
         vector<float_t, 3> axis_unit(axis.unit());
 
         return cos<float_t>(angle) * point +
-            sinf(angle) * (axis_unit.cross(point)) +
-               (static_cast<float_t>(1) - cos<float_t>(angle)) * axis_unit.dot(point) * axis_unit;
+            sin<float_t>(angle) * (axis_unit.cross(point)) +
+            (static_cast<float_t>(1) - cos<float_t>(angle)) * axis_unit.dot(point) * axis_unit;
     }
 
     template<typename float_t>

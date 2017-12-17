@@ -15,7 +15,7 @@ namespace math {
         template<> double acos<double>(double t) { return std::acos(t); }
         template<> double floor<double>(double t) { return std::floor(t); }
 
-        template<> constexpr float pi<float>() { return 3.14159265358979323846f; }
-        template<> constexpr double pi<double>() { return 3.14159265358979323846; }
+        template<> float pi<float>() { return 3.14159265358979323846f; }
+        template<> double pi<double>() { return 3.14159265358979323846; }
     }
 }

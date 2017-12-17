@@ -9,7 +9,7 @@ namespace math {
         template<typename float_t> float_t acos(float_t t);
         template<typename float_t> float_t floor(float_t t);
 
-        template<typename float_t> constexpr float_t pi();
+        template<typename float_t> float_t pi();
     }
 }
 

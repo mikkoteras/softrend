@@ -1,4 +1,3 @@
-#include <cmath>
 #include "math_detail.h"
 
 namespace math {
