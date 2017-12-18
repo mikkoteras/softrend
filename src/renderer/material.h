@@ -28,6 +28,7 @@ public:
     const color &get_ambient_reflectivity() const;
     const color &get_diffuse_reflectivity() const;
     const color &get_specular_reflectivity() const;
+    const color &get_emissivity() const;
     const color &get_transmission_filter() const;
     float get_specular_exponent() const;
     float get_dissolve() const;
@@ -39,6 +40,7 @@ public:
     void set_ambient_reflectivity(const color &col);
     void set_diffuse_reflectivity(const color &col);
     void set_specular_reflectivity(const color &col);
+    void set_emissivity(const color &col);
     void set_transmission_filter(const color &col);
     void set_dissolve(float value, bool halo);
     void set_specular_exponent(float value);
@@ -51,6 +53,7 @@ private:
     color ambient_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color diffuse_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color specular_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
+    color emissivity = color(0.0f, 0.0f, 0.0f, 1.0f);
     color transmission_filter = color(1.0f, 1.0f, 1.0f, 1.0f);
     float dissolve = 0.0f;
     float dissolve_halo = false;
