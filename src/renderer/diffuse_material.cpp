@@ -25,6 +25,7 @@ color diffuse_material::shade_flat(const math::vector3f &surface_midpoint, const
             result += source->diffuse() * normal_dot_light;
     }
 
+    result.alpha() = get_dissolve();
     result.clamp();
     return result;
 }
@@ -43,6 +44,7 @@ color diffuse_material::shade_phong(const math::vector3f &surface_point, const m
     }
     
     result += get_diffuse_reflectivity() * diffuse_term;
+    result.alpha() = get_dissolve();
     result.clamp();
     return result;
 }

@@ -8,10 +8,16 @@ constant_color_material::~constant_color_material() {
 }
 
 color constant_color_material::shade_flat(const math::vector3f&, const math::vector3f&, const light_list&) const {
-    return get_diffuse_reflectivity();
+    color result = get_diffuse_reflectivity();
+    result.alpha() = get_dissolve();
+    result.clamp();
+    return result;
 }
 
 color constant_color_material::shade_phong(const math::vector3f&, const math::vector3f&,
                                            const math::vector3f&, const light_list&) const {
-    return get_diffuse_reflectivity();
+    color result = get_diffuse_reflectivity();
+    result.alpha() = get_dissolve();
+    result.clamp();
+    return result;
 }

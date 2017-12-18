@@ -25,7 +25,8 @@ debug: default
 release: default
 default: $(TARGET)
 
-$(TARGET): $(BINDIR) $(OBJS)
+$(TARGET): $(OBJS)
+	@mkdir -p $(BINDIR)
 	@echo linking
 	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
 
@@ -36,9 +37,6 @@ $(TARGET): $(BINDIR) $(OBJS)
 %.d: %.cpp
 	@echo computing dependencies for $<
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
-
-$(BINDIR):
-	mkdir $(BINDIR)
 
 -include $(DEPS)
 

@@ -24,7 +24,8 @@ debug: $(TARGET)
 release: CFLAGS += $(OPTIMIZATIONFLAGS)
 release: $(TARGET)
 
-$(TARGET): $(TARGETDIR) $(OBJS)
+$(TARGET): $(OBJS)
+	@mkdir -p $(TARGETDIR)
 	@echo creating lib
 	@$(AR) $(ARFLAGS) $(TARGET) $(OBJS)
 
@@ -35,9 +36,6 @@ $(TARGET): $(TARGETDIR) $(OBJS)
 %.d: %.cpp
 	@echo computing dependencies for $<
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
-
-$(TARGETDIR):
-	mkdir $(TARGETDIR)
 
 -include $(DEPS)
 

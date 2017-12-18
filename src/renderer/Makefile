@@ -1,6 +1,7 @@
 BINDIR=../../bin
 TARGET=$(BINDIR)/softrend
-SOURCES=animation_clock.cpp \
+SOURCES=alpha_test.cpp \
+        animation_clock.cpp \
         auto_scene.cpp \
         benchmark.cpp \
         benchmark_frame.cpp \
@@ -59,7 +60,8 @@ release: CFLAGS += $(OPTIMIZATIONFLAGS)
 release: LDFLAGS += $(OPTIMIZATIONFLAGS)
 release: $(TARGET)
 
-$(TARGET): $(BINDIR) $(OBJS)
+$(TARGET): $(OBJS)
+	@mkdir -p $(BINDIR)
 	@echo linking
 	@$(LD) $(LDFLAGS) $(OBJS) $(LIBDIRS) $(LIBS)
 
@@ -70,9 +72,6 @@ $(TARGET): $(BINDIR) $(OBJS)
 %.d: %.cpp
 	@echo computing dependencies for $<
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
-
-$(BINDIR):
-	mkdir $(BINDIR)
 
 -include $(DEPS)
 

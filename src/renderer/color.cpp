@@ -15,6 +15,38 @@ color::color(float r, float g, float b, float a) :
     a(a) {
 }
 
+float color::red() const {
+    return r;
+}
+
+float color::green() const {
+    return g;
+}
+
+float color::blue() const {
+    return b;
+}
+
+float color::alpha() const {
+    return a;
+}
+
+float &color::red() {
+    return r;
+}
+
+float &color::green() {
+    return g;
+}
+
+float &color::blue() {
+    return b;
+}
+
+float &color::alpha() {
+    return a;
+}
+
 color color::operator+(const color &rhs) const {
     return color(r + rhs.r, g + rhs.g, b + rhs.b, a + rhs.a);
 }
@@ -51,6 +83,27 @@ color &color::operator*=(const color &rhs) {
     a *= rhs.a;
 
     return *this;
+}
+
+void color::superimpose(const color &rhs) {
+    if (a <= 0.0f) {
+        r = rhs.r;
+        g = rhs.g;
+        b = rhs.b;
+        a = 1.0f;
+    }
+    else {
+        r = (1.0f - rhs.a) * r + rhs.a * rhs.r;
+        g = (1.0f - rhs.a) * g + rhs.a * rhs.g;
+        b = (1.0f - rhs.a) * b + rhs.a * rhs.b;
+        a = 1.0f;
+    }
+}
+
+color color::superimpose(const color &lhs, const color &rhs) {
+    color result = lhs;
+    result.superimpose(rhs);
+    return result;
 }
 
 bool color::operator==(const color &rhs) {

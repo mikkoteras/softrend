@@ -127,7 +127,8 @@ void mesh::set_rotation(float x, float y, float z) {
 void mesh::set_position(float x, float y, float z) {
     position = linear_transforms::translate3<float>(x, y, z);
 }
-
+#include <iostream>
+#include "util.h"
 void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visualize_reflection_vectors) {
     using namespace math::linear_transforms;
     float min_axis = fb.pixel_width() < fb.pixel_height() ? fb.pixel_width() : fb.pixel_height();
@@ -151,8 +152,10 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
         world_normals[i].normalize();
     }
 
-    for (const triangle &t: triangles)
-        t.render(fb, *this, sc);
+    sort_triangles();
+    
+    for (const triangle_distance &t: triangle_order)
+        triangles[t.triangle_index].render(fb, *this, sc);
 
     for (const line &l: lines)
         l.render(fb, *this, sc);
@@ -193,4 +196,18 @@ const vector3f *mesh::world_normal_data() const {
 
 const vector3f *mesh::view_coordinate_data() const {
     return view_coordinates.data();
+}
+
+void mesh::sort_triangles() {
+    triangle_order.resize(triangles.size());
+
+    for (unsigned i = 0; i < triangles.size(); ++i) {
+        triangle_order[i].triangle_index = i;
+        const int *vertex_indices = triangles[i].vertex_indices();
+        triangle_order[i].z_coordinate = view_coordinates[vertex_indices[0]].z();
+        triangle_order[i].z_coordinate = std::min(triangle_order[i].z_coordinate, view_coordinates[vertex_indices[1]].z());
+        triangle_order[i].z_coordinate = std::min(triangle_order[i].z_coordinate, view_coordinates[vertex_indices[2]].z());
+    }
+
+    std::sort(triangle_order.begin(), triangle_order.end());
 }

@@ -165,6 +165,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                     mat->set_diffuse_reflectivity(spec.diffuse_reflectivity);
                     mat->set_specular_reflectivity(spec.specular_reflectivity);
                     mat->set_specular_exponent(spec.specular_exponent);
+                    mat->set_dissolve(spec.dissolve, spec.dissolve_halo);
 
                     if (spec.texture_map)
                         mat->set_texture_map(spec.texture_map);
@@ -236,6 +237,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
             mat->set_diffuse_reflectivity(spec.diffuse_reflectivity);
             mat->set_specular_reflectivity(spec.specular_reflectivity);
             mat->set_specular_exponent(spec.specular_exponent);
+            mat->set_dissolve(spec.dissolve, spec.dissolve_halo);
             
             if (spec.texture_map)
                 mat->set_texture_map(spec.texture_map);

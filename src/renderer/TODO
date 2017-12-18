@@ -10,3 +10,6 @@ Missing features
 * Implement Blinn-Phong.
 * Add face/point/normal/etc counts to text overlay.
 * The triange_render class screams for refactoring.
+* color3, color4
+* Bug: alpha icosa with no lights and illum 1 is not invisible, why?
+* Rewrite include dir arrangement; #include "math/vector.h" instead of "vector.h".
