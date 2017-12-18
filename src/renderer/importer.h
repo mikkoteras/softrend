@@ -13,15 +13,15 @@ class material_library;
 
 class importer {
 public:
-    static mesh load_3dsmax_object(const std::experimental::filesystem::path &filename,
-                                  material_library &lib,
-                                  bool echo_comments = false);
+    static mesh load_wavefront_object(const std::experimental::filesystem::path &filename,
+                                      material_library &lib,
+                                      bool echo_comments = false);
 
 public:
     class importer_exception {};
 
 private:
-    static void load_3dsmax_materials(const std::string &filename, material_library &lib, bool echo_comments);
+    static void load_wavefront_materials(const std::string &filename, material_library &lib, bool echo_comments);
 
 private: // [sic]
     importer(const std::experimental::filesystem::path &source);
