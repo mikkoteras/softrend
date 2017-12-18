@@ -134,6 +134,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
         color ambient_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
         color diffuse_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
         color specular_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
+        color emissivity = color(0.0f, 0.0f, 0.0f, 1.0f);
         color transmission_filter = color(0.0f, 0.0f, 0.0f, 1.0f);
         float specular_exponent = 60.0f;
         int illumination_model = 2;
@@ -181,6 +182,8 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                 spec.diffuse_reflectivity = imp.parse_material_vector();
             else if (command == "Ks")
                 spec.specular_reflectivity = imp.parse_material_vector();
+            else if (command == "Ke")
+                spec.emissivity = imp.parse_material_vector();
             else if (command == "Tf")
                 spec.transmission_filter = imp.parse_material_vector();
             else if (command == "illum")

@@ -43,6 +43,10 @@ const color &material::get_specular_reflectivity() const {
     return specular_reflectivity;
 }
 
+const color &material::get_emissivity() const {
+    return emissivity;
+}
+
 const color &material::get_transmission_filter() const {
     return transmission_filter;
 }
@@ -76,6 +80,9 @@ void material::set_specular_reflectivity(const color &col) {
     specular_reflectivity = col;
 }
 
+void material::set_emissivity(const color &col) {
+    emissivity = col;
+}
 
 void material::set_transmission_filter(const color &col) {
     transmission_filter = col;
