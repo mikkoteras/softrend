@@ -8,8 +8,6 @@ using namespace math;
 
 specular_material::specular_material() :
     material(specular) {
-
-    std::cout << "specular material created" << std::endl;
 }
 
 specular_material::~specular_material() {
