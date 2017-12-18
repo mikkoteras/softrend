@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::experimental::filesystem;
 using namespace math;
 
-mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &filename,
+mesh importer::load_wavefront_object(const std::experimental::filesystem::path &filename,
                                  material_library &lib, bool echo_comments) {
     try {
         mesh m;
@@ -43,7 +43,7 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
             }
             else if (command == "mtllib") {
                 string filename = imp.accept_until_eol();
-                load_3dsmax_materials(filename, lib, echo_comments);
+                load_wavefront_materials(filename, lib, echo_comments);
             }
             else if (command == "usemtl") {
                 string name = imp.accept_until_eol();
@@ -128,7 +128,7 @@ mesh importer::load_3dsmax_object(const std::experimental::filesystem::path &fil
     }
 }
 
-void importer::load_3dsmax_materials(const std::string &filename, material_library &lib, bool echo_comments = false) {
+void importer::load_wavefront_materials(const std::string &filename, material_library &lib, bool echo_comments = false) {
     struct material_spec {
         string material_name = "";
         color ambient_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);

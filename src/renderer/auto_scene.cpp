@@ -13,7 +13,7 @@ auto_scene::auto_scene(const path &object_file, bool echo_comments, object_posit
     freecam_scene(10.0f) {
 
     try {
-        object = importer::load_3dsmax_object(object_file, materials(), echo_comments);
+        object = importer::load_wavefront_object(object_file, materials(), echo_comments);
         toggle_lights();
         
         bounding_box box = object.local_bounding_box();
