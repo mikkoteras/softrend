@@ -15,17 +15,14 @@ debug: $(TARGETS)
 release: MAKEARGS += release
 release: $(TARGETS)
 
-$(LIB): $(BINDIR)
+$(LIB):
 	$(MAKE) $(MAKEARGS) -C math
 
-$(LIBTEST): $(BINDIR)
+$(LIBTEST):
 	$(MAKE) $(MAKEARGS) -C math_tests
 
-$(EXE): $(BINDIR)
+$(EXE):
 	$(MAKE) $(MAKEARGS) -C renderer
-
-$(BINDIR):
-	mkdir $(BINDIR)
 
 clean:
 	for d in math math_tests renderer; do cd $$d; rm -f *.o *.d *~; cd ..; done

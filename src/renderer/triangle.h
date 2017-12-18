@@ -4,6 +4,7 @@
 #include "matrix.h"
 #include "triangle_render.h"
 #include "vector.h"
+#include <vector>
 
 class color;
 class framebuffer;
@@ -27,6 +28,8 @@ public:
     ~triangle();
 
 public:
+    const int *vertex_indices() const;
+    std::vector<math::vector3f> vertices(const mesh &parent_mesh) const;
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:

@@ -47,9 +47,20 @@ public: // for child geometries (lines, triangles...)
     const math::vector3f *view_coordinate_data() const;
 
 private:
+    struct triangle_distance {
+        unsigned triangle_index;
+        float z_coordinate;
+        bool operator<(const triangle_distance &rhs) { return z_coordinate < rhs.z_coordinate; }
+    };
+
+    void sort_triangles();
+
+private:
     std::vector<math::vector4f> local_coordinates;
     std::vector<math::vector4f> local_normals;
     std::vector<triangle> triangles;
+    std::vector<triangle_distance> triangle_order;
+    
     std::vector<line> lines;
     math::matrix4x4f scaling;
     math::matrix4x4f rotation;

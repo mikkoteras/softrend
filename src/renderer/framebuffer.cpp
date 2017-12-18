@@ -32,7 +32,7 @@ int framebuffer::pixel_height() const {
 
 void framebuffer::set_pixel(int x, int y, const color &c) {
     if (x >= 0 && x < width && y >= 0 && y < height)
-        pixels[y * width + x] = c;
+        pixels[y * width + x].superimpose(c);
 }
 
 void framebuffer::set_pixel(int x, int y, float z, const color &c) {
@@ -41,13 +41,13 @@ void framebuffer::set_pixel(int x, int y, float z, const color &c) {
 
         if (z < depth_buffer[i]) {
             depth_buffer[i] = z;
-            pixels[y * width + x] = c;
+            pixels[i].superimpose(c);
         }
     }
 }
 
 void framebuffer::set_pixel_unchecked(int x, int y, const color &c) {
-    pixels[y * width + x] = c;
+    pixels[y * width + x].superimpose(c);
 }
 
 void framebuffer::set_pixel_unchecked(int x, int y, float z, const color &c) {
@@ -55,7 +55,7 @@ void framebuffer::set_pixel_unchecked(int x, int y, float z, const color &c) {
 
     if (z <= 0 && z < depth_buffer[i]) {
         depth_buffer[i] = z;
-        pixels[y * width + x] = c;
+        pixels[i].superimpose(c);
     }
 }
 

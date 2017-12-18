@@ -90,14 +90,29 @@ triangle &triangle::operator=(triangle &&rhs) {
 triangle::~triangle() {
 }
 
+const int *triangle::vertex_indices() const {
+    return vertex_index;
+}
+
+std::vector<math::vector3f> triangle::vertices(const mesh &parent_mesh) const {
+    std::vector<math::vector3f> result;
+    const vector3f *view = parent_mesh.view_coordinate_data();
+    
+    result.push_back(view[vertex_index[0]]);
+    result.push_back(view[vertex_index[1]]);
+    result.push_back(view[vertex_index[2]]);
+
+    return result;
+}
+
 void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
     const vector3f *view_coord = parent_mesh.view_coordinate_data();
 
     for (int i = 0; i < 3; ++i)
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
 
-    if (triangle_winds_clockwise())
-        return;
+//    if (triangle_winds_clockwise())
+//        return;
 
     const vector3f *world_coord = parent_mesh.world_coordinate_data();
 

@@ -25,6 +25,7 @@ color specular_material::shade_flat(const math::vector3f &surface_midpoint, cons
             result += source->diffuse() * normal_dot_light;
     }
 
+    result.alpha() = get_dissolve();
     result.clamp();
     return result;
 }
@@ -50,6 +51,7 @@ color specular_material::shade_phong(const math::vector3f &surface_point, const 
     }
     
     result += get_diffuse_reflectivity() * diffuse_term + get_specular_reflectivity() * specular_term;
+    result.alpha() = get_dissolve();
     result.clamp();
     return result;
 }

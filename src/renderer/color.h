@@ -9,6 +9,15 @@ public:
     color();
     color(float r, float g, float b, float a);
 
+    float red() const;
+    float green() const;
+    float blue() const;
+    float alpha() const;
+    float &red();
+    float &green();
+    float &blue();
+    float &alpha();
+    
     color operator+(const color &rhs) const;
     color operator-(const color &rhs) const;
     color operator*(const color &rhs) const;
@@ -16,6 +25,9 @@ public:
     color operator/(float rhs) const;
     color &operator+=(const color &rhs);
     color &operator*=(const color &rhs);
+
+    void superimpose(const color &rhs);
+    static color superimpose(const color &lhs, const color &rhs);
 
     bool operator==(const color &rhs);
     bool operator!=(const color &rhs) { return !(*this == rhs); }
