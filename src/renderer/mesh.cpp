@@ -153,7 +153,7 @@ void mesh::render(scene &sc, framebuffer &fb, bool visualize_normals, bool visua
     }
 
     sort_triangles();
-    
+
     for (const triangle_distance &t: triangle_order)
         triangles[t.triangle_index].render(fb, *this, sc);
 

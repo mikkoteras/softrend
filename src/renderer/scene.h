@@ -29,6 +29,8 @@ public: // for runtime options and info
     bool get_normal_visualization() const;
     void set_reflection_vector_visualization(bool setting);
     bool get_reflection_vector_visualization() const;
+    void set_wireframe_visualization(bool setting);
+    bool get_wireframe_visualization() const;
     double get_animation_time() const;
 
 public: // for window render loop
@@ -71,6 +73,7 @@ protected:
     shading_model_t shading_model = phong;
     bool visualize_normals = false;
     bool visualize_reflection_vectors = false;
+    bool visualize_wireframe = false;
 
 private:
     math::vector3f eye_position;

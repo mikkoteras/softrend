@@ -131,6 +131,8 @@ bool window::read_user_input(scene &s) {
                 s.set_normal_visualization(!s.get_normal_visualization());
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_p)
                 s.set_reflection_vector_visualization(!s.get_reflection_vector_visualization());
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_w)
+                s.set_wireframe_visualization(!s.get_wireframe_visualization());
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
                 s.cycle_shading_model();
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
