@@ -11,7 +11,7 @@ framebuffer::framebuffer(int w, int h) :
     width(w), height(h),
     pixels(new color[width * height]),
     depth_buffer(new float[width * height]),
-    raw_rgba_buffer(new uint8_t[4 *width * height]) {
+    raw_rgba_buffer(new uint8_t[4 * width * height]) {
 
     clear();
 }
@@ -36,10 +36,10 @@ void framebuffer::set_pixel(int x, int y, const color &c) {
 }
 
 void framebuffer::set_pixel(int x, int y, float z, const color &c) {
-    if (x >= 0 && x < width && y >= 0 && y < height) {
+    if (x >= 0 && x < width && y >= 0 && y < height && z <= 0) {
         int i = y * width + x;
 
-        if (z < depth_buffer[i]) {
+        if (z > depth_buffer[i]) {
             depth_buffer[i] = z;
             pixels[i].superimpose(c);
         }
@@ -53,7 +53,7 @@ void framebuffer::set_pixel_unchecked(int x, int y, const color &c) {
 void framebuffer::set_pixel_unchecked(int x, int y, float z, const color &c) {
     int i = y * width + x;
 
-    if (z <= 0 && z < depth_buffer[i]) {
+    if (z <= 0.0f && z > depth_buffer[i]) {
         depth_buffer[i] = z;
         pixels[i].superimpose(c);
     }
@@ -68,12 +68,12 @@ void framebuffer::clear() {
         color_data[i] = 0.0f;
 
     for (int i = 0, max = width * height; i < max; ++i)
-        depth_buffer[i] = std::numeric_limits<float>::infinity();
+        depth_buffer[i] = -std::numeric_limits<float>::infinity();
 #else
     // Standard implementation
     for (int i = 0, max = width * height; i < max; ++i) {
         pixels[i] = color();
-        depth_buffer[i] = std::numeric_limits<float>::infinity();
+        depth_buffer[i] = -std::numeric_limits<float>::infinity();
     }
 #endif
 }
@@ -91,12 +91,12 @@ void framebuffer::clear(float gray) {
     }
 
     for (int i = 0, max = width * height; i < max; ++i)
-        depth_buffer[i] = std::numeric_limits<float>::infinity();
+        depth_buffer[i] = -std::numeric_limits<float>::infinity();
 #else
     // Standard implementation
     for (int i = 0, max = width * height; i < max; ++i) {
         pixels[i] = color();
-        depth_buffer[i] = std::numeric_limits<float>::infinity();
+        depth_buffer[i] = -std::numeric_limits<float>::infinity();
     }
 #endif
 }

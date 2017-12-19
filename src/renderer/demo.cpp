@@ -72,7 +72,7 @@ void demo::render_fern_still(framebuffer &fb) {
     set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
-    set_view_to_view_plane_distance(2.0f);
+    set_fov(120.0f / (2.0f * math::detail::pi<float>()));
 
     fern.render(*this, fb, false, false);
 }
@@ -87,8 +87,8 @@ void demo::render_fern_3d(framebuffer &fb) {
     set_eye_position(vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
-    
-    set_view_to_view_plane_distance(2.0f);
+
+    set_fov(120.0f / (2.0f * math::detail::pi<float>()));
 
     fern.render(*this, fb, false, false);
 }

@@ -86,18 +86,18 @@ color &color::operator*=(const color &rhs) {
 }
 
 void color::superimpose(const color &rhs) {
-    if (a <= 0.0f) {
+    if (a <= 0.0f || rhs.a >= 1.0f) {
         r = rhs.r;
         g = rhs.g;
         b = rhs.b;
-        a = 1.0f;
     }
     else {
         r = (1.0f - rhs.a) * r + rhs.a * rhs.r;
         g = (1.0f - rhs.a) * g + rhs.a * rhs.g;
         b = (1.0f - rhs.a) * b + rhs.a * rhs.b;
-        a = 1.0f;
     }
+
+    a = 1.0f;
 }
 
 color color::superimpose(const color &lhs, const color &rhs) {
