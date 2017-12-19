@@ -10,18 +10,14 @@ MAKE=make
 MAKEARGS=-j 4
 
 debug: MAKEARGS += debug
-debug: $(TARGETS)
+debug: all
 
 release: MAKEARGS += release
-release: $(TARGETS)
+release: all
 
-$(LIB):
+all:
 	$(MAKE) $(MAKEARGS) -C math
-
-$(LIBTEST):
 	$(MAKE) $(MAKEARGS) -C math_tests
-
-$(EXE):
 	$(MAKE) $(MAKEARGS) -C renderer
 
 clean:
