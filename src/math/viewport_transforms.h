@@ -11,6 +11,9 @@ namespace math { namespace viewport_transforms {
                                               const vector<float_t, 3> &up_vector);
     template<typename float_t>
     matrix<float_t, 4, 4> simple_perspective_projection(float_t reference_to_view_plane_distance);
+
+    template<typename float_t>
+    matrix<float_t, 4, 4> normalizing_perspective_projection(float_t fov_radians);
 } }
 
 #include "viewport_transforms.cpp.h"
