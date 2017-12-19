@@ -15,7 +15,7 @@ diffuse_material::~diffuse_material() {
 
 color diffuse_material::shade_flat(const math::vector3f &surface_midpoint, const math::vector3f &surface_normal_unit,
                                    const light_list &light_sources) const {
-    color result(get_ambient_reflectivity() * light_sources.ambient_coeff());
+    color result(get_ambient_reflectivity() * light_sources.ambient_coeff() + get_emissivity());
     
     for (const light *source: light_sources.get()) {
         vector3f light_vector = source->surface_to_light_unit(surface_midpoint);
@@ -32,7 +32,7 @@ color diffuse_material::shade_flat(const math::vector3f &surface_midpoint, const
 
 color diffuse_material::shade_phong(const math::vector3f &surface_point, const math::vector3f &surface_normal_unit,
                                     const math::vector3f &point_to_eye_unit, const light_list &light_sources) const {
-    color result(get_ambient_reflectivity() * light_sources.ambient_coeff());
+    color result(get_ambient_reflectivity() * light_sources.ambient_coeff() + get_emissivity());
     color diffuse_term;
 
     for (const light *source: light_sources.get()) {
