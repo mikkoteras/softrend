@@ -408,7 +408,7 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
         int max_x = right.view_position.x();
         vertex_data pixel = left;
         vertex_data delta;
-        delta.compute_delta_vwn(left, right, right.view_position.x() - left.view_position.x());
+        delta.compute_delta_vwn(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
