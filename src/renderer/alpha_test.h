@@ -14,6 +14,7 @@ public:
     void render(framebuffer &fb);
     
 private:
+    mesh backdrop;
     mesh red_icosa, green_icosa, blue_icosa;
 };
 
