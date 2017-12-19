@@ -164,6 +164,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                     mat->set_ambient_reflectivity(spec.ambient_reflectivity);
                     mat->set_diffuse_reflectivity(spec.diffuse_reflectivity);
                     mat->set_specular_reflectivity(spec.specular_reflectivity);
+                    mat->set_emissivity(spec.emissivity);
                     mat->set_specular_exponent(spec.specular_exponent);
                     mat->set_dissolve(spec.dissolve, spec.dissolve_halo);
 
@@ -236,6 +237,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
             mat->set_ambient_reflectivity(spec.ambient_reflectivity);
             mat->set_diffuse_reflectivity(spec.diffuse_reflectivity);
             mat->set_specular_reflectivity(spec.specular_reflectivity);
+            mat->set_emissivity(spec.emissivity);
             mat->set_specular_exponent(spec.specular_exponent);
             mat->set_dissolve(spec.dissolve, spec.dissolve_halo);
             
