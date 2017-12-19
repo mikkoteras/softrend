@@ -50,10 +50,10 @@ namespace math { namespace viewport_transforms {
         float_t n = -0.1f;
 
         return matrix<float_t, 4, 4> {
-            s, 0,  0,               0,
-            0, s,  0,               0,
-            0, 0,  (f / (f - n)),  (f * n / (f - n)),
-            0, 0,  -1,               0
+            s, 0,   0,             0,
+            0, s,   0,             0,
+            0, 0,  (f / (f - n)), (f * n / (f - n)),
+            0, 0,  -1,             0
         };
     }
 } }
