@@ -62,6 +62,14 @@ bool scene::get_reflection_vector_visualization() const {
     return visualize_reflection_vectors;
 }
 
+void scene::set_wireframe_visualization(bool setting) {
+    visualize_wireframe = setting;
+}
+
+bool scene::get_wireframe_visualization() const {
+    return visualize_wireframe;
+}
+
 double scene::get_animation_time() const {
     return clock.seconds();
 }
