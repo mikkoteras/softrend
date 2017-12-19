@@ -61,7 +61,7 @@ protected:
     void set_eye_direction(const math::vector3f &direction);           // option 1
     void set_eye_reference_point(const math::vector3f &look_at_point); // option 2
     void set_eye_orientation(const math::vector3f &up_direction);
-    void set_view_to_view_plane_distance(float distance);
+    void set_fov(float fov_radians);
 
 protected:
     animation_clock clock;
@@ -76,7 +76,7 @@ private:
     math::vector3f eye_position;
     math::vector3f eye_direction;
     math::vector3f eye_up;
-    float viewing_distance;
+    float fov;
     math::matrix4x4f world_to_view_matrix;
     bool world_to_view_matrix_dirty;
     bounding_box framebuffer_visible_volume;

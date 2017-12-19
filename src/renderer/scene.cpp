@@ -12,7 +12,7 @@ scene::scene() :
     eye_position{0, 0, 1},
     eye_direction{0, 0, -1},
     eye_up{0, 1, 0},
-    viewing_distance(1),
+    fov(120.0f / (2.0f * detail::pi<float>())),
     world_to_view_matrix(matrix4x4f::identity()),
     world_to_view_matrix_dirty(true),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
@@ -88,7 +88,7 @@ matrix4x4f scene::world_to_view() {
 
     if (world_to_view_matrix_dirty) {
         world_to_view_matrix =
-            simple_perspective_projection<float>(viewing_distance) *
+            normalizing_perspective_projection<float>(fov) *
             world_to_view_plane<float>(eye_position, eye_direction, eye_up);
         world_to_view_matrix_dirty = false;
     }
@@ -148,7 +148,7 @@ void scene::set_eye_orientation(const vector3f &up_direction) {
     world_to_view_matrix_dirty = true;
 }
 
-void scene::set_view_to_view_plane_distance(float d) {
-    viewing_distance = d;
+void scene::set_fov(float fov_radians) {
+    fov = fov_radians;
     world_to_view_matrix_dirty = true;
 }

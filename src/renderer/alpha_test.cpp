@@ -1,6 +1,7 @@
 #include "alpha_test.h"
 #include "framebuffer.h"
 #include "importer.h"
+#include "line.h"
 #include "directional_light.h"
 #include "vector.h"
 
@@ -26,7 +27,7 @@ alpha_test::alpha_test(bool echo_comments) :
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
 
-    set_view_to_view_plane_distance(2.0f);
+    set_fov(120.0f / (2.0f * math::detail::pi<float>()));
 }
 
 alpha_test::~alpha_test() {
