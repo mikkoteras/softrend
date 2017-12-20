@@ -46,7 +46,7 @@ CFLAGS=-c -ansi -Wall -Werror -fmax-errors=5 -D_REENTRANT -std=c++17
 LD=g++
 LDFLAGS=-o $(TARGET)
 DEBUGFLAGS=-g
-OPTIMIZATIONFLAGS=-O3
+OPTIMIZATIONFLAGS=-O3 -march=haswell
 LIBDIRS=-L../../lib -L/usr/lib/x86_64-linux-gnu
 LIBS=-lmath -lstdc++ -lstdc++fs -lpthread -lSDL2 -lSDL2_ttf
 
