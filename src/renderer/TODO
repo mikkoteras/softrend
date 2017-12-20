@@ -10,3 +10,4 @@ Missing features
 * Implement Blinn-Phong.
 * Add face/point/normal/etc counts to text overlay.
 * The triange_render class screams for refactoring.
+* FMA optimizations for color.
