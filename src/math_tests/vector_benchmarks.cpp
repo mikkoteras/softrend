@@ -10,7 +10,7 @@ void vector_interpolation_benchmark();
 void vector_normal_interpolation_benchmark();
 
 void vector_benchmarks() {
-    //vector_interpolation_benchmark();
+    vector_interpolation_benchmark();
     vector_normal_interpolation_benchmark();
 }
 
@@ -71,6 +71,7 @@ void vector_normal_interpolation_benchmark() {
             if (unit.x() > 100.0f)
                 std::cout << "this won't be executed, but it keeps gcc from optimizing the entire benchmark away.";
         }
+
 
         left += left_delta;
         right += right_delta;
