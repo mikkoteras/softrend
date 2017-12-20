@@ -3,6 +3,7 @@
 
 #include "matrix.h"
 #include "triangle_render.h"
+#include "types.h"
 #include "vector.h"
 #include <vector>
 
@@ -53,6 +54,9 @@ private:
     void render_textured_smooth_phong_halftriangle(framebuffer &target) const;
     void render_textured_flat_phong_halftriangle(framebuffer &target) const;
 
+private:
+    shading_model_t compute_shading_limit();
+
 public:
     void visualize_normals(framebuffer &target, const mesh &parent_mesh,
                            scene &parent_scene, const math::matrix4x4f &local_to_view) const;
@@ -72,8 +76,10 @@ private:
     math::vector3f vertex_uv[3];
     int normal_index[3]; // indices to parent mesh's normal data
     const material *mat;
+
     bool has_distinct_normals;
     bool has_uv_coordinates;
+    shading_model_t shading_limit;
 };
 
 #endif
