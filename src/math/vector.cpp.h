@@ -207,7 +207,7 @@ namespace math {
         float_t sqr_sum = 0;
 
         for (int i = 0; i < dim; ++i)
-            sqr_sum += elements[i] * elements[i];
+            sqr_sum = fma(elements[i], elements[i], sqr_sum);
 
         return (float_t)std::sqrt(sqr_sum);
     }
@@ -216,7 +216,7 @@ namespace math {
         float_t sqr_sum = 0;
 
         for (int i = 0; i < dim; ++i)
-            sqr_sum += elements[i] * elements[i];
+            sqr_sum = fma(elements[i], elements[i], sqr_sum);
 
         return sqr_sum;
     }
@@ -229,7 +229,7 @@ namespace math {
         float_t result = 0;
 
         for (int i = 0; i < dim; ++i)
-            result += elements[i] * rhs.elements[i];
+            result = fma(elements[i], rhs.elements[i], result);
 
         return result;
     }
@@ -237,6 +237,7 @@ namespace math {
     template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::cross(const vector &rhs) const {
         static_assert(dim == 3, "vector::cross() is undefined when dim != 3");
         return vector<float_t, 3>{
+            // TODO can this use FMA?
             elements[1] * rhs.elements[2] - elements[2] * rhs.elements[1],
             elements[2] * rhs.elements[0] - elements[0] * rhs.elements[2],
             elements[0] * rhs.elements[1] - elements[1] * rhs.elements[0]
