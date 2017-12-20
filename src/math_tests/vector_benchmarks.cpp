@@ -72,7 +72,6 @@ void vector_normal_interpolation_benchmark() {
                 std::cout << "this won't be executed, but it keeps gcc from optimizing the entire benchmark away.";
         }
 
-
         left += left_delta;
         right += right_delta;
     }
