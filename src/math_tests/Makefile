@@ -20,9 +20,15 @@ LD=g++
 LDFLAGS=-o $(TARGET)
 LIBDIRS=-L/usr/lib/x86_64-linux-gnu -L../../lib
 LIBS=-lmath -lstdc++
+DEBUGFLAGS=-g
+OPTIMIZATIONFLAGS=-O3 -march=haswell
 
 all: default
+debug: CFLAGS += $(DEBUGFLAGS)
+debug: LDFLAGS += $(DEBUGFLAGS)
 debug: default
+release: CFLAGS += $(OPTIMIZATIONFLAGS)
+release: LDFLAGS += $(OPTIMIZATIONFLAGS)
 release: default
 default: $(TARGET)
 
@@ -40,5 +46,8 @@ $(TARGET): $(BINDIR) $(OBJS)
 
 $(BINDIR):
 	mkdir $(BINDIR)
+
+clean:
+	rm -f *.o *.d *~
 
 -include $(DEPS)
