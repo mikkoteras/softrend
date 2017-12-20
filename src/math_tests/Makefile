@@ -5,7 +5,8 @@ SOURCES=linear_transform_tests.cpp \
         matrix_tests.cpp \
         test_harness.cpp \
         util_tests.cpp \
-        vector_tests.cpp
+        vector_tests.cpp \
+	vector_benchmarks.cpp
 
 DEPS=$(patsubst %.cpp,%.d,$(SOURCES))
 OBJS=$(patsubst %.cpp,%.o,$(SOURCES))
@@ -39,4 +40,3 @@ $(TARGET): $(OBJS)
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
 
 -include $(DEPS)
-

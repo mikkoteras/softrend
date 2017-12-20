@@ -3,8 +3,6 @@
 #include "vector.h"
 #include <cmath>
 
-#include <iostream>
-
 void vector_creation_tests();
 void vector_comparison_tests();
 void vector_arithmetic_tests();
