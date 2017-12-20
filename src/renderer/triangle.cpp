@@ -49,6 +49,7 @@ triangle::triangle(const triangle &rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
 }
 
 triangle::triangle(triangle &&rhs) {
@@ -61,6 +62,7 @@ triangle::triangle(triangle &&rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
 }
 
 const triangle &triangle::operator=(const triangle &rhs) {
@@ -73,6 +75,7 @@ const triangle &triangle::operator=(const triangle &rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
     return *this;
 }
 
@@ -86,6 +89,7 @@ triangle &triangle::operator=(triangle &&rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
     return *this;
 }
 
