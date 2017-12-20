@@ -12,10 +12,9 @@ public:
     ~test_harness();
 
     void test(bool cond, const std::string &filename, int line_number);
-
     void start_clock();
     void stop_clock(const std::string &benchmark);
-    
+
     static test_harness *the_tester;
 
 private:
