@@ -25,7 +25,8 @@ triangle::triangle(int vi1, int vi2, int vi3,
     normal_index{ni1, ni2, ni3},
     mat(mat),
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
-    has_uv_coordinates(true) {
+    has_uv_coordinates(true),
+    shading_limit(compute_shading_limit()) {
 }
 
 triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) :
@@ -34,7 +35,8 @@ triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const m
     normal_index{ni1, ni2, ni3},
     mat(mat),
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
-    has_uv_coordinates(false) {
+    has_uv_coordinates(false),
+    shading_limit(compute_shading_limit()) {
 }
 
 triangle::triangle(const triangle &rhs) {
@@ -111,8 +113,8 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     for (int i = 0; i < 3; ++i)
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
 
-//    if (triangle_winds_clockwise())
-//        return;
+    //if (triangle_winds_clockwise())
+    //    return;
 
     const vector3f *world_coord = parent_mesh.world_coordinate_data();
 
@@ -129,11 +131,11 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     render_context.tex = mat->get_texture_map();
     shading_model_t shading = parent_scene.get_shading_model();
     
-    if (shading == flat)
+    if (shading == flat || shading_limit == flat)
         render_flat(target, parent_mesh, parent_scene);
-    else if (shading == gouraud)
+    else if (shading == gouraud || shading_limit == gouraud)
         render_gouraud(target, parent_mesh, parent_scene);
-    else if (shading == phong)
+    else
         render_phong(target, parent_mesh, parent_scene);
 
     // TODO: maybe put this in scene and draw each edge only once
@@ -647,6 +649,15 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
         left.add_vwt(*render_context.left_edge_delta);
         right.add_vwt(*render_context.right_edge_delta);
     }
+}
+
+shading_model_t triangle::compute_shading_limit() {
+    illumination_model_t illum = mat->get_illumination_model();
+
+    if (illum == constant_color)
+        return flat;
+    else
+        return phong;
 }
 
 void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
