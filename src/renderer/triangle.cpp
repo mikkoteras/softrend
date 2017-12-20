@@ -141,8 +141,8 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     // TODO: maybe put this in scene and draw each edge only once
     if (parent_scene.get_wireframe_visualization())
         for (int i = 0; i < 3; ++i) {
-            vector3f v1 = view_coord[vertex_index[i]];
-            vector3f v2 = view_coord[vertex_index[(i + 1) % 3]];
+            const vector3f &v1 = view_coord[vertex_index[i]];
+            const vector3f &v2 = view_coord[vertex_index[(i + 1) % 3]];
             line::render(target,
                          v1.x(), v1.y(), v1.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f),
                          v2.x(), v2.y(), v2.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f));
