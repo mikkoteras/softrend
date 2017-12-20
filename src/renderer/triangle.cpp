@@ -323,7 +323,9 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
         y = 0;
     }
 
-    color shade(mat->shade_flat(render_context.surface_midpoint, render_context.surface_normal, *render_context.lights));
+    color shade(mat->shade_flat(render_context.surface_midpoint,
+                                render_context.surface_normal,
+                                *render_context.lights));
     
     for (; y <= max_y; ++y) {
         int x = left.view_position.x();
@@ -493,7 +495,9 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
         y = 0;
     }
 
-    color shade(mat->shade_flat(render_context.surface_midpoint, render_context.surface_normal, *render_context.lights));
+    color shade(mat->shade_flat(render_context.surface_midpoint,
+                                render_context.surface_normal,
+                                *render_context.lights));
     
     for (; y <= max_y; ++y) {
         int x = left.view_position.x();
@@ -509,7 +513,8 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade * render_context.tex->at(pixel.uv[0], pixel.uv[1]));
+            target.set_pixel_unchecked(x, y, pixel.view_position.z(),
+                                       shade * render_context.tex->at(pixel.uv[0], pixel.uv[1]));
             pixel.add_vt(delta); // TODO: skip view_position, use z alone
         }
 
