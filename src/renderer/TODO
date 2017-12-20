@@ -14,3 +14,4 @@ Missing features
 * color3, color4
 * Bug: alpha icosa with no lights and illum 1 is not invisible, why?
 * Rewrite include dir arrangement; #include "math/vector.h" instead of "vector.h".
+* FMA optimizations for color.
