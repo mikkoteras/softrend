@@ -7,14 +7,14 @@
 
 class test_harness {
 public:
-	test_harness();
-	~test_harness();
+    test_harness();
+    ~test_harness();
 
-	void test(bool cond, const std::string &filename, int line_number);
-	static test_harness *the_tester;
+    void test(bool cond, const std::string &filename, int line_number);
+    static test_harness *the_tester;
 
 private:
-	int tests_tried, tests_passed, tests_failed;
+    int tests_tried, tests_passed, tests_failed;
 };
 
 #endif
