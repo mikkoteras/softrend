@@ -13,7 +13,7 @@ CFLAGS=-c -ansi -Wall -Werror -fmax-errors=5 -D_REENTRANT -std=c++17
 AR=ar
 ARFLAGS=rcs
 DEBUGFLAGS=-g
-OPTIMIZATIONFLAGS=-O3
+OPTIMIZATIONFLAGS=-O3 -march=haswell
 
 all: default
 default: debug

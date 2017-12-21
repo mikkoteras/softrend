@@ -10,7 +10,7 @@ void vector_interpolation_benchmark();
 void vector_normal_interpolation_benchmark();
 
 void vector_benchmarks() {
-    vector_interpolation_benchmark();
+    //vector_interpolation_benchmark();
     vector_normal_interpolation_benchmark();
 }
 

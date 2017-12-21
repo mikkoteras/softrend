@@ -1,6 +1,9 @@
 #include "math_detail.h"
 #include <cmath>
 
+#define FMA_OPTIMIZE_LEN 1
+#define FMA_OPTIMIZE_DOT 0
+
 namespace math {
     template<typename float_t, int dim> constexpr vector<float_t, dim>::vector() {
         for (int i = 0; i < dim; ++i)
@@ -207,7 +210,11 @@ namespace math {
         float_t sqr_sum = 0;
 
         for (int i = 0; i < dim; ++i)
+#if FMA_OPTIMIZE_LEN
             sqr_sum = fma(elements[i], elements[i], sqr_sum);
+#else
+            sqr_sum += elements[i] * elements[i];
+#endif
 
         return (float_t)std::sqrt(sqr_sum);
     }
@@ -216,7 +223,11 @@ namespace math {
         float_t sqr_sum = 0;
 
         for (int i = 0; i < dim; ++i)
+#if FMA_OPTIMIZE_LEN
             sqr_sum = fma(elements[i], elements[i], sqr_sum);
+#else
+            sqr_sum += elements[i] * elements[i];
+#endif
 
         return sqr_sum;
     }
@@ -229,7 +240,11 @@ namespace math {
         float_t result = 0;
 
         for (int i = 0; i < dim; ++i)
+#if FMA_OPTIMIZE_DOT
             result = fma(elements[i], rhs.elements[i], result);
+#else
+            result += elements[i] * rhs.elements[i];
+#endif
 
         return result;
     }
