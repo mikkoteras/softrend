@@ -29,7 +29,7 @@ void freecam_scene::point_of_interest(const math::vector3f &p) {
     eye_reference_point = p;
 }
 
-void freecam_scene::render(framebuffer &fb) {
+void freecam_scene::prerender() {
     // Normalize spherical coordinates
     const float pi = detail::pi<float>();
 
@@ -49,7 +49,7 @@ void freecam_scene::render(framebuffer &fb) {
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
 
     if (show_coords)
-        coords.render(*this, fb);
+        ;//coords.render(*this, fb);  // FIXME
 }
 
 void freecam_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {

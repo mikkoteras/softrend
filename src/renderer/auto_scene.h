@@ -9,13 +9,13 @@ class auto_scene : public freecam_scene {
 public:
     enum object_position { as_is, center_at_origin, bounding_box_touches_origin, center_at_unity };
 
-    auto_scene(const std::experimental::filesystem::path &object_file, bool echo_comments, object_position pos);
+    auto_scene(const std::experimental::filesystem::path &object_file, bool verbose, object_position pos);
     ~auto_scene();
 
     void key_down_event(int sdk_keycode, bool ctrl_is_down) override;
     void toggle_lights();
-    
-    void render(framebuffer &fb);
+
+    void compose() override;
 
 private:
     mesh object;

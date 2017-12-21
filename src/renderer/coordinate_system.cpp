@@ -4,13 +4,15 @@
 
 using namespace math;
 
-coordinate_system::coordinate_system() :
-    coordinate_system(color(0.8f, 0.2f, 0.2f, 1.0f),
+coordinate_system::coordinate_system(scene *parent_scene) :
+    coordinate_system(parent_scene,
+                      color(0.8f, 0.2f, 0.2f, 1.0f),
                       color(0.2f, 0.8f, 0.2f, 1.0f),
                       color(0.2f, 0.2f, 0.8f, 1.0f)) {
 }
 
-coordinate_system::coordinate_system(const color &x,const color &y, const color &z) {
+coordinate_system::coordinate_system(scene *parent_scene, const color &x,const color &y, const color &z) :
+    m(parent_scene) {
 
     const float t = 6; // ticks
 
@@ -52,6 +54,6 @@ coordinate_system::coordinate_system(const color &x,const color &y, const color 
 coordinate_system::~coordinate_system() {
 }
 
-void coordinate_system::render(scene &sc, framebuffer &fb) {
-    m.render(sc, fb, false, false);
+mesh *coordinate_system::to_mesh() {
+    return &m;
 }

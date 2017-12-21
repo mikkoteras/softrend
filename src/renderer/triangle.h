@@ -34,11 +34,11 @@ public:
     void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
 
 private:
-    void render_flat(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render_smooth_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
-    void render_flat_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void render_flat(framebuffer &target, const scene &parent_scene) const;
+    void render_gouraud(framebuffer &target, const scene &parent_scene) const;
+    void render_phong(framebuffer &target, const scene &parent_scene) const;
+    void render_smooth_phong(framebuffer &target, const scene &parent_scene) const;
+    void render_flat_phong(framebuffer &target, const scene &parent_scene) const;
 
 private:
     static triangle_render render_context;
@@ -56,12 +56,6 @@ private:
 
 private:
     shading_model_t compute_shading_limit();
-
-public:
-    void visualize_normals(framebuffer &target, const mesh &parent_mesh,
-                           scene &parent_scene, const math::matrix4x4f &local_to_view) const;
-    void visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
-                                      scene &parent_scene, const math::matrix4x4f &local_to_view) const;
 
 private:
     int vertex_index[3]; // indices to parent mesh's vertex data

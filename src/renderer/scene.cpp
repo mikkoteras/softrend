@@ -22,17 +22,6 @@ scene::scene() :
 scene::~scene() {
 }
 
-void scene::prerender(const framebuffer &fb) {
-    framebuffer_visible_volume = bounding_box(vector3f{0.0f, 0.0f, 0.0f});
-    framebuffer_visible_volume.stretch(vector3f{static_cast<float>(fb.pixel_width()),
-                                                static_cast<float>(fb.pixel_height()),
-                                                -std::numeric_limits<float>::infinity()});
-}
-
-void scene::postrender() {
-    get_scene_info().update(*this);
-}
-
 void scene::cycle_shading_model() {
     int rm = (shading_model + 1) % (max_shading_model + 1);
     shading_model = static_cast<shading_model_t>(rm);
@@ -74,6 +63,29 @@ double scene::get_animation_time() const {
     return clock.seconds();
 }
 
+void scene::render(framebuffer &fb) {
+    compose();
+    construct_world_to_view(fb);
+    compute_visible_volume(fb);
+    
+    for (const mesh &m: meshes) // TODO this could basically be threaded (but how much does it help?)
+        transform_coordinates(m);
+
+    sort_triangles();
+
+    for (const triangle_distance &t: triangle_order)
+        triangles[t.triangle_index].render(fb, *this);
+
+    for (const line &l: lines)
+        l.render(fb, *this);
+
+    do_visualize_wireframe();
+    do_visualize_normals();
+    do_visualize_reflection_vectors();
+
+    scene_info.update(*this);
+}
+
 void scene::key_down_event(int, bool) {
 }
 
@@ -89,6 +101,35 @@ scene_info &scene::get_scene_info() {
 
 benchmark &scene::get_benchmark() {
     return mark;
+}
+
+int scene::add_vertex(const math::vector3f &v) {
+    local_coordinates.push_back(vector4f(v, 1.0f));
+    world_coordinates.push_back(vector3f());
+    view_coordinates.push_back(vector3f());
+    return static_cast<int>(local_coordinates.size() - 1);
+}
+    
+int scene::add_vertex_normal(const math::vector3f &vn) {
+    local_normals.push_back(vector4f(vn, 0.0f));
+    world_normals.push_back(vector3f());
+    return static_cast<int>(local_normals.size() - 1);
+}
+
+void scene::add_triangle(int vi1, int vi2, int vi3,
+                  int ni1, int ni2, int ni3,
+                  const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+                  const material *mat) {
+    triangles.push_back(triangle(vi1, vi2, vi3, uv1, uv2, uv3, ni1, ni2, ni3, mat));
+}
+
+void scene::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) {
+    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, mat));
+
+}
+
+void scene::add_line(int v1, int v2, const color &c1, const color &c2) {
+    lines.push_back(line(v1, v2, c1, c2));
 }
 
 matrix4x4f scene::world_to_view() {
@@ -124,6 +165,18 @@ const math::vector3f &scene::get_eye_position() const {
     return eye_position;
 }
 
+const vector3f *world_coordinate_data() const {
+    return world_coordinates.data();
+}
+
+const vector3f *world_normal_data() const {
+    return world_normal.data();
+}
+
+const vector3f *view_coordinate_data() const {
+    return view_coordinates.data();
+}
+
 void scene::start() {
     clock.start();
 }
@@ -134,6 +187,16 @@ void scene::stop() {
 
 bool scene::stopped() const {
     return stop_requested;
+}
+
+void scene::add_mesh(const mesh *m) {
+    meshes.push_back(m);
+}
+
+void scene::prerender() {
+}
+
+void scene::postrender() {
 }
 
 void scene::set_eye_position(const vector3f &position) {
@@ -159,4 +222,92 @@ void scene::set_eye_orientation(const vector3f &up_direction) {
 void scene::set_fov(float fov_radians) {
     fov = fov_radians;
     world_to_view_matrix_dirty = true;
+}
+
+void scene::construct_world_to_view(const framebuffer &fb) {
+    using namespace math::viewport_transforms;
+
+    float min_axis = fb.pixel_width() < fb.pixel_height() ? fb.pixel_width() : fb.pixel_height();
+    
+    matrix4x4f view_position = world_to_view_plane<float>(eye_position, eye_direction, eye_up);
+    matrix4x4f projection = normalizing_perspective_projection<float>(fov);
+    matrix4x4f scale_to_screen_coords = scale3<float>(min_axis / 2.0f);
+    matrix4x4f translate_to_screen_coords = translate3<float>(fb.pixel_width() / 2.0f, fb.pixel_height() / 2.0f, 0.0f);
+
+    world_to_view = translate_to_screen_coords * scale_to_screen_coords * projection * view_position;
+}
+
+void scene::compute_visible_volume(const framebuffer &fb) {
+    framebuffer_visible_volume = bounding_box(vector3f{0.0f, 0.0f, 0.0f});
+    framebuffer_visible_volume.stretch(vector3f{static_cast<float>(fb.pixel_width()),
+                                                static_cast<float>(fb.pixel_height()),
+                                                -std::numeric_limits<float>::infinity()});    
+}
+
+void scene::transform_coordinates(const mesh &of_mesh) {
+    const matrix4x4f &local_to_world = of_mesh.local_to_world();
+
+    int min = of_mesh.min_normal_index();
+    int max = of_mesh.max_normal_index();
+
+    for (int i = min; i <= max; ++i)
+        world_normals[i] = (local_to_world * local_normals[i]).dehomo();
+
+    min = of_mesh.min_coordinate_index();
+    max = of_mesh.max_coordinate_index();
+
+    for (int i = min; i <= max; ++i)
+        world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo_with_divide();
+    
+    const matrix4x4f local_to_view = world_to_view_matrix * local_to_world;
+
+    for (int i = min; i <= max; ++i)
+        view_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo_with_divide();
+}
+
+void scene::sort_triangles() {
+    // TODO: opaque v. translucent polys in different lists, reverse painter's etc
+    triangle_order.resize(triangles.size());
+
+    for (unsigned i = 0; i < triangles.size(); ++i) {
+        triangle_order[i].triangle_index = i;
+        const int *vertex_indices = triangles[i].vertex_indices();
+        float z = view_coordinates[vertex_indices[0]].z();
+        z = std::min(z, view_coordinates[vertex_indices[1]].z());
+        z = std::min(z, view_coordinates[vertex_indices[2]].z());
+        triangle_order[i].z_coordinate = z;
+    }
+
+    std::sort(triangle_order.begin(), triangle_order.end());
+}
+
+void scene::do_visualize_wireframe() {
+    // TODO
+    /*
+    if (visualize_wireframe)
+        for (triangle t: triangles)
+            for (int i = 0; i < 3; ++i) {
+                const vector3f &v1 = view_coord[vertex_index[i]];
+                const vector3f &v2 = view_coord[vertex_index[(i + 1) % 3]];
+                line::render(target,
+                             v1.x(), v1.y(), v1.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f),
+                             v2.x(), v2.y(), v2.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f));
+            }
+    */
+}
+
+void scene::do_visualize_normals() {
+    if (visualize_normals)
+        for (const triangle &t: triangles)
+            t.visualize_normals(fb, *this, sc, world_to_view);
+}
+
+void scene::do_visualize_reflection_vectors() {
+    if (visualize_reflection_vectors) {
+        size_t step = triangles.size() / 250;
+        step = max<size_t>(step, 1);
+
+        for (size_t i = 0; i < triangles.size(); i += step)
+            triangles[i].visualize_reflection_vectors(fb, *this, sc, world_to_view);
+    }
 }

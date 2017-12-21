@@ -11,7 +11,8 @@ public:
     demo();
     ~demo();
 
-    void render(framebuffer &fb) override;
+    void prerender() override;
+    void compose() override;
 
     void render_dot_curve(framebuffer &fb);
     void render_line_spiral(framebuffer &fb);

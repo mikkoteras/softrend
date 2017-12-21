@@ -11,7 +11,7 @@ public:
     alpha_test(bool echo_comments);
     ~alpha_test();
 
-    void render(framebuffer &fb);
+    void compose();
     
 private:
     mesh backdrop;

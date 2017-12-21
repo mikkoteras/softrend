@@ -10,10 +10,11 @@ using namespace std;
 using namespace std::experimental::filesystem;
 
 auto_scene::auto_scene(const path &object_file, bool echo_comments, object_position pos) :
-    freecam_scene(10.0f) {
+    freecam_scene(10.0f),
+    object(this) {
 
     try {
-        object = importer::load_wavefront_object(object_file, materials(), echo_comments);
+        importer::load_wavefront_object(object, object_file, materials(), echo_comments);
         toggle_lights();
         
         bounding_box box = object.local_bounding_box();
@@ -106,7 +107,7 @@ void auto_scene::toggle_lights() {
         lights.set_ambient_light(color(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
-void auto_scene::render(framebuffer &fb) {
+void auto_scene::compose() {
     float t = clock.seconds();
     float delta_t = t - previous_render_time;
     previous_render_time = t;
@@ -115,7 +116,4 @@ void auto_scene::render(framebuffer &fb) {
     y_rotation += delta_t * y_rotation_per_second;
     z_rotation += delta_t * z_rotation_per_second;
     object.set_rotation(x_rotation, y_rotation, z_rotation);
-    
-    freecam_scene::render(fb);
-    object.render(*this, fb, visualize_normals, visualize_reflection_vectors);
 }

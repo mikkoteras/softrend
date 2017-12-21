@@ -18,7 +18,10 @@ demo::demo() {
 demo::~demo() {
 }
 
-void demo::render(framebuffer &fb) {
+void demo::prerender() {
+}
+
+void demo::compose() {
     switch (stage) {
     case dot_curve:
         render_dot_curve(fb);
@@ -38,7 +41,7 @@ void demo::render(framebuffer &fb) {
         coord_sys.render(*this, fb);
 }
 
-void demo::render_dot_curve(framebuffer &fb) {
+void demo::render_dot_curve(framebuffer &) {
     const float pi = math::detail::pi<float>();
     float cx = fb.pixel_width() / 2.0f;
     float cy = fb.pixel_height() / 2.0f;
