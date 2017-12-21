@@ -8,11 +8,17 @@
 using namespace math;
 
 alpha_test::alpha_test(bool echo_comments) :
-    scene() {
+    scene(),
+    backdrop(this),
+    red_icosa(this),
+    green_icosa(this),
+    blue_icosa(this) {
 
     try {
-        backdrop = importer::load_wavefront_object("backdrop.obj", materials(), echo_comments);
-        blue_icosa = importer::load_wavefront_object("blue_icosa.obj", materials(), echo_comments);
+        importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), echo_comments);
+        importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), echo_comments);
+        add_mesh(&backdrop);
+        add_mesh(&blue_icosa);
     }
     catch (importer::importer_exception) {
         stop();
@@ -26,22 +32,15 @@ alpha_test::alpha_test(bool echo_comments) :
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
-
-    backdrop.set_position(0, 0, -10);
-    
-    blue_icosa.set_position(0, 0, 0);
-
 }
 
 alpha_test::~alpha_test() {
 }
 
-void alpha_test::render(framebuffer &fb) {
+void alpha_test::compose() {
     float t = clock.seconds();
-
     blue_icosa.set_rotation(0, t, t / 10.0f);
-
+    blue_icosa.set_position(0, 0, 0);
     backdrop.set_scaling(.5f, .5f, .5f);
-    backdrop.render(*this, fb, false, false);
-    blue_icosa.render(*this, fb, visualize_normals, visualize_reflection_vectors);
+    backdrop.set_position(0, 0, -10);
 }
