@@ -100,12 +100,21 @@ triangle::~triangle() {
 const int *triangle::vertex_indices() const {
     return vertex_index;
 }
-
+#include <iostream>
+#include "util.h"
 void triangle::render(framebuffer &target, const scene &parent_scene) const {
     const vector3f *view_coord = parent_scene.view_coordinate_data();
 
-    for (int i = 0; i < 3; ++i)
+//    std::cout << "rendering triangle:";
+    
+    for (int i = 0; i < 3; ++i) {
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
+
+//        std::cout << " " << util::to_string(render_context.vtx(i).view_position);
+        
+    }
+
+//    std::cout << std::endl;
 
     if (triangle_winds_clockwise())
         return;

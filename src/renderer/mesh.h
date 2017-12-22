@@ -14,13 +14,14 @@ class scene;
 
 class mesh {
 public:
-    mesh() = delete;
     mesh(scene *parent_scene);
-    mesh(const mesh &rhs);
-    mesh(mesh &&rhs);
-    const mesh &operator=(const mesh &rhs);
-    mesh &operator=(mesh &&rhs);
     ~mesh();
+
+    mesh() = delete;
+    mesh(const mesh&) = delete;
+    mesh(mesh&&) = delete;
+    const mesh &operator=(const mesh&) = delete;
+    mesh &operator=(mesh&&) = delete;
 
 public: // for geometry creation (mostly importer)
     int add_vertex(const math::vector3f &v);

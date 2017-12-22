@@ -13,73 +13,36 @@ using namespace math;
 
 mesh::mesh(scene *parent_scene) :
     parent_scene(parent_scene),
-    first_coordinate_index(-1),
+    first_coordinate_index(0),
     last_coordinate_index(-1),
-    first_normal_index(-1),
+    first_normal_index(0),
     last_normal_index(-1),
     scaling(matrix4x4f::identity()),
     rotation(matrix4x4f::identity()),
     position(matrix4x4f::identity()),
     local_to_world_transformation_dirty(true) {
-}
 
-mesh::mesh(const mesh &rhs) :
-    parent_scene(rhs.parent_scene),
-    first_coordinate_index(rhs.first_coordinate_index),
-    last_coordinate_index(rhs.last_coordinate_index),
-    first_normal_index(rhs.first_normal_index),
-    last_normal_index(rhs.last_normal_index),
-    local_to_world_transformation_dirty(true) {
-}
-
-mesh::mesh(mesh &&rhs) :
-    parent_scene(rhs.parent_scene),
-    first_coordinate_index(rhs.first_coordinate_index),
-    last_coordinate_index(rhs.last_coordinate_index),
-    first_normal_index(rhs.first_normal_index),
-    last_normal_index(rhs.last_normal_index),
-    local_to_world_transformation_dirty(true) {
-}
-
-const mesh &mesh::operator=(const mesh &rhs) {
-    if (this != &rhs) {
-        parent_scene = rhs.parent_scene;
-        first_coordinate_index = rhs.first_coordinate_index;
-        last_coordinate_index = rhs.last_coordinate_index;
-        first_normal_index = rhs.first_normal_index;
-        last_normal_index = rhs.last_normal_index;
-        local_to_world_transformation_dirty = true;
-    }
-
-    return *this;
-}
-
-mesh &mesh::operator=(mesh &&rhs) {
-    parent_scene = rhs.parent_scene;
-    first_coordinate_index = rhs.first_coordinate_index;
-    last_coordinate_index = rhs.last_coordinate_index;
-    first_normal_index = rhs.first_normal_index;
-    last_normal_index = rhs.last_normal_index;
-    local_to_world_transformation_dirty = true;
-    return *this;
+    parent_scene->add_mesh(this);
 }
 
 mesh::~mesh() {
 }
 
 int mesh::add_vertex(const vector3f &v) {
+    bool first_vertex = last_coordinate_index < 0;
     last_coordinate_index = parent_scene->add_vertex(v);
 
-    if (first_coordinate_index < 0)
+    if (first_vertex)
         first_coordinate_index = last_coordinate_index;
     
     return last_coordinate_index;
 }
 
 int mesh::add_vertex_normal(const vector3f &vn) {
+    bool first_normal = last_normal_index < 0;
     last_normal_index = parent_scene->add_vertex_normal(vn);
 
-    if (first_normal_index < 0)
+    if (first_normal)
         first_normal_index = last_normal_index;
     
     return last_normal_index;
@@ -106,14 +69,9 @@ void mesh::add_line(int v1, int v2, const color &c1, const color &c2) {
 }
 
 void mesh::add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2) {
-    int vi1 = parent_scene->add_vertex(v1);
-    int vi2 = parent_scene->add_vertex(v2);
-
-    if (first_coordinate_index < 0)
-        first_coordinate_index = vi1;
-
-    last_coordinate_index = vi2;
-    parent_scene->add_line(vi1, vi2, c1, c2);
+    int vi1 = add_vertex(v1);
+    int vi2 = add_vertex(v2);
+    add_line(vi1, vi2, c1, c2);
 }
 
 void mesh::set_scaling(float x, float y, float z) {

@@ -17,8 +17,6 @@ alpha_test::alpha_test(bool echo_comments) :
     try {
         importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), echo_comments);
         importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), echo_comments);
-        add_mesh(&backdrop);
-        add_mesh(&blue_icosa);
     }
     catch (importer::importer_exception) {
         stop();
