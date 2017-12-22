@@ -10,9 +10,6 @@
 using namespace math;
 using namespace std;
 
-#include <iostream>
-#include "util.h"
-
 scene::scene() :
     eye_position{0, 0, 1},
     eye_direction{0, 0, -1},
@@ -80,6 +77,7 @@ void scene::render(framebuffer &fb) {
     compose();
     construct_world_to_view(fb);
     compute_visible_volume(fb);
+    prerender(fb);
     
     for (mesh *m: meshes) // TODO this could basically be threaded (but how much does it help?)
         transform_coordinates(*m);
@@ -95,7 +93,7 @@ void scene::render(framebuffer &fb) {
     overlay_wireframe_visualization(fb);
     overlay_normal_visualization(fb);
     overlay_reflection_vector_visualization(fb);
-
+    postrender(fb);
     info.update(*this);
 }
 
@@ -242,10 +240,6 @@ void scene::construct_world_to_view(const framebuffer &fb) {
     matrix4x4f translate_to_screen_coords = translate3<float>(fb.pixel_width() / 2.0f, fb.pixel_height() / 2.0f, 0.0f);
 
     world_to_view_matrix = translate_to_screen_coords * scale_to_screen_coords * projection * view_position;
-
-    std::cout << "eye_position = " << util::to_string(eye_position)
-              << " eye_direction = " << util::to_string(eye_direction)
-              << " eye_up = " << util::to_string(eye_up) << std::endl;
 }
 
 void scene::compute_visible_volume(const framebuffer &fb) {

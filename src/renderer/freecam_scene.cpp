@@ -41,7 +41,6 @@ void freecam_scene::prerender(framebuffer&) {
     set_eye_position(eye_reference_point + vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(eye_reference_point);
     set_eye_orientation(vector3f{0.0f, cos<float>(eye_twist_angle), sin<float>(eye_twist_angle)});
-
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
 }
 
