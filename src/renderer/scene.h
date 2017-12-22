@@ -136,7 +136,6 @@ private:
     math::vector3f eye_up;
     float fov;
     math::matrix4x4f world_to_view_matrix;
-    bool world_to_view_matrix_dirty;
     bounding_box framebuffer_visible_volume;
 
 private:
