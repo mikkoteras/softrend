@@ -143,16 +143,7 @@ void scene::add_line(int v1, int v2, const color &c1, const color &c2) {
     lines.push_back(line(v1, v2, c1, c2));
 }
 
-matrix4x4f scene::world_to_view() {
-    using namespace math::viewport_transforms;
-
-    if (world_to_view_matrix_dirty) {
-        world_to_view_matrix =
-            normalizing_perspective_projection<float>(fov) *
-            world_to_view_plane<float>(eye_position, eye_direction, eye_up);
-        world_to_view_matrix_dirty = false;
-    }
-
+const matrix4x4f &scene::world_to_view() {
     return world_to_view_matrix;
 }
 
@@ -243,7 +234,7 @@ void scene::construct_world_to_view(const framebuffer &fb) {
     using namespace math::linear_transforms;
     using namespace math::viewport_transforms;
 
-    float min_axis = fb.pixel_width() < fb.pixel_height() ? fb.pixel_width() : fb.pixel_height();
+    float min_axis = min(fb.pixel_width(), fb.pixel_height());
     
     matrix4x4f view_position = world_to_view_plane<float>(eye_position, eye_direction, eye_up);
     matrix4x4f projection = normalizing_perspective_projection<float>(fov);
@@ -277,9 +268,8 @@ void scene::transform_coordinates(mesh &of_mesh) {
     
     const matrix4x4f local_to_view = world_to_view_matrix * local_to_world;
 
-    for (int i = min; i <= max; ++i) {
+    for (int i = min; i <= max; ++i)
         view_coordinates[i] = (local_to_view * local_coordinates[i]).dehomo_with_divide();
-    }
 }
 
 void scene::sort_triangles() {

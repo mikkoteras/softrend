@@ -60,9 +60,9 @@ public: // for mesh
     void add_line(int v1, int v2, const color &c1, const color &c2);
     void add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2);
     void add_mesh(mesh *caller);
-    
+
 public:
-    math::matrix4x4f world_to_view();
+    const math::matrix4x4f &world_to_view();
     material_library &materials();
     const bounding_box &visible_volume() const;
     const light_list &light_sources() const;
