@@ -7,7 +7,7 @@
 
 using namespace math;
 
-alpha_test::alpha_test(bool echo_comments) :
+alpha_test::alpha_test(bool verbose) :
     scene(),
     backdrop(this),
     red_icosa(this),
@@ -15,8 +15,8 @@ alpha_test::alpha_test(bool echo_comments) :
     blue_icosa(this) {
 
     try {
-        importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), echo_comments);
-        importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), echo_comments);
+        importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), verbose);
+        importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), verbose);
     }
     catch (importer::importer_exception) {
         stop();

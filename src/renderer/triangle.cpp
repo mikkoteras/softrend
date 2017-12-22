@@ -16,8 +16,8 @@ triangle::triangle() {
 }
 
 triangle::triangle(int vi1, int vi2, int vi3,
-                   const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                    int ni1, int ni2, int ni3,
+                   const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                    const material *mat) :
     vertex_index{vi1, vi2, vi3},
     vertex_uv{uv1, uv2, uv3},
@@ -98,24 +98,16 @@ triangle::~triangle() {
 const int *triangle::vertex_indices() const {
     return vertex_index;
 }
-#include <iostream>
-#include "util.h"
+
 void triangle::render(framebuffer &target, const scene &parent_scene) const {
     const vector3f *view_coord = parent_scene.view_coordinate_data();
 
-//    std::cout << "rendering triangle:";
-    
     for (int i = 0; i < 3; ++i) {
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
-
-//        std::cout << " " << util::to_string(render_context.vtx(i).view_position);
-        
     }
 
-//    std::cout << std::endl;
-
-    if (triangle_winds_clockwise())
-        return;
+    //if (triangle_winds_clockwise())
+    //    return;
 
     const vector3f *world_coord = parent_scene.world_coordinate_data();
 
@@ -131,7 +123,7 @@ void triangle::render(framebuffer &target, const scene &parent_scene) const {
     render_context.lights = &parent_scene.light_sources();
     render_context.tex = mat->get_texture_map();
     shading_model_t shading = parent_scene.get_shading_model();
-    
+
     if (shading == flat || shading_limit == flat)
         render_flat(target, parent_scene);
     else if (shading == gouraud || shading_limit == gouraud)

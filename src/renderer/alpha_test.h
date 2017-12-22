@@ -8,7 +8,7 @@ class framebuffer;
 
 class alpha_test : public scene {
 public:
-    alpha_test(bool echo_comments);
+    alpha_test(bool verbose);
     ~alpha_test();
 
     void compose();
