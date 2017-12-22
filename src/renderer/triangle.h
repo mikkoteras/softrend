@@ -30,8 +30,7 @@ public:
 
 public:
     const int *vertex_indices() const;
-    std::vector<math::vector3f> vertices(const mesh &parent_mesh) const;
-    void render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const;
+    void render(framebuffer &target, const scene &parent_scene) const;
 
 private:
     void render_flat(framebuffer &target, const scene &parent_scene) const;
@@ -54,6 +53,10 @@ private:
     void render_textured_smooth_phong_halftriangle(framebuffer &target) const;
     void render_textured_flat_phong_halftriangle(framebuffer &target) const;
 
+public:
+    void visualize_normals(framebuffer &target, scene &parent_scene) const;
+    void visualize_reflection_vectors(framebuffer &target, scene &parent_scene) const;
+    
 private:
     shading_model_t compute_shading_limit();
 

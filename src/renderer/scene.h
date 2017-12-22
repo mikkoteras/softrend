@@ -4,6 +4,7 @@
 #include "animation_clock.h"
 #include "benchmark.h"
 #include "bounding_box.h"
+#include "coordinate_system.h"
 #include "light_list.h"
 #include "line.h"
 #include "matrix.h"
@@ -34,6 +35,8 @@ public: // for runtime options and info
     bool get_reflection_vector_visualization() const;
     void set_wireframe_visualization(bool setting);
     bool get_wireframe_visualization() const;
+    void set_coordinate_system(bool setting);
+    bool get_coordinate_system() const;
     double get_animation_time() const;
 
 public: // for window render loop
@@ -64,6 +67,7 @@ public:
     const light_list &light_sources() const;
     light_list &light_sources();
     const math::vector3f &get_eye_position() const;
+    const math::vector4f *local_coordinate_data() const;
     const math::vector3f *world_coordinate_data() const;
     const math::vector3f *world_normal_data() const;
     const math::vector3f *view_coordinate_data() const;
@@ -74,10 +78,10 @@ public:
     virtual bool stopped() const;
 
 protected: // derived class interface
-    void add_mesh(const mesh *m);
+    void add_mesh(mesh *m);
     virtual void compose() = 0;
-    virtual void prerender();
-    virtual void postrender();
+    virtual void prerender(framebuffer &fb);
+    virtual void postrender(framebuffer &fb);
 
 protected: // for composition
     void set_eye_position(const math::vector3f &position);
@@ -87,24 +91,25 @@ protected: // for composition
     void set_fov(float fov_radians);
 
 private: // render helpers
-    void prerender(const framebuffer &fb);
+    void compute_visible_volume(const framebuffer &fb);
     void construct_world_to_view(const framebuffer &fb);
-    void transform_coordinates(const mesh &of_mesh);
+    void transform_coordinates(mesh &of_mesh);
     void sort_triangles();
-    void do_visualize_wireframe();
-    void do_visualize_normals();
-    void do_visualize_reflection_vectors();
+    void do_visualize_wireframe(framebuffer &fb);
+    void do_visualize_normals(framebuffer &fb);
+    void do_visualize_reflection_vectors(framebuffer &fb);
 
 protected:
     animation_clock clock;
     material_library mat_lib;
     light_list lights;
 
-protected:
+protected: // runtime configurable parameters
     shading_model_t shading_model = phong;
     bool visualize_normals = false;
     bool visualize_reflection_vectors = false;
     bool visualize_wireframe = false;
+    bool show_coordinate_system = false;
 
 private:
     struct triangle_distance { // for painter's algortihm
@@ -119,7 +124,7 @@ private:
     std::vector<triangle> triangles;  // TODO: opaque v. transparent
     std::vector<triangle_distance> triangle_order;
     std::vector<line> lines;
-    std::vector<const mesh*> meshes;
+    std::vector<mesh*> meshes;
 
     std::vector<math::vector3f> world_coordinates;
     std::vector<math::vector3f> world_normals;
@@ -133,6 +138,9 @@ private:
     math::matrix4x4f world_to_view_matrix;
     bool world_to_view_matrix_dirty;
     bounding_box framebuffer_visible_volume;
+
+private:
+    coordinate_system coords;
     
 private:
     bool stop_requested;

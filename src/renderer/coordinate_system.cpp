@@ -53,7 +53,3 @@ coordinate_system::coordinate_system(scene *parent_scene, const color &x,const c
 
 coordinate_system::~coordinate_system() {
 }
-
-mesh *coordinate_system::to_mesh() {
-    return &m;
-}

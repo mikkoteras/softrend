@@ -1,8 +1,10 @@
 #include "scene.h"
 #include "directional_light.h"
 #include "framebuffer.h"
+#include "linear_transforms.h"
 #include "material_library.h"
 #include "viewport_transforms.h"
+#include <algorithm>
 #include <limits>
 
 using namespace math;
@@ -16,6 +18,7 @@ scene::scene() :
     world_to_view_matrix(matrix4x4f::identity()),
     world_to_view_matrix_dirty(true),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
+    coords(this, color(0.7f, 0.6f, 0.6f, 1.0f), color(0.6f, 0.7f, 0.6f, 1.0f), color(0.6f, 0.6f, 0.7f, 1.0f)),
     stop_requested(false) {
 }
 
@@ -59,6 +62,14 @@ bool scene::get_wireframe_visualization() const {
     return visualize_wireframe;
 }
 
+void scene::set_coordinate_system(bool setting) {
+    show_coordinate_system = setting;
+}
+
+bool scene::get_coordinate_system() const {
+    return show_coordinate_system;
+}
+
 double scene::get_animation_time() const {
     return clock.seconds();
 }
@@ -68,8 +79,8 @@ void scene::render(framebuffer &fb) {
     construct_world_to_view(fb);
     compute_visible_volume(fb);
     
-    for (const mesh &m: meshes) // TODO this could basically be threaded (but how much does it help?)
-        transform_coordinates(m);
+    for (mesh *m: meshes) // TODO this could basically be threaded (but how much does it help?)
+        transform_coordinates(*m);
 
     sort_triangles();
 
@@ -79,11 +90,11 @@ void scene::render(framebuffer &fb) {
     for (const line &l: lines)
         l.render(fb, *this);
 
-    do_visualize_wireframe();
-    do_visualize_normals();
-    do_visualize_reflection_vectors();
+    do_visualize_wireframe(fb);
+    do_visualize_normals(fb);
+    do_visualize_reflection_vectors(fb);
 
-    scene_info.update(*this);
+    info.update(*this);
 }
 
 void scene::key_down_event(int, bool) {
@@ -165,15 +176,19 @@ const math::vector3f &scene::get_eye_position() const {
     return eye_position;
 }
 
-const vector3f *world_coordinate_data() const {
+const vector4f *scene::local_coordinate_data() const {
+    return local_coordinates.data();
+}
+
+const vector3f *scene::world_coordinate_data() const {
     return world_coordinates.data();
 }
 
-const vector3f *world_normal_data() const {
-    return world_normal.data();
+const vector3f *scene::world_normal_data() const {
+    return world_normals.data();
 }
 
-const vector3f *view_coordinate_data() const {
+const vector3f *scene::view_coordinate_data() const {
     return view_coordinates.data();
 }
 
@@ -189,14 +204,14 @@ bool scene::stopped() const {
     return stop_requested;
 }
 
-void scene::add_mesh(const mesh *m) {
+void scene::add_mesh(mesh *m) {
     meshes.push_back(m);
 }
 
-void scene::prerender() {
+void scene::prerender(framebuffer&) {
 }
 
-void scene::postrender() {
+void scene::postrender(framebuffer&) {
 }
 
 void scene::set_eye_position(const vector3f &position) {
@@ -225,6 +240,7 @@ void scene::set_fov(float fov_radians) {
 }
 
 void scene::construct_world_to_view(const framebuffer &fb) {
+    using namespace math::linear_transforms;
     using namespace math::viewport_transforms;
 
     float min_axis = fb.pixel_width() < fb.pixel_height() ? fb.pixel_width() : fb.pixel_height();
@@ -234,7 +250,7 @@ void scene::construct_world_to_view(const framebuffer &fb) {
     matrix4x4f scale_to_screen_coords = scale3<float>(min_axis / 2.0f);
     matrix4x4f translate_to_screen_coords = translate3<float>(fb.pixel_width() / 2.0f, fb.pixel_height() / 2.0f, 0.0f);
 
-    world_to_view = translate_to_screen_coords * scale_to_screen_coords * projection * view_position;
+    world_to_view_matrix = translate_to_screen_coords * scale_to_screen_coords * projection * view_position;
 }
 
 void scene::compute_visible_volume(const framebuffer &fb) {
@@ -244,7 +260,7 @@ void scene::compute_visible_volume(const framebuffer &fb) {
                                                 -std::numeric_limits<float>::infinity()});    
 }
 
-void scene::transform_coordinates(const mesh &of_mesh) {
+void scene::transform_coordinates(mesh &of_mesh) {
     const matrix4x4f &local_to_world = of_mesh.local_to_world();
 
     int min = of_mesh.min_normal_index();
@@ -281,7 +297,7 @@ void scene::sort_triangles() {
     std::sort(triangle_order.begin(), triangle_order.end());
 }
 
-void scene::do_visualize_wireframe() {
+void scene::do_visualize_wireframe(framebuffer&) {
     // TODO
     /*
     if (visualize_wireframe)
@@ -296,18 +312,18 @@ void scene::do_visualize_wireframe() {
     */
 }
 
-void scene::do_visualize_normals() {
+void scene::do_visualize_normals(framebuffer &fb) {
     if (visualize_normals)
         for (const triangle &t: triangles)
-            t.visualize_normals(fb, *this, sc, world_to_view);
+            t.visualize_normals(fb, *this);
 }
 
-void scene::do_visualize_reflection_vectors() {
+void scene::do_visualize_reflection_vectors(framebuffer &fb) {
     if (visualize_reflection_vectors) {
         size_t step = triangles.size() / 250;
         step = max<size_t>(step, 1);
 
         for (size_t i = 0; i < triangles.size(); i += step)
-            triangles[i].visualize_reflection_vectors(fb, *this, sc, world_to_view);
+            triangles[i].visualize_reflection_vectors(fb, *this);
     }
 }

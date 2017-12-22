@@ -25,10 +25,8 @@ void importer::load_wavefront_object(mesh &target,
         while (!imp.eof()) {
             string command = imp.accept_command();
 
-            if (command == "#") {
-                if (echo_comments)
-                    cout << imp.full_line() << endl;
-            }
+            if (command == "#")
+                ;
             else if (command == "v") {
                 vector3f point = imp.parse_ws_separated_3d_point();
                 target.add_vertex(point);
@@ -44,7 +42,7 @@ void importer::load_wavefront_object(mesh &target,
             }
             else if (command == "mtllib") {
                 string filename = imp.accept_until_eol();
-                load_wavefront_materials(filename, lib, echo_comments);
+                load_wavefront_materials(filename, lib, verbose);
             }
             else if (command == "usemtl") {
                 string name = imp.accept_until_eol();
@@ -91,12 +89,12 @@ void importer::load_wavefront_object(mesh &target,
                         target.add_triangle(vertex_indices[0],
                                             vertex_indices[i - 1],
                                             vertex_indices[i],
-                                            texture_coordinates[texture_indices[0]],
-                                            texture_coordinates[texture_indices[i - 1]],
-                                            texture_coordinates[texture_indices[i]],
                                             normal_indices[0],
                                             normal_indices[i - 1],
                                             normal_indices[i],
+                                            texture_coordinates[texture_indices[0]],
+                                            texture_coordinates[texture_indices[i - 1]],
+                                            texture_coordinates[texture_indices[i]],
                                             current_material);
                         ++polys;
                     }

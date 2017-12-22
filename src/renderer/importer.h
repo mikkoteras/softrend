@@ -22,7 +22,7 @@ public:
     class importer_exception {};
 
 private:
-    static void load_wavefront_materials(const std::string &filename, material_library &lib, bool echo_comments);
+    static void load_wavefront_materials(const std::string &filename, material_library &lib, bool verbose = false);
 
 private: // [sic]
     importer(const std::experimental::filesystem::path &source);

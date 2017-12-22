@@ -52,8 +52,8 @@ line &line::operator=(line &&rhs) {
 line::~line() {
 }
 
-void line::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector3f *view_coordinates = parent_mesh.view_coordinate_data();
+void line::render(framebuffer &target, const scene &parent_scene) const {
+    const vector3f *view_coordinates = parent_scene.view_coordinate_data();
     vector3f v1 = view_coordinates[vertex_index[0]];
     vector3f v2 = view_coordinates[vertex_index[1]];
 
