@@ -9,12 +9,12 @@ using namespace math;
 using namespace std;
 using namespace std::experimental::filesystem;
 
-auto_scene::auto_scene(const path &object_file, bool echo_comments, object_position pos) :
+auto_scene::auto_scene(const path &object_file, bool verbose, object_position pos) :
     freecam_scene(10.0f),
     object(this) {
 
     try {
-        importer::load_wavefront_object(object, object_file, materials(), echo_comments);
+        importer::load_wavefront_object(object, object_file, materials(), verbose);
         toggle_lights();
         
         bounding_box box = object.local_bounding_box();
