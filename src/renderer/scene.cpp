@@ -10,6 +10,9 @@
 using namespace math;
 using namespace std;
 
+#include <iostream>
+#include "util.h"
+
 scene::scene() :
     eye_position{0, 0, 1},
     eye_direction{0, 0, -1},
@@ -210,14 +213,17 @@ void scene::set_eye_position(const vector3f &position) {
 
 void scene::set_eye_direction(const vector3f &direction) {
     eye_direction = direction;
+    eye_direction.normalize();
 }
 
 void scene::set_eye_reference_point(const vector3f &look_at_point) {
     eye_direction = look_at_point - eye_position;
+    eye_direction.normalize();
 }
 
 void scene::set_eye_orientation(const vector3f &up_direction) {
     eye_up = up_direction;
+    eye_up.normalize();
 }
 
 void scene::set_fov(float fov_radians) {
@@ -236,6 +242,10 @@ void scene::construct_world_to_view(const framebuffer &fb) {
     matrix4x4f translate_to_screen_coords = translate3<float>(fb.pixel_width() / 2.0f, fb.pixel_height() / 2.0f, 0.0f);
 
     world_to_view_matrix = translate_to_screen_coords * scale_to_screen_coords * projection * view_position;
+
+    std::cout << "eye_position = " << util::to_string(eye_position)
+              << " eye_direction = " << util::to_string(eye_direction)
+              << " eye_up = " << util::to_string(eye_up) << std::endl;
 }
 
 void scene::compute_visible_volume(const framebuffer &fb) {
