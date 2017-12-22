@@ -90,9 +90,9 @@ void scene::render(framebuffer &fb) {
     for (const line &l: lines)
         l.render(fb, *this);
 
-    do_visualize_wireframe(fb);
-    do_visualize_normals(fb);
-    do_visualize_reflection_vectors(fb);
+    overlay_wireframe_visualization(fb);
+    overlay_normal_visualization(fb);
+    overlay_reflection_vector_visualization(fb);
 
     info.update(*this);
 }
@@ -298,28 +298,29 @@ void scene::sort_triangles() {
     std::sort(triangle_order.begin(), triangle_order.end());
 }
 
-void scene::do_visualize_wireframe(framebuffer&) {
-    // TODO
-    /*
+void scene::overlay_wireframe_visualization(framebuffer &fb) {
+    // TODO: remove duplicates
     if (visualize_wireframe)
-        for (triangle t: triangles)
+        for (triangle t: triangles) {
+            const int *vertex_indices = t.vertex_indices();
+            
             for (int i = 0; i < 3; ++i) {
-                const vector3f &v1 = view_coord[vertex_index[i]];
-                const vector3f &v2 = view_coord[vertex_index[(i + 1) % 3]];
-                line::render(target,
+                const vector3f &v1 = view_coordinates[vertex_indices[i]];
+                const vector3f &v2 = view_coordinates[vertex_indices[(i + 1) % 3]];
+                line::render(fb,
                              v1.x(), v1.y(), v1.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f),
                              v2.x(), v2.y(), v2.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f));
             }
-    */
+        }
 }
 
-void scene::do_visualize_normals(framebuffer &fb) {
+void scene::overlay_normal_visualization(framebuffer &fb) {
     if (visualize_normals)
         for (const triangle &t: triangles)
             t.visualize_normals(fb, *this);
 }
 
-void scene::do_visualize_reflection_vectors(framebuffer &fb) {
+void scene::overlay_reflection_vector_visualization(framebuffer &fb) {
     if (visualize_reflection_vectors) {
         size_t step = triangles.size() / 250;
         step = max<size_t>(step, 1);
