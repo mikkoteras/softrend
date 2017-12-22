@@ -102,12 +102,11 @@ const int *triangle::vertex_indices() const {
 void triangle::render(framebuffer &target, const scene &parent_scene) const {
     const vector3f *view_coord = parent_scene.view_coordinate_data();
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
-    }
 
-    //if (triangle_winds_clockwise())
-    //    return;
+    if (triangle_winds_clockwise())
+        return;
 
     const vector3f *world_coord = parent_scene.world_coordinate_data();
 
@@ -276,7 +275,7 @@ void triangle::render_flat_phong(framebuffer &target, const scene &parent_scene)
 
 bool triangle::triangle_winds_clockwise() {
     float x[3], y[3];
-
+    
     for (int i = 0; i < 3; ++i) {
         const vector3f &v = render_context.vtx(i).view_position;
         x[i] = v.x();
