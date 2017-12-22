@@ -16,7 +16,6 @@ scene::scene() :
     eye_up{0, 1, 0},
     fov(120.0f / (2.0f * detail::pi<float>())),
     world_to_view_matrix(matrix4x4f::identity()),
-    world_to_view_matrix_dirty(true),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
     coords(this, color(0.7f, 0.6f, 0.6f, 1.0f), color(0.6f, 0.7f, 0.6f, 1.0f), color(0.6f, 0.6f, 0.7f, 1.0f)),
     stop_requested(false) {
@@ -207,27 +206,22 @@ void scene::postrender(framebuffer&) {
 
 void scene::set_eye_position(const vector3f &position) {
     eye_position = position;
-    world_to_view_matrix_dirty = true;
 }
 
 void scene::set_eye_direction(const vector3f &direction) {
     eye_direction = direction;
-    world_to_view_matrix_dirty = true;
 }
 
 void scene::set_eye_reference_point(const vector3f &look_at_point) {
     eye_direction = look_at_point - eye_position;
-    world_to_view_matrix_dirty = true;
 }
 
 void scene::set_eye_orientation(const vector3f &up_direction) {
     eye_up = up_direction;
-    world_to_view_matrix_dirty = true;
 }
 
 void scene::set_fov(float fov_radians) {
     fov = fov_radians;
-    world_to_view_matrix_dirty = true;
 }
 
 void scene::construct_world_to_view(const framebuffer &fb) {
