@@ -48,6 +48,7 @@ triangle::triangle(const triangle &rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
 }
 
 triangle::triangle(triangle &&rhs) {
@@ -60,6 +61,7 @@ triangle::triangle(triangle &&rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
 }
 
 const triangle &triangle::operator=(const triangle &rhs) {
@@ -72,6 +74,8 @@ const triangle &triangle::operator=(const triangle &rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
+    
     return *this;
 }
 
@@ -85,6 +89,8 @@ triangle &triangle::operator=(triangle &&rhs) {
     mat = rhs.mat;
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
+    shading_limit = rhs.shading_limit;
+    
     return *this;
 }
 
@@ -93,17 +99,6 @@ triangle::~triangle() {
 
 const int *triangle::vertex_indices() const {
     return vertex_index;
-}
-
-std::vector<math::vector3f> triangle::vertices(const scene &parent_scene) const {
-    std::vector<math::vector3f> result;
-    const vector3f *view = parent_scene.view_coordinate_data();
-    
-    result.push_back(view[vertex_index[0]]);
-    result.push_back(view[vertex_index[1]]);
-    result.push_back(view[vertex_index[2]]);
-
-    return result;
 }
 
 void triangle::render(framebuffer &target, const scene &parent_scene) const {
@@ -131,11 +126,11 @@ void triangle::render(framebuffer &target, const scene &parent_scene) const {
     shading_model_t shading = parent_scene.get_shading_model();
     
     if (shading == flat || shading_limit == flat)
-        render_flat(target, parent_scene, parent_scene);
+        render_flat(target, parent_scene);
     else if (shading == gouraud || shading_limit == gouraud)
-        render_gouraud(target, parent_scene, parent_scene);
+        render_gouraud(target, parent_scene);
     else
-        render_phong(target, parent_scene, parent_scene);
+        render_phong(target, parent_scene);
 }
 
 void triangle::render_flat(framebuffer &target, const scene &parent_scene) const {
@@ -645,6 +640,72 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
     }
 }
 
+void triangle::visualize_normals(framebuffer &target, scene &parent_scene) const {
+    const vector3f *view_data = parent_scene.view_coordinate_data();
+    const vector3f *world_data = parent_scene.world_coordinate_data();
+    const vector3f *normal_data = parent_scene.world_normal_data();
+    const matrix4x4f &world_to_view = parent_scene.world_to_view();
+    color yellow(1.0f, 1.0f, 0.0f, 1.0f);
+    vector3f mid_point, mid_normal;
+
+    for (int i = 0; i < 3; ++i) {
+        int vi = vertex_index[i], ni = normal_index[i];
+
+        vector3f vertex(view_data[vi]); // view vertex
+        vector3f world_normal(world_data[vi] + 0.3f * normal_data[ni]); // world normal, offset from vertex
+        vector3f view_normal((world_to_view * world_normal.homo()).dehomo_with_divide());
+        line::render(target, vertex.x(), vertex.y(), vertex.z(), yellow,
+                     view_normal.x(), view_normal.y(), view_normal.z(), yellow);
+
+        mid_point += (world_data[vi] - mid_point) / (i + 1);
+        mid_normal += (normal_data[ni] - mid_normal) / (i + 1);
+    }
+
+    mid_normal.normalize();
+    vector3f world_normal(mid_point + 0.3f * mid_normal); // world normal, offset from midpoint
+    vector3f view_point((world_to_view * mid_point.homo()).dehomo_with_divide());
+    vector3f view_normal((world_to_view * world_normal.homo()).dehomo_with_divide());
+
+    line::render(target, view_point.x(), view_point.y(), view_point.z(), yellow,
+                 view_normal.x(), view_normal.y(), view_normal.z(), yellow);
+}
+
+void triangle::visualize_reflection_vectors(framebuffer &target, scene &parent_scene) const {
+    const vector3f *world_data = parent_scene.world_coordinate_data();
+    const vector3f *normal_data = parent_scene.world_normal_data();
+    const matrix4x4f &world_to_view = parent_scene.world_to_view();
+    
+    // triangle midpoint and the normal out of it
+    vector3f mid_point, mid_normal;
+
+    for (int i = 0; i < 3; ++i) {
+        mid_point += (world_data[vertex_index[i]] - mid_point) / (i + 1);
+        mid_normal += (normal_data[normal_index[i]] - mid_normal) / (i + 1);
+    }
+
+    mid_normal.normalize();
+    vector3f midpoint_to_eye = (parent_scene.get_eye_position() - mid_point).unit();
+
+    // phong vectors for each light
+    for (const light *source: parent_scene.light_sources().get()) {
+        vector3f light_vector(source->surface_to_light_unit(mid_point));
+        float normal_dot_light(mid_normal.dot(light_vector));
+
+        vector3f reflection_vector(2.0f * normal_dot_light * mid_normal - light_vector);
+        vector3f p = (world_to_view * mid_point.homo()).dehomo_with_divide();
+        vector3f l = (world_to_view * (mid_point + 0.3f * light_vector).homo()).dehomo_with_divide();
+        vector3f r = (world_to_view * (mid_point + 0.3f * reflection_vector).homo()).dehomo_with_divide();
+
+        color light_color(source->specular());
+        color reflected_color(light_color * mat->get_specular_reflectivity());
+
+        line::render(target, p.x(), p.y(), p.z(), light_color, l.x(), l.y(), l.z(), light_color);
+
+        if (midpoint_to_eye.dot(reflection_vector) > 0.0f)
+            line::render(target, p.x(), p.y(), p.z(), reflected_color, r.x(), r.y(), r.z(), reflected_color);
+    }
+}
+
 shading_model_t triangle::compute_shading_limit() {
     illumination_model_t illum = mat->get_illumination_model();
 
@@ -655,4 +716,3 @@ shading_model_t triangle::compute_shading_limit() {
 }
 
 triangle_render triangle::render_context;
-

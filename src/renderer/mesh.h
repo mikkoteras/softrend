@@ -40,7 +40,7 @@ public: // for scene, composition
 
 public: // for scene, rendering
     bounding_box local_bounding_box() const;
-    const math::matrix4x4f &local_to_world() const;
+    const math::matrix4x4f &local_to_world();
     int min_coordinate_index() const;
     int max_coordinate_index() const;
     int min_normal_index() const;
@@ -49,10 +49,10 @@ public: // for scene, rendering
 private:
     scene *parent_scene;
 
-    int first_coordinate_index = -1; // coordinate and normal
-    int last_coordinate_index = -1;  // indices in parent scene's
-    int first_normal_index = -1;     // data store that belong to
-    int last_normal_index = -1;      // this mesh
+    int first_coordinate_index; // coordinate and normal indices
+    int last_coordinate_index;  // in parent scene's that belong
+    int first_normal_index;     // to this mesh
+    int last_normal_index;
     
     math::matrix4x4f scaling;
     math::matrix4x4f rotation;

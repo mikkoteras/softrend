@@ -7,39 +7,47 @@
 #include "texture.h"
 #include "util.h"
 #include "viewport_transforms.h"
-#include <algorithm>
 
 using namespace std;
 using namespace math;
 
 mesh::mesh(scene *parent_scene) :
     parent_scene(parent_scene),
+    first_coordinate_index(-1),
+    last_coordinate_index(-1),
+    first_normal_index(-1),
+    last_normal_index(-1),
     scaling(matrix4x4f::identity()),
     rotation(matrix4x4f::identity()),
     position(matrix4x4f::identity()),
-    local_to_world_transformation_dirty(true)
-{
+    local_to_world_transformation_dirty(true) {
 }
 
 mesh::mesh(const mesh &rhs) :
     parent_scene(rhs.parent_scene),
-    local_coordinates(rhs.local_coordinates),
-    local_normals(rhs.local_normals),
+    first_coordinate_index(rhs.first_coordinate_index),
+    last_coordinate_index(rhs.last_coordinate_index),
+    first_normal_index(rhs.first_normal_index),
+    last_normal_index(rhs.last_normal_index),
     local_to_world_transformation_dirty(true) {
 }
 
 mesh::mesh(mesh &&rhs) :
     parent_scene(rhs.parent_scene),
-    local_coordinates(move(rhs.local_coordinates)),
-    local_normals(move(rhs.local_normals)),
+    first_coordinate_index(rhs.first_coordinate_index),
+    last_coordinate_index(rhs.last_coordinate_index),
+    first_normal_index(rhs.first_normal_index),
+    last_normal_index(rhs.last_normal_index),
     local_to_world_transformation_dirty(true) {
 }
 
 const mesh &mesh::operator=(const mesh &rhs) {
     if (this != &rhs) {
-        parent_scene(rhs.parent_scene);
-        local_coordinates = rhs.local_coordinates;
-        local_normals = rhs.local_normals;
+        parent_scene = rhs.parent_scene;
+        first_coordinate_index = rhs.first_coordinate_index;
+        last_coordinate_index = rhs.last_coordinate_index;
+        first_normal_index = rhs.first_normal_index;
+        last_normal_index = rhs.last_normal_index;
         local_to_world_transformation_dirty = true;
     }
 
@@ -47,9 +55,11 @@ const mesh &mesh::operator=(const mesh &rhs) {
 }
 
 mesh &mesh::operator=(mesh &&rhs) {
-    parent_scene(rhs.parent_scene);
-    local_coordinates = move(rhs.local_coordinates);
-    local_normals = move(rhs.local_normals);
+    parent_scene = rhs.parent_scene;
+    first_coordinate_index = rhs.first_coordinate_index;
+    last_coordinate_index = rhs.last_coordinate_index;
+    first_normal_index = rhs.first_normal_index;
+    last_normal_index = rhs.last_normal_index;
     local_to_world_transformation_dirty = true;
     return *this;
 }
@@ -67,7 +77,7 @@ int mesh::add_vertex(const vector3f &v) {
 }
 
 int mesh::add_vertex_normal(const vector3f &vn) {
-    last_normal_index = parent_scene->add_normal(v);
+    last_normal_index = parent_scene->add_vertex_normal(vn);
 
     if (first_normal_index < 0)
         first_normal_index = last_normal_index;
@@ -76,8 +86,8 @@ int mesh::add_vertex_normal(const vector3f &vn) {
 }
 
 void mesh::add_triangle(int vi1, int vi2, int vi3,
-                        const vector3f &uv1, const vector3f &uv2, const vector3f &uv3,
                         int ni1, int ni2, int ni3,
+                        const vector3f &uv1, const vector3f &uv2, const vector3f &uv3,
                         const material *mat) {
     parent_scene->add_triangle(vi1 + first_coordinate_index, vi2 + first_coordinate_index, vi3 + first_coordinate_index,
                                ni1 + first_normal_index, ni2 + first_normal_index, ni3 + first_normal_index,
@@ -88,12 +98,11 @@ void mesh::add_triangle(int vi1, int vi2, int vi3,
 void mesh::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) {
     parent_scene->add_triangle(vi1 + first_coordinate_index, vi2 + first_coordinate_index, vi3 + first_coordinate_index,
                                ni1 + first_normal_index, ni2 + first_normal_index, ni3 + first_normal_index,
-                               uv1, uv2, uv3,
                                mat);
 }
 
 void mesh::add_line(int v1, int v2, const color &c1, const color &c2) {
-    lines.push_back(line(v1, v2, c1, c2));
+    parent_scene->add_line(v1, v2, c1, c2);
 }
 
 void mesh::add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2) {
@@ -126,19 +135,21 @@ void mesh::set_position(float x, float y, float z) {
 }
 
 bounding_box mesh::local_bounding_box() const {
-    if (local_coordinates.empty())
-        return bounding_box(vector3f{0, 0, 0});
-    else {
-        bounding_box result(local_coordinates[0]);
+        
+    if (first_coordinate_index >= 0) {
+        const vector4f *vertices = parent_scene->local_coordinate_data();
+        bounding_box result(vertices[first_coordinate_index]);
 
-        for (unsigned i = 1; i < local_coordinates.size(); ++i)
-            result.stretch(local_coordinates[i]);
+        for (int i = first_coordinate_index + 1; i <= last_coordinate_index; ++i)
+            result.stretch(vertices[i]);
 
         return result;
     }
+    else
+        return bounding_box(vector3f{0, 0, 0});
 }
 
-const matrix4x4f &mesh::local_to_world() const {
+const matrix4x4f &mesh::local_to_world() {
     if (local_to_world_transformation_dirty) {
         local_to_world_transformation = position * rotation * scaling;
         local_to_world_transformation_dirty = false;

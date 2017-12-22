@@ -11,13 +11,14 @@ public:
     demo();
     ~demo();
 
-    void prerender() override;
+    void prerender(framebuffer &fb) override;
     void compose() override;
 
     void render_dot_curve(framebuffer &fb);
     void render_line_spiral(framebuffer &fb);
-    void render_fern_still(framebuffer &fb);
-    void render_fern_3d(framebuffer &fb);
+    
+    void compose_fern_still();
+    void compose_fern_3d();
 
     void key_down_event(int sdl_keycode, bool ctrl_is_down) override;
 
@@ -38,7 +39,6 @@ private:
     stage_t stage = dot_curve;
     bool show_coord_sys = false;
 
-    coordinate_system coord_sys;
     mesh fern;
 };
 

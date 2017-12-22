@@ -14,8 +14,6 @@ public:
     coordinate_system(scene *parent_scene, const color &x, const color &y, const color &z);
     ~coordinate_system();
 
-    mesh *to_mesh();
-
 private:
     mesh m;
 };

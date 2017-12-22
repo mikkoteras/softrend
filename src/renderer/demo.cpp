@@ -11,17 +11,29 @@ using namespace math;
 using namespace math::detail;
 using namespace std;
 
-demo::demo() {
+demo::demo() :
+    fern(this) {
+
     create_fern();
 }
 
 demo::~demo() {
 }
 
-void demo::prerender() {
+void demo::compose() {
+    switch (stage) {
+    case fern_still:
+        compose_fern_still();
+        break;
+    case fern_3d:
+        compose_fern_3d();
+        break;
+    default:
+        break;
+    }
 }
 
-void demo::compose() {
+void demo::prerender(framebuffer &fb) {
     switch (stage) {
     case dot_curve:
         render_dot_curve(fb);
@@ -29,19 +41,12 @@ void demo::compose() {
     case line_spiral:
         render_line_spiral(fb);
         break;
-    case fern_still:
-        render_fern_still(fb);
-        break;
-    case fern_3d:
-        render_fern_3d(fb);
+    default:
         break;
     }
-
-    if (show_coord_sys)
-        coord_sys.render(*this, fb);
 }
 
-void demo::render_dot_curve(framebuffer &) {
+void demo::render_dot_curve(framebuffer &fb) {
     const float pi = math::detail::pi<float>();
     float cx = fb.pixel_width() / 2.0f;
     float cy = fb.pixel_height() / 2.0f;
@@ -70,17 +75,15 @@ void demo::render_line_spiral(framebuffer &fb) {
     }
 }
 
-void demo::render_fern_still(framebuffer &fb) {
+void demo::compose_fern_still() {
     set_eye_position(vector3f{3, 4, 10});
     set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
-
-    fern.render(*this, fb, false, false);
 }
 
-void demo::render_fern_3d(framebuffer &fb) {
+void demo::compose_fern_3d() {
     float t = clock.seconds();
 
     float eye_x = 3.0f * cos<float>(0.4f * t);
@@ -92,8 +95,6 @@ void demo::render_fern_3d(framebuffer &fb) {
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
 
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
-
-    fern.render(*this, fb, false, false);
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
