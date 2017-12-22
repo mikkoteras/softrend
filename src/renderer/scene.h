@@ -95,9 +95,9 @@ private: // render helpers
     void construct_world_to_view(const framebuffer &fb);
     void transform_coordinates(mesh &of_mesh);
     void sort_triangles();
-    void do_visualize_wireframe(framebuffer &fb);
-    void do_visualize_normals(framebuffer &fb);
-    void do_visualize_reflection_vectors(framebuffer &fb);
+    void overlay_wireframe_visualization(framebuffer &fb);
+    void overlay_normal_visualization(framebuffer &fb);
+    void overlay_reflection_vector_visualization(framebuffer &fb);
 
 protected:
     animation_clock clock;
