@@ -74,6 +74,9 @@ double scene::get_animation_time() const {
     return clock.seconds();
 }
 
+#include <iostream>
+#include "util.h"
+
 void scene::render(framebuffer &fb) {
     compose();
     construct_world_to_view(fb);
@@ -83,10 +86,14 @@ void scene::render(framebuffer &fb) {
         transform_coordinates(*m);
 
     sort_triangles();
-
+/*
     for (const triangle_distance &t: triangle_order)
         triangles[t.triangle_index].render(fb, *this);
+*/
 
+    for (const triangle &t: triangles)
+        t.render(fb, *this);
+////////
     for (const line &l: lines)
         l.render(fb, *this);
 
@@ -95,6 +102,13 @@ void scene::render(framebuffer &fb) {
     do_visualize_reflection_vectors(fb);
 
     info.update(*this);
+/*
+    for (unsigned i = 0; i < world_coordinates.size(); ++i) {
+        std::cout << "point -- local = " << util::to_string(local_coordinates[i]) << " | "
+                  << "world = " << util::to_string(world_coordinates[i]) << " | "
+                  << "view = "<< util::to_string(view_coordinates[i]) << std::endl;
+    }
+*/
 }
 
 void scene::key_down_event(int, bool) {
@@ -204,8 +218,8 @@ bool scene::stopped() const {
     return stop_requested;
 }
 
-void scene::add_mesh(mesh *m) {
-    meshes.push_back(m);
+void scene::add_mesh(mesh *caller) {
+    meshes.push_back(caller);
 }
 
 void scene::prerender(framebuffer&) {
@@ -273,12 +287,13 @@ void scene::transform_coordinates(mesh &of_mesh) {
     max = of_mesh.max_coordinate_index();
 
     for (int i = min; i <= max; ++i)
-        world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo_with_divide();
+        world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo();
     
     const matrix4x4f local_to_view = world_to_view_matrix * local_to_world;
 
-    for (int i = min; i <= max; ++i)
-        view_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo_with_divide();
+    for (int i = min; i <= max; ++i) {
+        view_coordinates[i] = (local_to_view * local_coordinates[i]).dehomo_with_divide();
+    }
 }
 
 void scene::sort_triangles() {

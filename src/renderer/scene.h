@@ -59,6 +59,7 @@ public: // for mesh
     void add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat);
     void add_line(int v1, int v2, const color &c1, const color &c2);
     void add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2);
+    void add_mesh(mesh *caller);
     
 public:
     math::matrix4x4f world_to_view();
@@ -78,7 +79,6 @@ public:
     virtual bool stopped() const;
 
 protected: // derived class interface
-    void add_mesh(mesh *m);
     virtual void compose() = 0;
     virtual void prerender(framebuffer &fb);
     virtual void postrender(framebuffer &fb);
