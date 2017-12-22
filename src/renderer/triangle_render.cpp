@@ -232,6 +232,8 @@ void triangle_render::prepare_upper_halftriangle() {
         left_edge_delta = &short_edge_delta;
         right_edge_delta = &long_edge_delta;
     }
+
+    halftriangle_height -= 1; // Don't draw the middle line so it won't get drawn twice.
 }
 
 void triangle_render::prepare_lower_halftriangle() {
@@ -240,7 +242,7 @@ void triangle_render::prepare_lower_halftriangle() {
     halftriangle_height = bot_y - mid_y;
 
     if (halftriangle_height == 0)
-        return; // zero scanlines to draw
+        return; // no scanlines to draw
 
     float bot_half_height = halftriangle_height;
     short_edge_delta.compute_delta_vwnts(*vertex[1], *vertex[2], bot_half_height);

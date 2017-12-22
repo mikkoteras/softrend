@@ -292,7 +292,7 @@ bool triangle::triangle_winds_clockwise() {
 }
 
 void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -335,7 +335,7 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -374,7 +374,7 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -419,7 +419,7 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
 }
 
 void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -464,7 +464,7 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const
 }
 
 void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -508,7 +508,7 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -548,7 +548,7 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -595,7 +595,7 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
 }
 
 void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
