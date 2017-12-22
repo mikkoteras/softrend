@@ -74,9 +74,6 @@ double scene::get_animation_time() const {
     return clock.seconds();
 }
 
-#include <iostream>
-#include "util.h"
-
 void scene::render(framebuffer &fb) {
     compose();
     construct_world_to_view(fb);
@@ -86,14 +83,10 @@ void scene::render(framebuffer &fb) {
         transform_coordinates(*m);
 
     sort_triangles();
-/*
+
     for (const triangle_distance &t: triangle_order)
         triangles[t.triangle_index].render(fb, *this);
-*/
 
-    for (const triangle &t: triangles)
-        t.render(fb, *this);
-////////
     for (const line &l: lines)
         l.render(fb, *this);
 
@@ -102,13 +95,6 @@ void scene::render(framebuffer &fb) {
     do_visualize_reflection_vectors(fb);
 
     info.update(*this);
-/*
-    for (unsigned i = 0; i < world_coordinates.size(); ++i) {
-        std::cout << "point -- local = " << util::to_string(local_coordinates[i]) << " | "
-                  << "world = " << util::to_string(world_coordinates[i]) << " | "
-                  << "view = "<< util::to_string(view_coordinates[i]) << std::endl;
-    }
-*/
 }
 
 void scene::key_down_event(int, bool) {
@@ -145,7 +131,7 @@ void scene::add_triangle(int vi1, int vi2, int vi3,
                   int ni1, int ni2, int ni3,
                   const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                   const material *mat) {
-    triangles.push_back(triangle(vi1, vi2, vi3, uv1, uv2, uv3, ni1, ni2, ni3, mat));
+    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, uv1, uv2, uv3, mat));
 }
 
 void scene::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) {
