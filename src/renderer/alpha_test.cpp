@@ -1,8 +1,9 @@
 #include "alpha_test.h"
+#include "directional_light.h"
 #include "framebuffer.h"
 #include "importer.h"
 #include "line.h"
-#include "directional_light.h"
+#include "math_detail.h"
 #include "vector.h"
 
 using namespace math;
@@ -16,6 +17,8 @@ alpha_test::alpha_test(bool verbose) :
 
     try {
         importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), verbose);
+        importer::load_wavefront_object(red_icosa, "red_icosa.obj", materials(), verbose);
+        importer::load_wavefront_object(green_icosa, "green_icosa.obj", materials(), verbose);
         importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), verbose);
     }
     catch (importer::importer_exception) {
@@ -36,9 +39,23 @@ alpha_test::~alpha_test() {
 }
 
 void alpha_test::compose() {
+    using namespace math::detail;
+
     float t = clock.seconds();
-    blue_icosa.set_rotation(0, t, t / 10.0f);
-    blue_icosa.set_position(0, 0, 0);
+
     backdrop.set_scaling(.5f, .5f, .5f);
     backdrop.set_position(0, 0, -10);
+
+    red_icosa.set_rotation(0, t, t / 10.0f);
+    red_icosa.set_position(2.0f * cos<float>(t),
+                           0,
+                           -5.0f - 2.0f * cos<float>(t));
+    green_icosa.set_rotation(0, t, t / 10.0f);
+    green_icosa.set_position(2.0f * cos<float>(t + 1.0f / 3.0f * 2.0f * pi<float>()),
+                             0,
+                             -5.0f - 2.0f * sin<float>(t + 1.0f / 3.0f * 2.0f * pi<float>()));
+    blue_icosa.set_rotation(0, t, t / 10.0f);
+    blue_icosa.set_position(2.0f * cos<float>(t + 2.0f / 3.0f * 2.0f * pi<float>()),
+                            0,
+                            -5.0f - 2.0f * sin<float>(t + 2.0f / 3.0f * 2.0f * pi<float>()));
 }
