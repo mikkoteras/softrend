@@ -62,11 +62,11 @@ bool scene::get_wireframe_visualization() const {
 }
 
 void scene::set_coordinate_system(bool setting) {
-    show_coordinate_system = setting;
+    coords.get_mesh().set_visibility(setting);
 }
 
 bool scene::get_coordinate_system() const {
-    return show_coordinate_system;
+    return coords.get_mesh().get_visibility();
 }
 
 double scene::get_animation_time() const {
@@ -78,18 +78,9 @@ void scene::render(framebuffer &fb) {
     construct_world_to_view(fb);
     compute_visible_volume(fb);
     prerender(fb);
-    
-    for (mesh *m: meshes) // TODO this could basically be threaded (but how much does it help?)
-        transform_coordinates(*m);
-
-    sort_triangles();
-
-    for (const triangle_distance &t: triangle_order)
-        triangles[t.triangle_index].render(fb, *this);
-
-    for (const line &l: lines)
-        l.render(fb, *this);
-
+    transform_coordinates();
+    render_lines(fb);
+    render_triangles(fb);
     overlay_wireframe_visualization(fb);
     overlay_normal_visualization(fb);
     overlay_reflection_vector_visualization(fb);
@@ -127,20 +118,22 @@ int scene::add_vertex_normal(const math::vector3f &vn) {
     return static_cast<int>(local_normals.size() - 1);
 }
 
-void scene::add_triangle(int vi1, int vi2, int vi3,
-                  int ni1, int ni2, int ni3,
-                  const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
-                  const material *mat) {
-    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, uv1, uv2, uv3, mat));
-}
-
-void scene::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) {
-    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, mat));
-
-}
-
-void scene::add_line(int v1, int v2, const color &c1, const color &c2) {
+int scene::add_line(int v1, int v2, const color &c1, const color &c2) {
     lines.push_back(line(v1, v2, c1, c2));
+    return static_cast<int>(lines.size() - 1);
+}
+
+int scene::add_triangle(int vi1, int vi2, int vi3,
+                        int ni1, int ni2, int ni3,
+                        const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+                        const material *mat) {
+    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, uv1, uv2, uv3, mat));
+    return static_cast<int>(triangles.size() - 1);
+}
+
+int scene::add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) {
+    triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, mat));
+    return static_cast<int>(triangles.size() - 1);
 }
 
 const matrix4x4f &scene::world_to_view() {
@@ -195,8 +188,9 @@ bool scene::stopped() const {
     return stop_requested;
 }
 
-void scene::add_mesh(mesh *caller) {
+int scene::add_mesh(mesh *caller) {
     meshes.push_back(caller);
+    return static_cast<int>(meshes.size() - 1);
 }
 
 void scene::prerender(framebuffer&) {
@@ -249,41 +243,65 @@ void scene::compute_visible_volume(const framebuffer &fb) {
                                                 -std::numeric_limits<float>::infinity()});    
 }
 
-void scene::transform_coordinates(mesh &of_mesh) {
-    const matrix4x4f &local_to_world = of_mesh.local_to_world();
+void scene::transform_coordinates() {
+    for (mesh *m: meshes) {
+        const matrix4x4f &local_to_world = m->local_to_world();
 
-    int min = of_mesh.min_normal_index();
-    int max = of_mesh.max_normal_index();
+        int min = m->min_normal_index();
+        int max = m->max_normal_index();
 
-    for (int i = min; i <= max; ++i)
-        world_normals[i] = (local_to_world * local_normals[i]).dehomo();
+        for (int i = min; i <= max; ++i)
+            world_normals[i] = (local_to_world * local_normals[i]).dehomo();
 
-    min = of_mesh.min_coordinate_index();
-    max = of_mesh.max_coordinate_index();
+        min = m->min_vertex_index();
+        max = m->max_vertex_index();
 
-    for (int i = min; i <= max; ++i)
-        world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo();
+        for (int i = min; i <= max; ++i)
+            world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo();
     
-    const matrix4x4f local_to_view = world_to_view_matrix * local_to_world;
+        const matrix4x4f local_to_view = world_to_view_matrix * local_to_world;
 
-    for (int i = min; i <= max; ++i)
-        view_coordinates[i] = (local_to_view * local_coordinates[i]).dehomo_with_divide();
+        for (int i = min; i <= max; ++i)
+            view_coordinates[i] = (local_to_view * local_coordinates[i]).dehomo_with_divide();
+    }
 }
 
-void scene::sort_triangles() {
-    // TODO: opaque v. translucent polys in different lists, reverse painter's etc
-    triangle_order.resize(triangles.size());
+void scene::render_lines(framebuffer &fb) {
+    for (mesh *m: meshes) {
+        int min = m->min_line_index();
+        int max = m->max_line_index();
 
-    for (unsigned i = 0; i < triangles.size(); ++i) {
-        triangle_order[i].triangle_index = i;
-        const int *vertex_indices = triangles[i].vertex_indices();
-        float z = view_coordinates[vertex_indices[0]].z();
-        z = std::min(z, view_coordinates[vertex_indices[1]].z());
-        z = std::min(z, view_coordinates[vertex_indices[2]].z());
-        triangle_order[i].z_coordinate = z;
+        for (int i = min; i <= max; ++i)
+            lines[i].render(fb, *this);
+    }
+}
+
+void scene::render_triangles(framebuffer &fb) {
+    triangle_order.resize(triangles.size()); // TODO maybe put this elsewhere
+    int triangle_count = 0;
+
+    // create list of visible triangle indices and their farthest vertex z-coords
+    for (mesh *m: meshes) {
+        int min = m->min_triangle_index();
+        int max = m->max_triangle_index();
+
+        for (int i = min; i <= max; ++i) {
+            const int *vertex_indices = triangles[i].vertex_indices();
+            float farthest_vertex_z = view_coordinates[vertex_indices[0]].z();
+            farthest_vertex_z = std::min(farthest_vertex_z, view_coordinates[vertex_indices[1]].z());
+            farthest_vertex_z = std::min(farthest_vertex_z, view_coordinates[vertex_indices[2]].z());
+            triangle_order[triangle_count].triangle_index = triangle_count;
+            triangle_order[triangle_count++].z_coordinate = farthest_vertex_z;
+        }
     }
 
-    std::sort(triangle_order.begin(), triangle_order.end());
+    // draw triangles in order of distance from the screen
+    // TODO: opaque v. translucent polys in different lists, reverse painter's etc
+    auto first = triangle_order.begin();
+    sort(first, first + triangle_count);
+
+    for (int i = 0; i < triangle_count; ++i)
+        triangles[triangle_order[i].triangle_index].render(fb, *this);
 }
 
 void scene::overlay_wireframe_visualization(framebuffer &fb) {
