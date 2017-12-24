@@ -86,11 +86,9 @@ void window::clear_framebuffer(framebuffer &fb, benchmark_frame &frame_stats) {
 
 void window::update_scene(scene &sc, framebuffer &fb, benchmark_frame &frame_stats) {
     benchmark_frame::timestamp_t timestamp = frame_stats.render_starting();
-    
-    sc.prerender(fb);
+
     sc.render(fb);
-    sc.postrender();
-    
+
     frame_stats.render_finished(timestamp);
 }
 
@@ -133,6 +131,8 @@ bool window::read_user_input(scene &s) {
                 s.set_reflection_vector_visualization(!s.get_reflection_vector_visualization());
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_w)
                 s.set_wireframe_visualization(!s.get_wireframe_visualization());
+            else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_c)
+                s.set_coordinate_system(!s.get_coordinate_system());
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_s)
                 s.cycle_shading_model();
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)

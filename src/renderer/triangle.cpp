@@ -7,7 +7,6 @@
 #include "material.h"
 #include "math_util.h"
 #include "matrix.h"
-#include "mesh.h"
 #include "scene.h"
 #include <algorithm>
 
@@ -17,8 +16,8 @@ triangle::triangle() {
 }
 
 triangle::triangle(int vi1, int vi2, int vi3,
-                   const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                    int ni1, int ni2, int ni3,
+                   const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
                    const material *mat) :
     vertex_index{vi1, vi2, vi3},
     vertex_uv{uv1, uv2, uv3},
@@ -76,6 +75,7 @@ const triangle &triangle::operator=(const triangle &rhs) {
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
+
     return *this;
 }
 
@@ -90,6 +90,7 @@ triangle &triangle::operator=(triangle &&rhs) {
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
+
     return *this;
 }
 
@@ -100,27 +101,16 @@ const int *triangle::vertex_indices() const {
     return vertex_index;
 }
 
-std::vector<math::vector3f> triangle::vertices(const mesh &parent_mesh) const {
-    std::vector<math::vector3f> result;
-    const vector3f *view = parent_mesh.view_coordinate_data();
-    
-    result.push_back(view[vertex_index[0]]);
-    result.push_back(view[vertex_index[1]]);
-    result.push_back(view[vertex_index[2]]);
-
-    return result;
-}
-
-void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector3f *view_coord = parent_mesh.view_coordinate_data();
+void triangle::render(framebuffer &target, const scene &parent_scene) const {
+    const vector3f *view_coord = parent_scene.view_coordinate_data();
 
     for (int i = 0; i < 3; ++i)
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
 
-    //if (triangle_winds_clockwise())
-    //    return;
+    if (triangle_winds_clockwise())
+        return;
 
-    const vector3f *world_coord = parent_mesh.world_coordinate_data();
+    const vector3f *world_coord = parent_scene.world_coordinate_data();
 
     for (int i = 0; i < 3; ++i)
         render_context.vtx(i).world_position = world_coord[vertex_index[i]];
@@ -134,27 +124,17 @@ void triangle::render(framebuffer &target, const mesh &parent_mesh, const scene 
     render_context.lights = &parent_scene.light_sources();
     render_context.tex = mat->get_texture_map();
     shading_model_t shading = parent_scene.get_shading_model();
-    
-    if (shading == flat || shading_limit == flat)
-        render_flat(target, parent_mesh, parent_scene);
-    else if (shading == gouraud || shading_limit == gouraud)
-        render_gouraud(target, parent_mesh, parent_scene);
-    else
-        render_phong(target, parent_mesh, parent_scene);
 
-    // TODO: maybe put this in scene and draw each edge only once
-    if (parent_scene.get_wireframe_visualization())
-        for (int i = 0; i < 3; ++i) {
-            const vector3f &v1 = view_coord[vertex_index[i]];
-            const vector3f &v2 = view_coord[vertex_index[(i + 1) % 3]];
-            line::render(target,
-                         v1.x(), v1.y(), v1.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f),
-                         v2.x(), v2.y(), v2.z() + 0.01f, color(0.0f, 0.0f, 0.0f, 1.0f));
-    }
+    if (shading == flat || shading_limit == flat)
+        render_flat(target, parent_scene);
+    else if (shading == gouraud || shading_limit == gouraud)
+        render_gouraud(target, parent_scene);
+    else
+        render_phong(target, parent_scene);
 }
 
-void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector3f *world_normal = parent_mesh.world_normal_data();
+void triangle::render_flat(framebuffer &target, const scene &parent_scene) const {
+    const vector3f *world_normal = parent_scene.world_normal_data();
     render_context.surface_midpoint = vector3f{0.0f, 0.0f, 0.0f};
     
     for (int i = 0; i < 3; ++i) {
@@ -195,9 +175,9 @@ void triangle::render_flat(framebuffer &target, const mesh &parent_mesh, const s
     }
 }
 
-void triangle::render_gouraud(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector3f *world_data = parent_mesh.world_coordinate_data();
-    const vector3f *world_normal = parent_mesh.world_normal_data();
+void triangle::render_gouraud(framebuffer &target, const scene &parent_scene) const {
+    const vector3f *world_data = parent_scene.world_coordinate_data();
+    const vector3f *world_normal = parent_scene.world_normal_data();
     
     for (int i = 0; i < 3; ++i) {
         vector3f vertex = world_data[vertex_index[i]];
@@ -229,17 +209,17 @@ void triangle::render_gouraud(framebuffer &target, const mesh &parent_mesh, cons
     }
 }
 
-void triangle::render_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
+void triangle::render_phong(framebuffer &target, const scene &parent_scene) const {
     render_context.eye = parent_scene.get_eye_position();
 
     if (has_distinct_normals)
-        render_smooth_phong(target, parent_mesh, parent_scene);
+        render_smooth_phong(target, parent_scene);
     else
-        render_flat_phong(target, parent_mesh, parent_scene);
+        render_flat_phong(target, parent_scene);
 }
 
-void triangle::render_smooth_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector3f *world_normal = parent_mesh.world_normal_data();
+void triangle::render_smooth_phong(framebuffer &target, const scene &parent_scene) const {
+    const vector3f *world_normal = parent_scene.world_normal_data();
     
     for (int i = 0; i < 3; ++i) // TODO refactor
         render_context.vtx(i).normal = world_normal[normal_index[i]];
@@ -266,8 +246,8 @@ void triangle::render_smooth_phong(framebuffer &target, const mesh &parent_mesh,
     }
 }
 
-void triangle::render_flat_phong(framebuffer &target, const mesh &parent_mesh, const scene &parent_scene) const {
-    const vector3f *world_normal = parent_mesh.world_normal_data();
+void triangle::render_flat_phong(framebuffer &target, const scene &parent_scene) const {
+    const vector3f *world_normal = parent_scene.world_normal_data();
     render_context.surface_normal = vector3f{0.0f, 0.0f, 0.0f};
 
     for (int i = 0; i < 3; ++i) // TODO refactor
@@ -297,7 +277,7 @@ void triangle::render_flat_phong(framebuffer &target, const mesh &parent_mesh, c
 
 bool triangle::triangle_winds_clockwise() {
     float x[3], y[3];
-
+    
     for (int i = 0; i < 3; ++i) {
         const vector3f &v = render_context.vtx(i).view_position;
         x[i] = v.x();
@@ -312,7 +292,7 @@ bool triangle::triangle_winds_clockwise() {
 }
 
 void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -355,7 +335,7 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -394,7 +374,7 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -439,7 +419,7 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
 }
 
 void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -484,7 +464,7 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const
 }
 
 void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -528,7 +508,7 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -568,7 +548,7 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
 }
 
 void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -615,7 +595,7 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
 }
 
 void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) const {
-    if (render_context.halftriangle_height == 0)
+    if (render_context.halftriangle_height <= 0)
         return;
 
     vertex_data left = *render_context.left_edge_top;
@@ -660,20 +640,11 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
     }
 }
 
-shading_model_t triangle::compute_shading_limit() {
-    illumination_model_t illum = mat->get_illumination_model();
-
-    if (illum == constant_color)
-        return flat;
-    else
-        return phong;
-}
-
-void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
-                                 scene &parent_scene, const matrix4x4f &world_to_view) const {
-    const vector3f *view_data = parent_mesh.view_coordinate_data();
-    const vector3f *world_data = parent_mesh.world_coordinate_data();
-    const vector3f *normal_data = parent_mesh.world_normal_data();
+void triangle::visualize_normals(framebuffer &target, scene &parent_scene) const {
+    const vector3f *view_data = parent_scene.view_coordinate_data();
+    const vector3f *world_data = parent_scene.world_coordinate_data();
+    const vector3f *normal_data = parent_scene.world_normal_data();
+    const matrix4x4f &world_to_view = parent_scene.world_to_view();
     color yellow(1.0f, 1.0f, 0.0f, 1.0f);
     vector3f mid_point, mid_normal;
 
@@ -699,11 +670,11 @@ void triangle::visualize_normals(framebuffer &target, const mesh &parent_mesh,
                  view_normal.x(), view_normal.y(), view_normal.z(), yellow);
 }
 
-void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &parent_mesh,
-                                            scene &parent_scene, const matrix4x4f &world_to_view) const {
-    const vector3f *world_data = parent_mesh.world_coordinate_data();
-    const vector3f *normal_data = parent_mesh.world_normal_data();
-
+void triangle::visualize_reflection_vectors(framebuffer &target, scene &parent_scene) const {
+    const vector3f *world_data = parent_scene.world_coordinate_data();
+    const vector3f *normal_data = parent_scene.world_normal_data();
+    const matrix4x4f &world_to_view = parent_scene.world_to_view();
+    
     // triangle midpoint and the normal out of it
     vector3f mid_point, mid_normal;
 
@@ -735,5 +706,13 @@ void triangle::visualize_reflection_vectors(framebuffer &target, const mesh &par
     }
 }
 
-triangle_render triangle::render_context;
+shading_model_t triangle::compute_shading_limit() {
+    illumination_model_t illum = mat->get_illumination_model();
 
+    if (illum == constant_color)
+        return flat;
+    else
+        return phong;
+}
+
+triangle_render triangle::render_context;

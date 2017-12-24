@@ -10,10 +10,6 @@ using namespace math;
 using namespace math::detail;
 
 freecam_scene::freecam_scene(float initial_eye_radius) :
-    show_coords(false),
-    coords(color(0.7f, 0.6f, 0.6f, 1.0f),
-           color(0.6f, 0.7f, 0.6f, 1.0f),
-           color(0.6f, 0.6f, 0.7f, 1.0f)),
     eye_polar_angle(0.0f),
     eye_radius(initial_eye_radius),
     eye_twist_angle(0.0f) {
@@ -29,7 +25,7 @@ void freecam_scene::point_of_interest(const math::vector3f &p) {
     eye_reference_point = p;
 }
 
-void freecam_scene::render(framebuffer &fb) {
+void freecam_scene::prerender(framebuffer&) {
     // Normalize spherical coordinates
     const float pi = detail::pi<float>();
 
@@ -45,20 +41,14 @@ void freecam_scene::render(framebuffer &fb) {
     set_eye_position(eye_reference_point + vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(eye_reference_point);
     set_eye_orientation(vector3f{0.0f, cos<float>(eye_twist_angle), sin<float>(eye_twist_angle)});
-
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
-
-    if (show_coords)
-        coords.render(*this, fb);
 }
 
 void freecam_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {
     const float pi = detail::pi<float>();
 
     if (ctrl_is_down) {
-        if (sdl_keycode == SDLK_c)
-            show_coords = !show_coords;
-        else if (sdl_keycode == SDLK_r) { // reset scene
+        if (sdl_keycode == SDLK_r) { // reset scene
             eye_azimuth_angle = 1.5f * pi;
             eye_polar_angle = 0.0f;
             eye_radius = 10.0f;

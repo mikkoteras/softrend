@@ -9,11 +9,13 @@ class scene;
 
 class coordinate_system {
 public:
-    coordinate_system();
-    coordinate_system(const color &x, const color &y, const color &z);
+    coordinate_system() = delete;
+    coordinate_system(scene *parent_scene);
+    coordinate_system(scene *parent_scene, const color &x, const color &y, const color &z);
     ~coordinate_system();
 
-    void render(scene &sc, framebuffer &fb);
+    mesh &get_mesh();
+    const mesh &get_mesh() const;
 
 private:
     mesh m;

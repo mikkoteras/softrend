@@ -8,10 +8,11 @@ using namespace std;
 using namespace std::experimental::filesystem;
 using namespace math;
 
-mesh importer::load_wavefront_object(const std::experimental::filesystem::path &filename,
-                                 material_library &lib, bool echo_comments) {
+void importer::load_wavefront_object(mesh &target,
+                                     const std::experimental::filesystem::path &filename,
+                                     material_library &lib,
+                                     bool verbose) {
     try {
-        mesh m;
         importer imp(filename);
 
         const float infty = numeric_limits<float>::infinity();
@@ -24,18 +25,16 @@ mesh importer::load_wavefront_object(const std::experimental::filesystem::path &
         while (!imp.eof()) {
             string command = imp.accept_command();
 
-            if (command == "#") {
-                if (echo_comments)
-                    cout << imp.full_line() << endl;
-            }
+            if (command == "#")
+                ;
             else if (command == "v") {
                 vector3f point = imp.parse_ws_separated_3d_point();
-                m.add_vertex(point);
+                target.add_vertex(point);
                 ++vertices;
             }
             else if (command == "vn") {
                 vector3f point = imp.parse_ws_separated_3d_point();
-                m.add_vertex_normal(point);
+                target.add_vertex_normal(point);
             }
             else if (command == "vt") {
                 vector3f point = imp.parse_ws_separated_uv_coords();
@@ -43,7 +42,7 @@ mesh importer::load_wavefront_object(const std::experimental::filesystem::path &
             }
             else if (command == "mtllib") {
                 string filename = imp.accept_until_eol();
-                load_wavefront_materials(filename, lib, echo_comments);
+                load_wavefront_materials(filename, lib, verbose);
             }
             else if (command == "usemtl") {
                 string name = imp.accept_until_eol();
@@ -87,27 +86,27 @@ mesh importer::load_wavefront_object(const std::experimental::filesystem::path &
 
                 if (include_uv_coords)
                     for (unsigned i = 2; i < vertex_indices.size(); ++i) {
-                        m.add_triangle(vertex_indices[0],
-                                       vertex_indices[i - 1],
-                                       vertex_indices[i],
-                                       texture_coordinates[texture_indices[0]],
-                                       texture_coordinates[texture_indices[i - 1]],
-                                       texture_coordinates[texture_indices[i]],
-                                       normal_indices[0],
-                                       normal_indices[i - 1],
-                                       normal_indices[i],
-                                       current_material);
+                        target.add_triangle(vertex_indices[0],
+                                            vertex_indices[i - 1],
+                                            vertex_indices[i],
+                                            normal_indices[0],
+                                            normal_indices[i - 1],
+                                            normal_indices[i],
+                                            texture_coordinates[texture_indices[0]],
+                                            texture_coordinates[texture_indices[i - 1]],
+                                            texture_coordinates[texture_indices[i]],
+                                            current_material);
                         ++polys;
                     }
                 else
                     for (unsigned i = 2; i < vertex_indices.size(); ++i) {
-                        m.add_triangle(vertex_indices[0],
-                                       vertex_indices[i - 1],
-                                       vertex_indices[i],
-                                       normal_indices[0],
-                                       normal_indices[i - 1],
-                                       normal_indices[i],
-                                       current_material);
+                        target.add_triangle(vertex_indices[0],
+                                            vertex_indices[i - 1],
+                                            vertex_indices[i],
+                                            normal_indices[0],
+                                            normal_indices[i - 1],
+                                            normal_indices[i],
+                                            current_material);
                         ++polys;
                     }
             }
@@ -115,20 +114,18 @@ mesh importer::load_wavefront_object(const std::experimental::filesystem::path &
             imp.advance_to_next_line();
         }
 
-        bounding_box box = m.local_bounding_box();
-        cout << "imported " << vertices << " vertices, " << polys << " polys" << endl;
-        cout << "bounding box = [" << util::to_string(box.min()) << ", " << util::to_string(box.max()) << "]" << endl;
-        cout << "maximum semiaxis = " << box.max_semiaxis() << endl;
+        bounding_box box = target.local_bounding_box();
 
-        return m;
+        if (verbose)
+            cout << "imported object: " << filename << endl;
     }
     catch (...) {
-        cerr << "error loading " << filename << endl;
+        cerr << "error importing object: " << filename << endl;
         throw;
     }
 }
 
-void importer::load_wavefront_materials(const std::string &filename, material_library &lib, bool echo_comments = false) {
+void importer::load_wavefront_materials(const std::string &filename, material_library &lib, bool verbose) {
     struct material_spec {
         string material_name = "";
         color ambient_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -154,10 +151,8 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
         while (!imp.eof()) {
             string command = imp.accept_command();
             
-            if (command == "#") {
-                if (echo_comments)
-                    cout << imp.full_line() << endl;
-            }
+            if (command == "#")
+                ;
             else if (command == "newmtl") {
                 if (material_being_constructed) {
                     material *mat = material::create(spec.illumination_model);
@@ -171,7 +166,11 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                     if (spec.texture_map)
                         mat->set_texture_map(spec.texture_map);
 
-                    lib.add_material(spec.material_name, unique_ptr<material>(mat));
+                    bool added = lib.add_material(spec.material_name, unique_ptr<material>(mat));
+
+                    if (added && verbose)
+                        cout << "imported material " << spec.material_name << " (from " << filename << ")"  << endl;
+
                     spec = material_spec();
                 }
 
