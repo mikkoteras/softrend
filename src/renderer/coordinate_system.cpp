@@ -49,7 +49,18 @@ coordinate_system::coordinate_system(scene *parent_scene, const color &x,const c
     m.add_line(vector3f{.3f, 0.1f, -5.0f}, vector3f{.4f, 0.1f, -5.0f}, z, z);
     m.add_line(vector3f{.4f, 0.1f, -5.0f}, vector3f{.3f, -0.1f, -5.0f}, z, z);
     m.add_line(vector3f{.3f, -0.1f, -5.0f}, vector3f{.4f, -0.1f, -5.0f}, z, z);
+
+    m.set_visibility(false);
+
 }
 
 coordinate_system::~coordinate_system() {
+}
+
+mesh &coordinate_system::get_mesh() {
+    return m;
+}
+
+const mesh &coordinate_system::get_mesh() const {
+    return m;
 }

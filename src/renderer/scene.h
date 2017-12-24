@@ -52,14 +52,13 @@ public:
 public: // for mesh
     int add_vertex(const math::vector3f &v);
     int add_vertex_normal(const math::vector3f &vn);
-    void add_triangle(int vi1, int vi2, int vi3,
-                      int ni1, int ni2, int ni3,
-                      const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
-                      const material *mat);
-    void add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat);
-    void add_line(int v1, int v2, const color &c1, const color &c2);
-    void add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2);
-    void add_mesh(mesh *caller);
+    int add_line(int v1, int v2, const color &c1, const color &c2);
+    int add_triangle(int vi1, int vi2, int vi3,
+                     int ni1, int ni2, int ni3,
+                     const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+                     const material *mat);
+    int add_triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat);
+    int add_mesh(mesh *caller);
 
 public:
     const math::matrix4x4f &world_to_view();
@@ -93,8 +92,9 @@ protected: // for composition
 private: // render helpers
     void compute_visible_volume(const framebuffer &fb);
     void construct_world_to_view(const framebuffer &fb);
-    void transform_coordinates(mesh &of_mesh);
-    void sort_triangles();
+    void transform_coordinates();
+    void render_lines(framebuffer &fb);
+    void render_triangles(framebuffer &fb);
     void overlay_wireframe_visualization(framebuffer &fb);
     void overlay_normal_visualization(framebuffer &fb);
     void overlay_reflection_vector_visualization(framebuffer &fb);
@@ -109,7 +109,6 @@ protected: // runtime configurable parameters
     bool visualize_normals = false;
     bool visualize_reflection_vectors = false;
     bool visualize_wireframe = false;
-    bool show_coordinate_system = false;
 
 private:
     struct triangle_distance { // for painter's algortihm
