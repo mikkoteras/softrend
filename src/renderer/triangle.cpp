@@ -75,7 +75,7 @@ const triangle &triangle::operator=(const triangle &rhs) {
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
-    
+
     return *this;
 }
 
@@ -90,7 +90,7 @@ triangle &triangle::operator=(triangle &&rhs) {
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
-    
+
     return *this;
 }
 
