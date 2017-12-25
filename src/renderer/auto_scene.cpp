@@ -10,7 +10,7 @@ using namespace std;
 using namespace std::experimental::filesystem;
 
 auto_scene::auto_scene(const path &object_file, bool verbose, object_position pos) :
-    freecam_scene(10.0f),
+    freecam_scene(15.0f),
     object(this) {
 
     try {
@@ -26,24 +26,26 @@ auto_scene::auto_scene(const path &object_file, bool verbose, object_position po
             box /= max_semiaxis;
 
             if (pos == as_is)
-                point_of_interest(vector3f{0.0f, 0.0f, 0.0f});
+                set_point_of_interest(vector3f{0.0f, 0.0f, 0.0f});
             else if (pos == center_at_origin) {
                 object.set_position(-box.min().x() - box.width() / 2.0f,
                                     -box.min().y() - box.height() / 2.0f,
                                     -box.min().z() - box.depth() / 2.0f);
-                point_of_interest(vector3f{0.0f, 0.0f, 0.0f});
+                set_point_of_interest(vector3f{0.0f, 0.0f, 0.0f});
             }
             else if (pos == bounding_box_touches_origin) {
                 object.set_position(-box.min().x(),
                                     -box.min().y(),
                                     -box.min().z());
-                point_of_interest(vector3f{box.width() / 2.0f, box.height() / 2.0f, box.depth() / 2.0f});
+                set_point_of_interest(vector3f{box.width() / 2.0f,
+                                               box.height() / 2.0f,
+                                               box.depth() / 2.0f});
             }
             else if (pos == center_at_unity) {
                 object.set_position(1.0f - box.min().x() - box.width() / 2.0f,
                                     1.0f - box.min().y() - box.height() / 2.0f,
                                     1.0f - box.min().z() - box.depth() / 2.0f);
-                point_of_interest(vector3f{1.0f, 1.0f, 1.0f});
+                set_point_of_interest(vector3f{1.0f, 1.0f, 1.0f});
             }
         }
     }

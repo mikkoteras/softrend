@@ -21,8 +21,8 @@ freecam_scene::freecam_scene(float initial_eye_radius) :
 freecam_scene::~freecam_scene() {
 }
 
-void freecam_scene::point_of_interest(const math::vector3f &p) {
-    eye_reference_point = p;
+void freecam_scene::set_point_of_interest(const math::vector3f &p) {
+    point_of_interest = p;
 }
 
 void freecam_scene::prerender(framebuffer&) {
@@ -38,8 +38,8 @@ void freecam_scene::prerender(framebuffer&) {
     float eye_y = eye_radius * sin<float>(eye_polar_angle);
     float eye_z = eye_radius * -sin<float>(eye_azimuth_angle) * cos<float>(eye_polar_angle);
 
-    set_eye_position(eye_reference_point + vector3f{eye_x, eye_y, eye_z});
-    set_eye_reference_point(eye_reference_point);
+    set_eye_position(point_of_interest + vector3f{eye_x, eye_y, eye_z});
+    set_eye_reference_point(point_of_interest);
     set_eye_orientation(vector3f{0.0f, cos<float>(eye_twist_angle), sin<float>(eye_twist_angle)});
     set_fov(120.0f / (2.0f * math::detail::pi<float>()));
 }

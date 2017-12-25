@@ -32,7 +32,7 @@ alpha_test::alpha_test(bool verbose) :
     set_eye_position(vector3f{0.0f, 0.0f, 10.0f});
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
-    set_fov(120.0f / (2.0f * math::detail::pi<float>()));
+    set_fov((120.0f / 360.0) * (2.0f * math::detail::pi<float>()));
 }
 
 alpha_test::~alpha_test() {
