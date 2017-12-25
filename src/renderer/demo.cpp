@@ -1,7 +1,9 @@
 #include "demo.h"
 #include "framebuffer.h"
+#include "importer.h"
 #include "math_detail.h"
 #include "math_util.h"
+#include "point_light.h"
 #include "vector.h"
 #include "vector_util.h"
 #include "SDL.h"
@@ -11,22 +13,27 @@ using namespace math;
 using namespace math::detail;
 using namespace std;
 
-demo::demo() :
-    fern(this) {
+demo::demo(bool verbose) :
+    fern(this),
+    slab(this) {
 
     create_fern();
+    importer::load_wavefront_object(slab, "slab.obj", materials(), verbose);
 }
 
 demo::~demo() {
 }
 
 void demo::compose() {
+    hide_all_meshes();
+
     switch (stage) {
     case fern_still:
-        compose_fern_still();
-        break;
     case fern_3d:
-        compose_fern_3d();
+        compose_fern();
+        break;
+    case slab_demo:
+        compose_slab_demo();
         break;
     default:
         break;
@@ -47,16 +54,18 @@ void demo::prerender(framebuffer &fb) {
 }
 
 void demo::render_dot_curve(framebuffer &fb) {
-    const float pi = math::detail::pi<float>();
     float cx = fb.pixel_width() / 2.0f;
     float cy = fb.pixel_height() / 2.0f;
 
-    for (float t = 10.0f; t < 200.0f ; t += 0.002f) {
-        float x1 = cx + (t + t * cos<float>(5.0f * t)) * cos<float>(t);
-        float y1 = cy + (t + t * sin<float>(3.0f * t)) * sin<float>(t);
-        fb.set_pixel(x1, y1, color(fabs(sin<float>(t)),
-                                   fabs(sin<float>(t / 200.0f * pi)),
-                                   fabs(sin<float>(t + pi / 2.0f)),
+    float t = clock.seconds() / 10.0f;
+
+    for (float u = 0.0f; u < 200.0f ; u += 0.08f) {
+        float v = t + u;
+        float x1 = cx + (v + v * cos<float>(5.0f * v)) * cos<float>(v);
+        float y1 = cy + (v + v * sin<float>(3.0f * v)) * sin<float>(v);
+        fb.set_pixel(x1, y1, color(fabs(sin<float>(v)),
+                                   fabs(sin<float>(v / 200.0f * pi<float>())),
+                                   fabs(sin<float>(v + pi<float>() / 2.0f)),
                                    1.0f));
     }
 }
@@ -75,33 +84,51 @@ void demo::render_line_spiral(framebuffer &fb) {
     }
 }
 
-void demo::compose_fern_still() {
-    set_eye_position(vector3f{3, 4, 10});
-    set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
-    set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
+void demo::compose_fern() {
+    float t = 0.0;
+
+    if (stage == fern_3d)
+        t = clock.seconds();
     
-    set_fov(120.0f / (2.0f * math::detail::pi<float>()));
+    fern.set_visibility(true);
+
+    fern.set_position(0.0f, 0.0f, 0.0f);
+    fern.set_rotation(0.0f, 0.0f, 0.0f);
+
+    float eye_x = 5.0f * (cos<float>(0.1f * sin(t) + pi<float>() / 2.0f));
+    float eye_y = 3.0f + 0.2f * sin(0.5f * t);
+    float eye_z = 5.0f * (sin<float>(0.1f * sin(t) + pi<float>() / 2.0f));
+    
+    set_eye_position(vector3f{eye_x, eye_y, eye_z});
+    set_eye_reference_point(vector3f{0.0f, eye_y, 0.0f});
+    set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
+
+    set_fov((90.0f / 360.0) * (2.0f * math::detail::pi<float>()));
 }
 
-void demo::compose_fern_3d() {
+void demo::compose_slab_demo() {
     float t = clock.seconds();
+    slab.set_visibility(true);
 
-    float eye_x = 3.0f * cos<float>(0.4f * t);
-    float eye_y = 4.0f + 3.0f * sin<float>(0.5f * t);
-    float eye_z = 10.0f + sin<float>(0.6f * t);
-
-    set_eye_position(vector3f{eye_x, eye_y, eye_z});
-    set_eye_reference_point(vector3f{0.0f, 4.0f, 0.0f});
+    set_eye_position(vector3f{0.0f, 0.0f, 10.0f});
+    set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
 
-    set_fov(120.0f / (2.0f * math::detail::pi<float>()));
+    set_fov((90.0f / 360.0) * (2.0f * math::detail::pi<float>()));
+
+    slab.set_position(0.0f, 0.0f, 0.0f);
+    slab.set_rotation(t, 0.0f, 0.1f);
+
+    light_sources().clear();
+    light_sources().set_ambient_light(color(1.0f, 1.0f, 1.0f, 1.0f));
+    light_sources().add_light(point_light(vector3f{0.0f, -10.0f, -10.0f}, color(1.0f, 0.0f, 0.0f, 1.0f)));
+    light_sources().add_light(point_light(vector3f{0.0f, -10.0f, -11.0f}, color(0.0f, 1.0f, 0.0f, 1.0f)));
+    light_sources().add_light(point_light(vector3f{0.0f, -10.0f, -12.0f}, color(0.0f, 0.0f, 1.0f, 1.0f)));
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
-    if (ctrl_is_down) {
-        if (sdl_keycode == SDLK_c)
-            show_coord_sys = !show_coord_sys;
-    }
+    if (ctrl_is_down)
+        ;
     else {
         if (sdl_keycode == SDLK_PAGEUP) {
             if (stage > min_stage) {
@@ -167,8 +194,13 @@ void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int 
             float angle = 2.0f * pi * b / branches_per_node;
             vector3f branch_normal_direction = around_axis(stem_unit_normal, stem, angle);
             vector3f branch_direction = (branch_normal_direction + stem_direction).unit();
-            
+
             create_fern_recursive(branch_root, branch_root + branch_length_from_node * branch_direction, generations - 1);
         }
     }
+}
+
+void demo::hide_all_meshes() {
+    fern.set_visibility(false);
+    slab.set_visibility(false);
 }

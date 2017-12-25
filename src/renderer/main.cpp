@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
             window win(cl.width(), cl.height());
             
             if (cl.scene_mode() == command_line::auto_scene) {
-                auto_scene sc(cl.object_filename(), cl.verbose(), auto_scene::as_is);
+                auto_scene sc(cl.object_filename(), cl.verbose(), auto_scene::bounding_box_touches_origin);
                 return win.run(sc);
             }
             else {
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
                     std::cout << "scene: " << cl.scene_name() << std::endl;
                 
                 if (cl.scene_name() == "demo") {
-                    demo sc;
+                    demo sc(cl.verbose());
                     return win.run(sc);
                 }
                 else if (cl.scene_name() == "alpha") {
