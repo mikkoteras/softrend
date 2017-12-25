@@ -13,4 +13,10 @@ namespace util {
             return "<not valid>";
         }
     }
+
+    std::string to_string(const bounding_box &box) {
+        std::ostringstream result;
+        result << "[ " << to_string(box.min()) << " " << to_string(box.max()) << " ]";
+        return result.str();
+    }
 }

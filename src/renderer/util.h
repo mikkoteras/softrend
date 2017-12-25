@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include "bounding_box.h"
 #include "matrix.h"
 #include "types.h"
 #include "vector.h"
@@ -27,7 +28,7 @@ namespace util {
     }
 
     template<typename float_t, int rows, int columns>
-        std::string to_string(const math::matrix<float_t, rows, columns> &mat, bool with_newlines = true) {
+    std::string to_string(const math::matrix<float_t, rows, columns> &mat, bool with_newlines = true) {
         size_t cell_width = 0;
         
         for (int y = 0; y < rows; ++y)
@@ -55,8 +56,9 @@ namespace util {
 
         return result.str();
     }
-        
+
     std::string to_string(shading_model_t model);
+    std::string to_string(const bounding_box &box);
 }
 
 #endif
