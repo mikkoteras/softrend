@@ -29,7 +29,7 @@ alpha_test::alpha_test(bool verbose) :
     light_sources().set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
     light_sources().add_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, color(0.5f, 0.5f, 0.5f, 1.0f)));
 
-    set_eye_position(vector3f{0.0f, 0.0f, 10.0f});
+    set_eye_position(vector3f{0.0f, 0.0f, 5.0f});
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
     set_fov((120.0f / 360.0) * (2.0f * math::detail::pi<float>()));
@@ -43,19 +43,19 @@ void alpha_test::compose() {
 
     float t = clock.seconds();
 
-    backdrop.set_scaling(.5f, .5f, .5f);
+    backdrop.set_scaling(6.0f, 6.0f, 6.0f);
     backdrop.set_position(0, 0, -10);
 
     red_icosa.set_rotation(0, t, t / 10.0f);
-    red_icosa.set_position(2.0f * cos<float>(t),
+    red_icosa.set_position(3.0f * cos<float>(t),
                            0,
-                           -5.0f - 2.0f * cos<float>(t));
+                           -1.5f * sin<float>(t));
     green_icosa.set_rotation(0, t, t / 10.0f);
-    green_icosa.set_position(2.0f * cos<float>(t + 1.0f / 3.0f * 2.0f * pi<float>()),
+    green_icosa.set_position(3.0f * cos<float>(t + 2.0f * pi<float>() / 3.0f),
                              0,
-                             -5.0f - 2.0f * sin<float>(t + 1.0f / 3.0f * 2.0f * pi<float>()));
+                             -1.5f * sin<float>(t + 2.0f * pi<float>() / 3.0f));
     blue_icosa.set_rotation(0, t, t / 10.0f);
-    blue_icosa.set_position(2.0f * cos<float>(t + 2.0f / 3.0f * 2.0f * pi<float>()),
+    blue_icosa.set_position(3.0f * cos<float>(t + 4.0f * pi<float>() / 3.0f),
                             0,
-                            -5.0f - 2.0f * sin<float>(t + 2.0f / 3.0f * 2.0f * pi<float>()));
+                            -1.5f * sin<float>(t + 4.0f * pi<float>() / 3.0f));
 }
