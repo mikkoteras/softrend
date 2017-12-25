@@ -64,7 +64,7 @@ color color::operator*(float rhs) const {
 }
 
 color color::operator/(float rhs) const {
-    return color(r / rhs, g / rhs, b / rhs, a * rhs);
+    return color(r / rhs, g / rhs, b / rhs, a / rhs);
 }
 
 color &color::operator+=(const color &rhs) {
