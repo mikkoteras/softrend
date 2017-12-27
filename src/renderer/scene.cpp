@@ -250,8 +250,10 @@ void scene::transform_coordinates() {
         int min = m->min_normal_index();
         int max = m->max_normal_index();
 
-        for (int i = min; i <= max; ++i)
+        for (int i = min; i <= max; ++i) {
             world_normals[i] = (local_to_world * local_normals[i]).dehomo();
+            world_normals[i].normalize();
+        }
 
         min = m->min_vertex_index();
         max = m->max_vertex_index();
