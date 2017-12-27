@@ -8,6 +8,7 @@ namespace math {
         template<typename float_t> float_t tan(float_t t);
         template<typename float_t> float_t asin(float_t t);
         template<typename float_t> float_t acos(float_t t);
+        template<typename float_t> float_t abs(float_t t);
         template<typename float_t> float_t floor(float_t t);
 
         template<typename float_t> float_t pi();

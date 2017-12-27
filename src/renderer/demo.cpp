@@ -71,16 +71,25 @@ void demo::render_dot_curve(framebuffer &fb) {
 }
 
 void demo::render_line_spiral(framebuffer &fb) {
-    const float pi = detail::pi<float>();
     float cx = fb.pixel_width() / 2.0f;
     float cy = fb.pixel_height() / 2.0f;
 
-    for (float t = 10.0f; t < 500.0f; t += 1.5f) {
-        float x1 = cx + t * cos<float>(0.1f * t);
-        float y1 = cy + t * sin<float>(0.1f * t);
-        float x2 = cx + 1.2f * t * cos<float>(0.1f * t + pi / 4.0f);
-        float y2 = cy + 1.2f * t * sin<float>(0.1f * t + pi / 4.0f);
-        line::render(fb, x1, y1, 0, color(1, t / 500.0f, 0, 1), x2, y2, 0, color(0, t / 500.f, 1, 1));
+    float t = clock.seconds();
+    
+    for (float s = 10.0f; s < 1000.0f; s += 0.5f) {
+        float x0 = cx + s * cos<float>(0.1f * s);
+        float y0 = cy + s * sin<float>(0.1f * s);
+
+        float dx = 0.05f * s * cos<float>(s + t);
+        float dy = 0.05f * s * sin<float>(s + t);
+        
+        float x1 = x0 - dx, x2 = x0 + dx;
+        float y1 = y0 - dy, y2 = y0 + dy;
+
+        color c1(abs<float>(cos<float>(t)), 0.0f, abs<float>(sin<float>(t + s)), 1.0f);
+        color c2(abs<float>(sin<float>(s)), 0.0f, abs<float>(cos<float>(t + s)), 1.0f);
+
+        line::render(fb, x1, y1, 0, c1, x2, y2, 0, c2);
     }
 }
 
