@@ -178,7 +178,7 @@ void triangle::render_flat(framebuffer &target, const scene &parent_scene) const
 void triangle::render_gouraud(framebuffer &target, const scene &parent_scene) const {
     const vector3f *world_data = parent_scene.world_coordinate_data();
     const vector3f *world_normal = parent_scene.world_normal_data();
-    
+
     for (int i = 0; i < 3; ++i) {
         vector3f vertex = world_data[vertex_index[i]];
         render_context.vtx(i).shade = mat->shade_phong(vertex,
@@ -248,10 +248,13 @@ void triangle::render_smooth_phong(framebuffer &target, const scene &parent_scen
 
 void triangle::render_flat_phong(framebuffer &target, const scene &parent_scene) const {
     const vector3f *world_normal = parent_scene.world_normal_data();
-    render_context.surface_normal = vector3f{0.0f, 0.0f, 0.0f};
 
-    for (int i = 0; i < 3; ++i) // TODO refactor
-        render_context.surface_normal += world_normal[normal_index[i]];
+    if (has_distinct_normals)
+        render_context.surface_normal = world_normal[normal_index[0]];
+    else
+        render_context.surface_normal = (world_normal[normal_index[0]] +
+                                         world_normal[normal_index[1]] +
+                                         world_normal[normal_index[2]]) / 3.0f;
 
     if (render_context.tex && has_uv_coordinates) {
         for (int i = 0; i < 3; ++i) {
