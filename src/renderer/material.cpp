@@ -93,7 +93,6 @@ void material::set_dissolve(float value, bool halo) {
     dissolve_halo = halo;
 }
 
-
 void material::set_specular_exponent(float value) {
     specular_exponent = value;
 }
