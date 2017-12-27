@@ -102,6 +102,11 @@ void mesh::set_visibility(bool val) {
     is_visible = val;
 }
 
+void mesh::set_scaling(float s) {
+    scaling = linear_transforms::scale3<float>(s);
+    local_to_world_transformation_dirty = true;
+}
+
 void mesh::set_scaling(float x, float y, float z) {
     scaling = linear_transforms::scale3<float>(x, y, z);
     local_to_world_transformation_dirty = true;

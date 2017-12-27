@@ -37,6 +37,7 @@ public: // for geometry creation (mostly importer)
 public: // for scene, composition
     bool get_visibility() const;
     void set_visibility(bool val);
+    void set_scaling(float s);
     void set_scaling(float x, float y, float z);
     void set_rotation(float x, float y, float z);
     void set_position(float x, float y, float z);
