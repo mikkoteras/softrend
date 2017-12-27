@@ -18,7 +18,9 @@ demo::demo(bool verbose) :
     slab(this) {
 
     create_fern();
+
     importer::load_wavefront_object(slab, "slab.obj", materials(), verbose);
+    slab.set_scaling(1.0f / slab.local_bounding_box().max_semiaxis());
 }
 
 demo::~demo() {
@@ -107,7 +109,7 @@ void demo::compose_fern() {
     float eye_x = 5.0f * (cos<float>(0.1f * sin(t) + pi<float>() / 2.0f));
     float eye_y = 3.0f + 0.2f * sin(0.5f * t);
     float eye_z = 5.0f * (sin<float>(0.1f * sin(t) + pi<float>() / 2.0f));
-    
+
     set_eye_position(vector3f{eye_x, eye_y, eye_z});
     set_eye_reference_point(vector3f{0.0f, eye_y, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
@@ -119,20 +121,20 @@ void demo::compose_slab_demo() {
     float t = clock.seconds();
     slab.set_visibility(true);
 
-    set_eye_position(vector3f{0.0f, 0.0f, 10.0f});
+    set_eye_position(vector3f{0.0f, 0.0f, 3.0f});
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});
     set_eye_orientation(vector3f{0.0f, 1.0f, 0.0f});
 
     set_fov((90.0f / 360.0) * (2.0f * math::detail::pi<float>()));
 
     slab.set_position(0.0f, 0.0f, 0.0f);
-    slab.set_rotation(t, 0.0f, 0.1f);
+    slab.set_rotation(0.8f * sin<float>(0.6f * t) + 0.8f, 0.0f, 0.1f);
 
     light_sources().clear();
-    light_sources().set_ambient_light(color(1.0f, 1.0f, 1.0f, 1.0f));
-    light_sources().add_light(point_light(vector3f{0.0f, -10.0f, -10.0f}, color(1.0f, 0.0f, 0.0f, 1.0f)));
-    light_sources().add_light(point_light(vector3f{0.0f, -10.0f, -11.0f}, color(0.0f, 1.0f, 0.0f, 1.0f)));
-    light_sources().add_light(point_light(vector3f{0.0f, -10.0f, -12.0f}, color(0.0f, 0.0f, 1.0f, 1.0f)));
+    light_sources().set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 1.0f}, color(1.0f, 0.0f, 0.0f, 1.0f)));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 6.0f}, color(0.0f, 1.0f, 0.0f, 1.0f)));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 11.0f}, color(0.0f, 0.0f, 1.0f, 1.0f)));
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
