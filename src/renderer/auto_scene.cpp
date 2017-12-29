@@ -110,6 +110,8 @@ void auto_scene::toggle_lights() {
 }
 
 void auto_scene::compose() {
+    freecam_scene::compose();
+
     float t = clock.seconds();
     float delta_t = t - previous_render_time;
     previous_render_time = t;
