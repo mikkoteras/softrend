@@ -261,6 +261,9 @@ importer::importer(const path &source) :
     if (!p.empty())
         current_path(p);
 
+    if (!input.is_open() || input.fail() || input.eof())
+        throw importer_exception();
+
     advance_to_next_line();
 }
 
