@@ -25,7 +25,7 @@ void freecam_scene::set_point_of_interest(const math::vector3f &p) {
     point_of_interest = p;
 }
 
-void freecam_scene::prerender(framebuffer&) {
+void freecam_scene::compose() {
     // Normalize spherical coordinates
     const float pi = detail::pi<float>();
 
