@@ -27,6 +27,26 @@ material *material::create(int illum) {
         throw unsupported_material_exception();
 }
 
+color material::diffuse_texture_map(const math::vector2f &uv) const {
+    color result;
+    
+    if (diffuse_map)
+        result = diffuse_map->at(uv);
+    else
+        result = color(1.0f, 1.0f, 1.0f, 1.0f);
+
+    result.alpha() = get_dissolve();
+    return result;
+}
+
+bool material::is_textured() const {
+    return ambient_map || diffuse_map || specular_map || emissive_map;
+}
+
+bool material::is_colored() const {
+    return !is_textured();
+}
+
 illumination_model_t material::get_illumination_model() const {
     return illumination_model;
 }
@@ -47,10 +67,6 @@ const color &material::get_emissivity() const {
     return emissivity;
 }
 
-const color &material::get_transmission_filter() const {
-    return transmission_filter;
-}
-
 float material::get_specular_exponent() const {
     return specular_exponent;
 }
@@ -63,8 +79,20 @@ bool material::get_dissolve_halo() const {
     return dissolve_halo;
 }
 
-const texture *material::get_texture_map() const {
-    return tex;
+const texture *material::get_ambient_map() const {
+    return ambient_map;
+}
+
+const texture *material::get_diffuse_map() const {
+    return diffuse_map;
+}
+
+const texture *material::get_specular_map() const {
+    return specular_map;
+}
+
+const texture *material::get_emissive_map() const {
+    return emissive_map;
 }
 
 void material::set_ambient_reflectivity(const color &col) {
@@ -84,10 +112,6 @@ void material::set_emissivity(const color &col) {
     emissivity = col;
 }
 
-void material::set_transmission_filter(const color &col) {
-    transmission_filter = col;
-}
-
 void material::set_dissolve(float value, bool halo) {
     dissolve = value;
     dissolve_halo = halo;
@@ -97,22 +121,46 @@ void material::set_specular_exponent(float value) {
     specular_exponent = value;
 }
 
-float material::get_sharpness() const {
-    return sharpness;
+void material::set_ambient_map(const texture *t) {
+    ambient_map = t;
 }
 
-void material::set_sharpness(float value) {
-    sharpness = value;
+void material::set_diffuse_map(const texture *t) {
+    diffuse_map = t;
 }
 
-float material::get_optical_density() const {
-    return optical_density;
+void material::set_specular_map(const texture *t) {
+    specular_map = t;
 }
 
-void material::set_optical_density(float value) {
-    optical_density = value;
+void material::set_emissive_map(const texture *t) {
+    emissive_map = t;
 }
 
-void material::set_texture_map(const texture *t) {
-    tex = t;
+color material::ambient_color_at(const vector2f &uv) const {
+    if (ambient_map)
+        return ambient_reflectivity * ambient_map->at(uv);
+    else
+        return ambient_reflectivity;
+}
+
+color material::diffuse_color_at(const vector2f &uv) const {
+    if (diffuse_map)
+        return diffuse_reflectivity * diffuse_map->at(uv);
+    else
+        return diffuse_reflectivity;
+}
+
+color material::specular_color_at(const vector2f &uv) const {
+    if (specular_map)
+        return specular_reflectivity * specular_map->at(uv);
+    else
+        return specular_reflectivity;
+}
+
+color material::emissive_color_at(const vector2f &uv) const {
+    if (emissive_map)
+        return emissivity * emissive_map->at(uv);
+    else
+        return emissivity;
 }

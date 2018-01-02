@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 
+using namespace math;
 using namespace std;
 
 texture::texture() :
@@ -70,8 +71,16 @@ texture &texture::operator=(texture &&rhs) {
     return *this;
 }
 
+int texture::pixel_width() const {
+    return width;
+}
+
+int texture::pixel_height() const {
+    return height;
+}
+
 texture texture::load_png(const std::string &filename) {
-    vector<unsigned char> rgba;
+    std::vector<unsigned char> rgba;
     unsigned width, height;
     unsigned error = lodepng::decode(rgba, width, height, filename);
 
@@ -83,12 +92,20 @@ texture texture::load_png(const std::string &filename) {
         return texture(rgba, width, height);
 }
 
-int texture::pixel_width() const {
-    return width;
+int texture::index_at_point(const vector2f &uv) const {
+    return index_at_point(uv[0], uv[1]);
 }
 
-int texture::pixel_height() const {
-    return height;
+int texture::index_at_point(float u, float v) const {
+    // Normalize coords to get wraparound effect when
+    // a coordinate <0 or >1.
+    int xi = (u - math::detail::floor<float>(u)) * max_x;
+    int yi = (1.0f - (v - math::detail::floor<float>(v))) * max_y;
+    return yi * width + xi;
+}
+
+const color &texture::at(const vector2f &uv) const {
+    return at(uv[0], uv[1]);
 }
 
 const color &texture::at(float u, float v) const {
@@ -97,4 +114,8 @@ const color &texture::at(float u, float v) const {
     int xi = (u - math::detail::floor<float>(u)) * max_x;
     int yi = (1.0f - (v - math::detail::floor<float>(v))) * max_y;
     return pixels[yi * width + xi];
+}
+
+const color &texture::at(int i) const {
+    return pixels[i];
 }

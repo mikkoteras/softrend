@@ -4,23 +4,23 @@
 #include <limits>
 #include <iostream>
 
+using namespace math;
 using namespace std;
 using namespace std::experimental::filesystem;
-using namespace math;
 
 void importer::load_wavefront_object(mesh &target,
                                      const std::experimental::filesystem::path &filename,
                                      material_library &lib,
                                      bool verbose) {
     try {
-        importer imp(filename);
+        importer imp(filename, verbose);
 
         const float infty = numeric_limits<float>::infinity();
         vector4f box_min{infty, infty, infty, 1};
         vector4f box_max{-infty, -infty, -infty, 1};
         int vertices = 0, polys = 0;
         const material *current_material = lib.get_null_material();
-        std::vector<vector3f> texture_coordinates;
+        std::vector<vector2f> texture_coordinates;
 
         while (!imp.eof()) {
             string command = imp.accept_command();
@@ -37,7 +37,7 @@ void importer::load_wavefront_object(mesh &target,
                 target.add_vertex_normal(point);
             }
             else if (command == "vt") {
-                vector3f point = imp.parse_ws_separated_uv_coords();
+                vector2f point = imp.parse_ws_separated_uv_coords();
                 texture_coordinates.push_back(point);
             }
             else if (command == "mtllib") {
@@ -139,11 +139,14 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
         bool dissolve_halo = false;
         float sharpness = 0.0f;
         float optical_density = 0.0f;
-        const texture *texture_map = nullptr;
+        const texture *ambient_map = nullptr;
+        const texture *diffuse_map = nullptr;
+        const texture *specular_map = nullptr;
+        const texture *emissive_map = nullptr;
     };
 
     try {
-        importer imp(filename);
+        importer imp(filename, verbose);
         
         bool material_being_constructed = false;
         material_spec spec;
@@ -162,9 +165,10 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                     mat->set_emissivity(spec.emissivity);
                     mat->set_specular_exponent(spec.specular_exponent);
                     mat->set_dissolve(spec.dissolve, spec.dissolve_halo);
-
-                    if (spec.texture_map)
-                        mat->set_texture_map(spec.texture_map);
+                    mat->set_ambient_map(spec.ambient_map);
+                    mat->set_diffuse_map(spec.diffuse_map);
+                    mat->set_specular_map(spec.specular_map);
+                    mat->set_emissive_map(spec.emissive_map);
 
                     bool added = lib.add_material(spec.material_name, unique_ptr<material>(mat));
 
@@ -209,22 +213,22 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                 spec.sharpness = imp.accept_float();
             else if (command == "Ni")
                 spec.optical_density = imp.accept_float();
-            else if (command == "map_Ka") {
-                cerr << "map_Ka is not yet supported." << endl;
-                throw importer_exception();
-            }
-            else if (command == "map_Kd") {
+            else if (command == "map_Ka" || command == "map_Kd" || command == "map_Ks" || command == "map_Ke") {
                 string png_filename = imp.accept_until_eol();
                 lib.add_texture(png_filename, png_filename);
-                spec.texture_map = lib.get_texture(png_filename);
-            }
-            else if (command == "map_Ks" || command == "map_Ns" || command == "map_d" ||
-                     command == "disp" || command == "decal" || command == "bump" || command == "refl") {
-                cerr << command << " is not yet supported." << endl;
-                throw importer_exception();
+                const texture *tex = lib.get_texture(png_filename);
+
+                if (command == "map_Ka")
+                    spec.ambient_map = tex;
+                else if (command == "map_Kd")
+                    spec.diffuse_map = tex;
+                else if (command == "map_Ks")
+                    spec.specular_map = tex;
+                else
+                    spec.emissive_map = tex;
             }
             else {
-                cerr << "Unknown command " << command << "." << endl;
+                cerr << "Unsupported command " << command << "." << endl;
                 throw importer_exception();
             }
             
@@ -239,11 +243,15 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
             mat->set_emissivity(spec.emissivity);
             mat->set_specular_exponent(spec.specular_exponent);
             mat->set_dissolve(spec.dissolve, spec.dissolve_halo);
-            
-            if (spec.texture_map)
-                mat->set_texture_map(spec.texture_map);
+            mat->set_ambient_map(spec.ambient_map);
+            mat->set_diffuse_map(spec.diffuse_map);
+            mat->set_specular_map(spec.specular_map);
+            mat->set_emissive_map(spec.emissive_map);
 
-            lib.add_material(spec.material_name, unique_ptr<material>(mat));
+            bool added = lib.add_material(spec.material_name, unique_ptr<material>(mat));
+
+            if (added && verbose)
+                cout << "imported material " << spec.material_name << " (from " << filename << ")"  << endl;
         }
     }
     catch (...) {
@@ -251,9 +259,12 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
     }
 }
 
-importer::importer(const path &source) :
+bool importer::uvw_warning_given = false;
+
+importer::importer(const path &source, bool verbose) :
     input(source.c_str()),
-    at_eof(false) {
+    at_eof(false),
+    verbose(verbose) {
 
     original_working_directory = current_path();
     path p = path(source).parent_path();
@@ -280,13 +291,19 @@ vector3f importer::parse_ws_separated_3d_point() {
     return point;
 }
 
-vector3f importer::parse_ws_separated_uv_coords() {
-    vector3f point{0.0f, 0.0f, 0.0f};
+vector2f importer::parse_ws_separated_uv_coords() {
+    vector2f point{0.0f, 0.0f};
     point[0] = accept_float();
     point[1] = accept_float();
 
-    if (!line_ends())
-        point[2] = accept_float();
+    if (!line_ends()) {
+        float w = accept_float();
+
+        if (w != 0.0f && verbose && !uvw_warning_given) {
+            cout << "Warning: only 2D texture coordinates are supported." << endl;
+            uvw_warning_given = true;
+        }
+    }
 
     return point;
 }

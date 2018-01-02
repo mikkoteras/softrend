@@ -19,7 +19,7 @@ public:
     triangle();
     triangle(int vi1, int vi2, int vi3,
              int ni1, int ni2, int ni3,
-             const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+             const math::vector2f &uv1, const math::vector2f &uv2, const math::vector2f &uv3,
              const material *mat);
     triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat);
     triangle(const triangle &rhs);
@@ -62,7 +62,7 @@ private:
 
 private:
     int vertex_index[3]; // indices to parent mesh's vertex data
-    math::vector3f vertex_uv[3];
+    math::vector2f vertex_uv[3];
     int normal_index[3]; // indices to parent mesh's normal data
     const material *mat;
 
