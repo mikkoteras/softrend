@@ -16,12 +16,19 @@ public:
     ~material();
 
     static material *create(int illumination_model);
-    
-    virtual color shade_flat(const math::vector3f &surface_midpoint, const math::vector3f &surface_normal_unit,
-                             const light_list &light_sources) const = 0;
-    virtual color shade_phong(const math::vector3f &surface_point, const math::vector3f &surface_normal_unit,
-                              const math::vector3f &point_to_eye_unit, const light_list &light_sources) const = 0;
 
+    virtual color shade(const math::vector3f &surface_point, // with texture
+                        const math::vector3f &surface_normal_unit,
+                        const math::vector3f &point_to_eye_unit,
+                        const math::vector2f &uv_coordinates,
+                        const light_list &light_sources) const = 0;
+    virtual color shade(const math::vector3f &surface_point, // without texture
+                        const math::vector3f &surface_normal_unit,
+                        const math::vector3f &point_to_eye_unit,
+                        const light_list &light_sources) const = 0;
+    color diffuse_texture_map(const math::vector2f &uv_coordinates) const; // diffuse map color only
+    bool is_textured() const;
+    bool is_colored() const;
 
 public:
     illumination_model_t get_illumination_model() const;
@@ -29,24 +36,30 @@ public:
     const color &get_diffuse_reflectivity() const;
     const color &get_specular_reflectivity() const;
     const color &get_emissivity() const;
-    const color &get_transmission_filter() const;
     float get_specular_exponent() const;
     float get_dissolve() const;
     bool get_dissolve_halo() const;
-    float get_sharpness() const;
-    float get_optical_density() const;
-    const texture *get_texture_map() const;
+    const texture *get_ambient_map() const;
+    const texture *get_diffuse_map() const;
+    const texture *get_specular_map() const;
+    const texture *get_emissive_map() const;
     
     void set_ambient_reflectivity(const color &col);
     void set_diffuse_reflectivity(const color &col);
     void set_specular_reflectivity(const color &col);
     void set_emissivity(const color &col);
-    void set_transmission_filter(const color &col);
     void set_dissolve(float value, bool halo);
     void set_specular_exponent(float value);
-    void set_sharpness(float value);
-    void set_optical_density(float value);
-    void set_texture_map(const texture *t);
+    void set_ambient_map(const texture *t);
+    void set_diffuse_map(const texture *t);
+    void set_specular_map(const texture *t);
+    void set_emissive_map(const texture *t);
+
+protected:
+    color ambient_color_at(const math::vector2f &uv) const;
+    color diffuse_color_at(const math::vector2f &uv) const;
+    color specular_color_at(const math::vector2f &uv) const;
+    color emissive_color_at(const math::vector2f &uv) const;
 
 private:
     illumination_model_t illumination_model;
@@ -54,14 +67,14 @@ private:
     color diffuse_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color specular_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color emissivity = color(0.0f, 0.0f, 0.0f, 1.0f);
-    color transmission_filter = color(1.0f, 1.0f, 1.0f, 1.0f);
     float dissolve = 0.0f;
     float dissolve_halo = false;
     float specular_exponent = 100.0f;
-    float sharpness = 60.0f;
-    float optical_density = 1.0f;
 
-    const texture *tex = nullptr;
+    const texture *ambient_map = nullptr;
+    const texture *diffuse_map = nullptr;
+    const texture *specular_map = nullptr;
+    const texture *emissive_map = nullptr;
 };
 
 #endif

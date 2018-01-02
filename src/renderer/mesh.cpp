@@ -58,7 +58,7 @@ int mesh::add_line(const math::vector3f &v1, const math::vector3f &v2, const col
 
 int mesh::add_triangle(int vi1, int vi2, int vi3,
                         int ni1, int ni2, int ni3,
-                        const vector3f &uv1, const vector3f &uv2, const vector3f &uv3,
+                        const vector2f &uv1, const vector2f &uv2, const vector2f &uv3,
                         const material *mat) {
     bool first_triangle = last_triangle_index < 0;
     last_triangle_index = parent_scene->add_triangle(vi1 + first_vertex_index,

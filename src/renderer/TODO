@@ -2,6 +2,7 @@ Missing features
 ================
 
 * Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/
+* Add classes to encapsulate the solid color v. mapped color decision.
 * Fix line plotting bugs:
     - z-lines near the horizon are botched.
 * Fix triangle plotting bugs:

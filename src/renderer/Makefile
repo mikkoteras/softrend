@@ -8,10 +8,10 @@ SOURCES=alpha_test.cpp \
         bounding_box.cpp \
         color.cpp \
         command_line.cpp \
-	constant_color_material.cpp \
+        constant_color_material.cpp \
         coordinate_system.cpp \
         demo.cpp \
-	diffuse_material.cpp \
+        diffuse_material.cpp \
         directional_light.cpp \
         framebuffer.cpp \
         freecam_scene.cpp \
@@ -27,7 +27,8 @@ SOURCES=alpha_test.cpp \
         point_light.cpp \
         scene.cpp \
         scene_info.cpp \
-	specular_material.cpp \
+        specular_material.cpp \
+        surface_position.cpp \
         texture.cpp \
         triangle.cpp \
         triangle_render.cpp \

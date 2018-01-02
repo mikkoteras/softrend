@@ -25,7 +25,7 @@ private:
     static void load_wavefront_materials(const std::string &filename, material_library &lib, bool verbose = false);
 
 private: // [sic]
-    importer(const std::experimental::filesystem::path &source);
+    importer(const std::experimental::filesystem::path &source, bool verbose);
     ~importer();
 
     importer() = delete;
@@ -36,7 +36,7 @@ private: // [sic]
 
 private:
     math::vector3f parse_ws_separated_3d_point();
-    math::vector3f parse_ws_separated_uv_coords(); // uv or uvw
+    math::vector2f parse_ws_separated_uv_coords();
     color parse_material_vector(); // color or illumination
     void ensure_known_vector_format();
 
@@ -59,6 +59,9 @@ private:
     static void chomp(std::string &s);
 
 private:
+    static bool uvw_warning_given;
+
+private:
     std::experimental::filesystem::path original_working_directory;
 
     std::string filename;
@@ -66,6 +69,7 @@ private:
     std::string current_line;
     std::istringstream line_parse;
     bool at_eof;
+    bool verbose;
 };
 
 #endif

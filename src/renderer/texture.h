@@ -3,6 +3,7 @@
 
 #include "color.h"
 #include <vector>
+#include "vector.h"
 
 class texture_error {};
 
@@ -17,7 +18,7 @@ public:
 
     texture &operator=(texture &&rhs);
     const texture &operator=(const texture &rhs);
-    
+
     int pixel_width() const;
     int pixel_height() const;
 
@@ -25,7 +26,12 @@ public:
     static texture load_png(const std::string &filename);
 
 public:
-    const color &at(float x, float y) const;
+    int index_at_point(const math::vector2f &uv) const;
+    int index_at_point(float u, float v) const;
+
+    const color &at(const math::vector2f &uv) const;
+    const color &at(float u, float v) const;
+    const color &at(int i) const;
 
 private:
     int width, height;

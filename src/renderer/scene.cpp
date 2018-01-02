@@ -125,7 +125,7 @@ int scene::add_line(int v1, int v2, const color &c1, const color &c2) {
 
 int scene::add_triangle(int vi1, int vi2, int vi3,
                         int ni1, int ni2, int ni3,
-                        const math::vector3f &uv1, const math::vector3f &uv2, const math::vector3f &uv3,
+                        const math::vector2f &uv1, const math::vector2f &uv2, const math::vector2f &uv3,
                         const material *mat) {
     triangles.push_back(triangle(vi1, vi2, vi3, ni1, ni2, ni3, uv1, uv2, uv3, mat));
     return static_cast<int>(triangles.size() - 1);
