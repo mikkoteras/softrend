@@ -21,6 +21,7 @@ public:
 
     int pixel_width() const;
     int pixel_height() const;
+    bool has_transparency() const;
 
 public:
     static texture load_png(const std::string &filename);
@@ -36,6 +37,7 @@ public:
 private:
     int width, height;
     int max_x, max_y;
+    bool transparency;
     std::vector<color> pixels;
 };
 

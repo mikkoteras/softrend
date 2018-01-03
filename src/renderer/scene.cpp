@@ -297,13 +297,25 @@ void scene::render_triangles(framebuffer &fb) {
         }
     }
 
-    // draw triangles in order of distance from the screen
-    // TODO: opaque v. translucent polys in different lists, reverse painter's etc
+    // sort triangles, first is furthest forward from the screen
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
 
-    for (int i = 0; i < triangle_count; ++i)
-        triangles[triangle_order[i].triangle_index].render(fb, *this);
+    // render opaque triangles using reverse painter's algorithm
+    for (int i = triangle_count - 1; i >= 0; --i) {
+        triangle &t = triangles[triangle_order[i].triangle_index];
+
+        if (!t.has_transparency())
+            t.render(fb, *this);
+    }
+
+    // superimpose translucent triangles using standard painter's algorithm
+    for (int i = 0; i < triangle_count; ++i) {
+        triangle &t = triangles[triangle_order[i].triangle_index];
+
+        if (t.has_transparency())
+            t.render(fb, *this);
+    }
 }
 
 void scene::overlay_wireframe_visualization(framebuffer &fb) {

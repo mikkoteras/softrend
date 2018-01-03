@@ -120,7 +120,7 @@ private:
 private:
     std::vector<math::vector4f> local_coordinates;
     std::vector<math::vector4f> local_normals;
-    std::vector<triangle> triangles;  // TODO: opaque v. transparent
+    std::vector<triangle> triangles;
     std::vector<triangle_distance> triangle_order;
     std::vector<line> lines;
     std::vector<mesh*> meshes;
