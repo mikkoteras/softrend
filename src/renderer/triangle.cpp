@@ -407,11 +407,13 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                       mat->shade(pixel.world_position,
-                                                  pixel.normal.unit(),
-                                                  (render_context.eye - pixel.world_position).unit(),
-                                                  *render_context.lights));
+            if (target.depth_at(x, y) < pixel.view_position.z())
+                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
+                                           mat->shade(pixel.world_position,
+                                                      pixel.normal.unit(),
+                                                      (render_context.eye - pixel.world_position).unit(),
+                                                      *render_context.lights));
+            
             pixel.add_vwn(delta); // TODO: skip view_position, use z alone
         }
 
@@ -452,12 +454,14 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const
         }
 
         for (; x <= max_x; ++x) {
-            color shade(mat->shade(pixel.world_position,
-                                   render_context.surface_normal,
-                                   (render_context.eye - pixel.world_position).unit(),
-                                   pixel.uv,
-                                   *render_context.lights));
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
+            if (target.depth_at(x, y) < pixel.view_position.z())
+                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
+                                           mat->shade(pixel.world_position,
+                                                      render_context.surface_normal,
+                                                      (render_context.eye - pixel.world_position).unit(),
+                                                      pixel.uv,
+                                                      *render_context.lights));
+
             pixel.add_vw(delta); // TODO: skip view_position, use z alone
         }
 
@@ -501,7 +505,9 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade * mat->diffuse_texture_map(pixel.uv));
+            if (target.depth_at(x, y) < pixel.view_position.z())
+                target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade * mat->diffuse_texture_map(pixel.uv));
+            
             pixel.add_vt(delta); // TODO: skip view_position, use z alone
         }
 
@@ -540,8 +546,10 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                       pixel.shade * mat->diffuse_texture_map(pixel.uv));
+            if (target.depth_at(x, y) < pixel.view_position.z())
+                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
+                                           pixel.shade * mat->diffuse_texture_map(pixel.uv));
+            
             pixel.add_vts(delta); // TODO: skip view_position, use z alone
         }
 
@@ -582,12 +590,14 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                       mat->shade(pixel.world_position,
-                                                  pixel.normal.unit(),
-                                                  (render_context.eye - pixel.world_position).unit(),
-                                                  pixel.uv,
-                                                  *render_context.lights));
+            if (target.depth_at(x, y) < pixel.view_position.z())
+                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
+                                           mat->shade(pixel.world_position,
+                                                      pixel.normal.unit(),
+                                                      (render_context.eye - pixel.world_position).unit(),
+                                                      pixel.uv,
+                                                      *render_context.lights));
+
             pixel.add_vwnt(delta); // TODO: skip view_position, use z alone
         }
 
@@ -628,12 +638,14 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                       mat->shade(pixel.world_position,
-                                                  render_context.surface_normal,
-                                                  (render_context.eye - pixel.world_position).unit(),
-                                                  pixel.uv,
-                                                  *render_context.lights));
+            if (target.depth_at(x, y) < pixel.view_position.z())         
+                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
+                                           mat->shade(pixel.world_position,
+                                                      render_context.surface_normal,
+                                                      (render_context.eye - pixel.world_position).unit(),
+                                                      pixel.uv,
+                                                      *render_context.lights));
+
             pixel.add_vwt(delta); // TODO: skip view_position, use z alone
         }
 

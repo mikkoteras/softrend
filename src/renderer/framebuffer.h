@@ -15,7 +15,7 @@ public:
 
     void set_pixel(int x, int y, const color &c);
     void set_pixel(int x, int y, float z, const color &c);
-    void set_pixel_unchecked(int x, int y, const color &c);
+    float depth_at(int x, int y) const;
     void set_pixel_unchecked(int x, int y, float z, const color &c);
     void clear();
     void clear(float gray);

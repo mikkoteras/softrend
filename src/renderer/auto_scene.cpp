@@ -116,6 +116,9 @@ void auto_scene::compose() {
     float delta_t = t - previous_render_time;
     previous_render_time = t;
 
+    x_rotation = -.40f;
+    y_rotation = .30f;
+    
     x_rotation += delta_t * x_rotation_per_second;
     y_rotation += delta_t * y_rotation_per_second;
     z_rotation += delta_t * z_rotation_per_second;
