@@ -134,7 +134,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
         color emissivity = color(0.0f, 0.0f, 0.0f, 1.0f);
         color transmission_filter = color(0.0f, 0.0f, 0.0f, 1.0f);
         float specular_exponent = 60.0f;
-        int illumination_model = 2;
+        illumination_model_t illumination_model = specular;
         float dissolve = 1.0f;
         bool dissolve_halo = false;
         float sharpness = 0.0f;
@@ -192,7 +192,7 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
             else if (command == "Tf")
                 spec.transmission_filter = imp.parse_material_vector();
             else if (command == "illum")
-                spec.illumination_model = imp.accept_int();
+                spec.illumination_model = static_cast<illumination_model_t>(imp.accept_int());
             else if (command == "d") {
                 if (imp.next_char_is('-')) {
                     string token = imp.accept_command();

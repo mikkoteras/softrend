@@ -15,7 +15,7 @@ public:
     material(illumination_model_t illum);
     ~material();
 
-    static material *create(int illumination_model);
+    static material *create(illumination_model_t illumination_model);
 
     virtual color shade(const math::vector3f &surface_point, // with texture
                         const math::vector3f &surface_normal_unit,

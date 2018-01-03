@@ -10,8 +10,8 @@ enum shading_model_t {
 
 enum illumination_model_t {
     constant_color = 0,
-    diffuse,
-    specular
+    diffuse = 1,
+    specular = 2
 };
 
 #endif

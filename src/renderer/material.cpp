@@ -16,12 +16,12 @@ material::material(illumination_model_t illum) :
 material::~material() {
 }
 
-material *material::create(int illum) {
-    if (illum == 0)
+material *material::create(illumination_model_t illum) {
+    if (illum == constant_color)
         return new constant_color_material();
-    else if (illum == 1)
+    else if (illum == diffuse)
         return new diffuse_material();
-    else if (illum == 2)
+    else if (illum == specular)
         return new specular_material();
     else
         throw unsupported_material_exception();
