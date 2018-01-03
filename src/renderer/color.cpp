@@ -1,5 +1,6 @@
 #include "color.h"
 #include "math_util.h"
+#include <cmath>
 #include <sstream>
 
 using namespace std;
@@ -92,9 +93,18 @@ void color::superimpose(const color &rhs) {
         b = rhs.b;
     }
     else {
-        r = (1.0f - rhs.a) * r + rhs.a * rhs.r;
-        g = (1.0f - rhs.a) * g + rhs.a * rhs.g;
-        b = (1.0f - rhs.a) * b + rhs.a * rhs.b;
+#if FMA_OPTIMIZE_COLOR_SUPERIMPOSE
+        float opaqueness = 1.0f - rhs.a;
+        r = fma(opaqueness, r, rhs.a * rhs.r);
+        g = fma(opaqueness, g, rhs.a * rhs.g);
+        b = fma(opaqueness, b, rhs.a * rhs.b);
+
+#else
+        float opaqueness = 1.0f - rhs.a;
+        r = opaqueness * r + rhs.a * rhs.r;
+        g = opaqueness * g + rhs.a * rhs.g;
+        b = opaqueness * b + rhs.a * rhs.b;
+#endif
     }
 
     a = 1.0f;

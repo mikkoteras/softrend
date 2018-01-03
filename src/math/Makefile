@@ -7,7 +7,7 @@ OBJS=$(patsubst %.cpp,%.o,$(SOURCES))
 
 DEP=g++
 DEPFLAGS=-E -MM
-INCLUDEDIRS=-I.
+INCLUDEDIRS=-I. -I..
 CC=g++
 CFLAGS=-c -ansi -Wall -Werror -fmax-errors=5 -D_REENTRANT -std=c++17
 AR=ar
