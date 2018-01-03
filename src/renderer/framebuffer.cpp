@@ -46,8 +46,8 @@ void framebuffer::set_pixel(int x, int y, float z, const color &c) {
     }
 }
 
-void framebuffer::set_pixel_unchecked(int x, int y, const color &c) {
-    pixels[y * width + x].superimpose(c);
+float framebuffer::depth_at(int x, int y) const {
+    return depth_buffer[y * width + x];
 }
 
 void framebuffer::set_pixel_unchecked(int x, int y, float z, const color &c) {
