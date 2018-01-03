@@ -40,10 +40,11 @@ color specular_material::shade(const math::vector3f &surface_point,
             specular_sum += powf(specular_base, get_specular_exponent()) * source->specular();
     }
 
-    color result(ambient_multiplier * light_sources.ambient_coeff() + // TOOD FMA
+    color result(ambient_multiplier * light_sources.ambient_coeff() + // TODO FMA
                  diffuse_multiplier * diffuse_sum +
                  specular_multiplier * specular_sum +
                  emissive_term);
+
     result.alpha() = get_dissolve();
     result.clamp();
     return result;

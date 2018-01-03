@@ -30,6 +30,7 @@ public:
 
 public:
     const int *vertex_indices() const;
+    bool has_transparency() const;
     void render(framebuffer &target, const scene &parent_scene) const;
 
 private:

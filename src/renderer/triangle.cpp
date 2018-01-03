@@ -99,6 +99,10 @@ const int *triangle::vertex_indices() const {
     return vertex_index;
 }
 
+bool triangle::has_transparency() const {
+    return mat->has_transparency();
+}
+
 void triangle::render(framebuffer &target, const scene &parent_scene) const {
     const vector3f *view_coord = parent_scene.view_coordinate_data();
 

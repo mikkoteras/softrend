@@ -47,6 +47,10 @@ bool material::is_colored() const {
     return !is_textured();
 }
 
+bool material::has_transparency() const {
+    return transparency;
+}
+
 illumination_model_t material::get_illumination_model() const {
     return illumination_model;
 }
@@ -115,6 +119,7 @@ void material::set_emissivity(const color &col) {
 void material::set_dissolve(float value, bool halo) {
     dissolve = value;
     dissolve_halo = halo;
+    transparency |= value < 1.0f;
 }
 
 void material::set_specular_exponent(float value) {
@@ -123,18 +128,22 @@ void material::set_specular_exponent(float value) {
 
 void material::set_ambient_map(const texture *t) {
     ambient_map = t;
+    transparency |= ambient_map && ambient_map->has_transparency();
 }
 
 void material::set_diffuse_map(const texture *t) {
     diffuse_map = t;
+    transparency |= diffuse_map && diffuse_map->has_transparency();
 }
 
 void material::set_specular_map(const texture *t) {
     specular_map = t;
+    transparency |= specular_map && specular_map->has_transparency();
 }
 
 void material::set_emissive_map(const texture *t) {
     emissive_map = t;
+    transparency |= emissive_map && emissive_map->has_transparency();
 }
 
 color material::ambient_color_at(const vector2f &uv) const {

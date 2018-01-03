@@ -29,6 +29,7 @@ public:
     color diffuse_texture_map(const math::vector2f &uv_coordinates) const; // diffuse map color only
     bool is_textured() const;
     bool is_colored() const;
+    bool has_transparency() const;
 
 public:
     illumination_model_t get_illumination_model() const;
@@ -67,7 +68,7 @@ private:
     color diffuse_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color specular_reflectivity = color(1.0f, 1.0f, 1.0f, 1.0f);
     color emissivity = color(0.0f, 0.0f, 0.0f, 1.0f);
-    float dissolve = 0.0f;
+    float dissolve = 1.0f;
     float dissolve_halo = false;
     float specular_exponent = 100.0f;
 
@@ -75,6 +76,8 @@ private:
     const texture *diffuse_map = nullptr;
     const texture *specular_map = nullptr;
     const texture *emissive_map = nullptr;
+
+    bool transparency = false;
 };
 
 #endif

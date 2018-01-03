@@ -11,7 +11,8 @@ texture::texture() :
     width(0),
     height(0),
     max_x(-1),
-    max_y(-1) {
+    max_y(-1),
+    transparency(false) {
 }
 
 texture::texture(const std::vector<unsigned char> &rgba, int w, int h) :
@@ -19,15 +20,18 @@ texture::texture(const std::vector<unsigned char> &rgba, int w, int h) :
     height(h),
     max_x(w - 1),
     max_y(h - 1),
+    transparency(false),
     pixels() {
 
     pixels.reserve(width * height);
 
-    for (unsigned i = 0; i < rgba.size(); i += 4)
+    for (unsigned i = 0; i < rgba.size(); i += 4) {
         pixels.push_back(color(rgba[i] / 255.0f,
                                rgba[i + 1] / 255.0f,
                                rgba[i + 2] / 255.0f,
                                rgba[i + 3] / 255.0f));
+        transparency |= rgba[i + 3] < 255;
+    }
 }
 
 texture::texture(const texture &rhs) :
@@ -35,6 +39,7 @@ texture::texture(const texture &rhs) :
     height(rhs.height),
     max_x(rhs.max_x),
     max_y(rhs.max_y),
+    transparency(rhs.transparency),
     pixels(rhs.pixels) {
 }
 
@@ -43,6 +48,7 @@ texture::texture(texture &&rhs) :
     height(rhs.height),
     max_x(rhs.max_x),
     max_y(rhs.max_y),
+    transparency(rhs.transparency),
     pixels(move(rhs.pixels)) {
 }
 
@@ -55,6 +61,7 @@ const texture &texture::operator=(const texture &rhs) {
         height = rhs.height;
         max_x = rhs.max_x;
         max_y = rhs.max_y;
+        transparency = rhs.transparency;
         pixels = rhs.pixels;
     }
 
@@ -66,6 +73,7 @@ texture &texture::operator=(texture &&rhs) {
     height = rhs.height;
     max_x = rhs.max_x;
     max_y = rhs.max_y;
+    transparency = rhs.transparency;
     pixels = move(rhs.pixels);
 
     return *this;
@@ -77,6 +85,10 @@ int texture::pixel_width() const {
 
 int texture::pixel_height() const {
     return height;
+}
+
+bool texture::has_transparency() const {
+    return transparency;
 }
 
 texture texture::load_png(const std::string &filename) {
