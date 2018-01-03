@@ -1,17 +1,15 @@
 Missing features
 ================
 
-* Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/
 * Add classes to encapsulate the solid color v. mapped color decision.
 * Fix line plotting bugs:
     - z-lines near the horizon are botched.
 * Fix triangle plotting bugs:
-    - top y clipping breaks at least some shading models.
-* Split light into diffuse and specular components.
+    - none known
 * Implement Blinn-Phong.
 * Add face/point/normal/etc counts to text overlay.
 * The triange_render class screams for refactoring.
 * color3, color4
 * Bug: alpha icosa with no lights and illum 1 is not invisible, why?
 * Rewrite include dir arrangement; #include "math/vector.h" instead of "vector.h".
-* FMA optimizations for color.
+* Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/
