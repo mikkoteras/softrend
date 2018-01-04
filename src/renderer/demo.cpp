@@ -1,4 +1,5 @@
 #include "demo.h"
+#include "color3.h"
 #include "framebuffer.h"
 #include "importer.h"
 #include "math_detail.h"
@@ -65,10 +66,9 @@ void demo::render_dot_curve(framebuffer &fb) {
         float v = t + u;
         float x1 = cx + (v + v * cos<float>(5.0f * v)) * cos<float>(v);
         float y1 = cy + (v + v * sin<float>(3.0f * v)) * sin<float>(v);
-        fb.set_pixel(x1, y1, color(fabs(sin<float>(v)),
-                                   fabs(sin<float>(v / 200.0f * pi<float>())),
-                                   fabs(sin<float>(v + pi<float>() / 2.0f)),
-                                   1.0f));
+        fb.set_pixel_with_xy_clip(x1, y1, color3(fabs(sin<float>(v)),
+                                                 fabs(sin<float>(v / 200.0f * pi<float>())),
+                                                 fabs(sin<float>(v + pi<float>() / 2.0f))));
     }
 }
 
@@ -88,8 +88,8 @@ void demo::render_line_spiral(framebuffer &fb) {
         float x1 = x0 - dx, x2 = x0 + dx;
         float y1 = y0 - dy, y2 = y0 + dy;
 
-        color c1(abs<float>(cos<float>(t)), 0.0f, abs<float>(sin<float>(t + s)), 1.0f);
-        color c2(abs<float>(sin<float>(s)), 0.0f, abs<float>(cos<float>(t + s)), 1.0f);
+        color3 c1(abs<float>(cos<float>(t)), 0.0f, abs<float>(sin<float>(t + s)));
+        color3 c2(abs<float>(sin<float>(s)), 0.0f, abs<float>(cos<float>(t + s)));
 
         line::render(fb, x1, y1, 0, c1, x2, y2, 0, c2);
     }
@@ -131,10 +131,10 @@ void demo::compose_slab_demo() {
     slab.set_rotation(0.8f * sin<float>(0.6f * t) + 0.8f, 0.0f, 0.1f);
 
     light_sources().clear();
-    light_sources().set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
-    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 1.0f}, color(1.0f, 0.0f, 0.0f, 1.0f)));
-    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 6.0f}, color(0.0f, 1.0f, 0.0f, 1.0f)));
-    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 11.0f}, color(0.0f, 0.0f, 1.0f, 1.0f)));
+    light_sources().set_ambient_light(color3(0.2f, 0.2f, 0.2f));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 1.0f}, color3(1.0f, 0.0f, 0.0f)));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 6.0f}, color3(0.0f, 1.0f, 0.0f)));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 11.0f}, color3(0.0f, 0.0f, 1.0f)));
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
@@ -162,19 +162,19 @@ void demo::create_fern() {
 
 void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int generations) {
     const float pi = detail::pi<float>();
-    color c;
+    color3 c;
 
     if (generations >= 4)
-        c = color(.61f, 0.47f, .29f, 1);
+        c = color3(0.61f, 0.47f, 0.29f);
     else if (generations == 3)
-        c = color(.25f, .50f, .0f, 1);
+        c = color3(0.25f, 0.50f, 0.00f);
     else if (generations == 2)
-        c = color(.06f, .89f, .04f, 1);
+        c = color3(0.06f, 0.89f, 0.04f);
     else
-        c = color(.37f, .89f, .50f, 1);
+        c = color3(0.37f, 0.89f, 0.50f);
 
-    color c1 = (0.2f * root.z() + 1.0f) * 0.7f * c;
-    color c2 = (0.2f * tip.z() + 1.0f) * 1.3f * c;
+    color3 c1 = (0.2f * root.z() + 1.0f) * 0.7f * c;
+    color3 c2 = (0.2f * tip.z() + 1.0f) * 1.3f * c;
     c1.clamp();
     c2.clamp();
     

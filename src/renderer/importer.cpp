@@ -128,17 +128,14 @@ void importer::load_wavefront_object(mesh &target,
 void importer::load_wavefront_materials(const std::string &filename, material_library &lib, bool verbose) {
     struct material_spec {
         string material_name = "";
-        color ambient_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
-        color diffuse_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
-        color specular_reflectivity = color(0.0f, 0.0f, 0.0f, 1.0f);
-        color emissivity = color(0.0f, 0.0f, 0.0f, 1.0f);
-        color transmission_filter = color(0.0f, 0.0f, 0.0f, 1.0f);
+        color3 ambient_reflectivity = color3(0.0f, 0.0f, 0.0f);
+        color3 diffuse_reflectivity = color3(0.0f, 0.0f, 0.0f);
+        color3 specular_reflectivity = color3(0.0f, 0.0f, 0.0f);
+        color3 emissivity = color3(0.0f, 0.0f, 0.0f);
         float specular_exponent = 60.0f;
         illumination_model_t illumination_model = specular;
         float dissolve = 1.0f;
         bool dissolve_halo = false;
-        float sharpness = 0.0f;
-        float optical_density = 0.0f;
         const texture *ambient_map = nullptr;
         const texture *diffuse_map = nullptr;
         const texture *specular_map = nullptr;
@@ -147,13 +144,13 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
 
     try {
         importer imp(filename, verbose);
-        
+
         bool material_being_constructed = false;
         material_spec spec;
 
         while (!imp.eof()) {
             string command = imp.accept_command();
-            
+
             if (command == "#")
                 ;
             else if (command == "newmtl") {
@@ -189,8 +186,6 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                 spec.specular_reflectivity = imp.parse_material_vector();
             else if (command == "Ke")
                 spec.emissivity = imp.parse_material_vector();
-            else if (command == "Tf")
-                spec.transmission_filter = imp.parse_material_vector();
             else if (command == "illum")
                 spec.illumination_model = static_cast<illumination_model_t>(imp.accept_int());
             else if (command == "d") {
@@ -209,10 +204,6 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
             }
             else if (command == "Ns")
                 spec.specular_exponent = imp.accept_float();
-            else if (command == "sharpness")
-                spec.sharpness = imp.accept_float();
-            else if (command == "Ni")
-                spec.optical_density = imp.accept_float();
             else if (command == "map_Ka" || command == "map_Kd" || command == "map_Ks" || command == "map_Ke") {
                 string png_filename = imp.accept_until_eol();
                 lib.add_texture(png_filename, png_filename);
@@ -308,7 +299,7 @@ vector2f importer::parse_ws_separated_uv_coords() {
     return point;
 }
 
-color importer::parse_material_vector() {
+color3 importer::parse_material_vector() {
     char next = peek_char();
     
     if (next == 's') {
@@ -325,7 +316,7 @@ color importer::parse_material_vector() {
         for (int i = 0; i < 3; ++i)
             rgb[i] = accept_float();
         
-        return color(rgb[0], rgb[1], rgb[2], 1.0f);
+        return color3(rgb[0], rgb[1], rgb[2]);
     }
 }
 

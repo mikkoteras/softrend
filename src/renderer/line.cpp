@@ -1,5 +1,5 @@
 #include "line.h"
-#include "color.h"
+#include "color3.h"
 #include "mesh.h"
 #include "scene.h"
 #include "framebuffer.h"
@@ -10,7 +10,7 @@ using namespace math;
 line::line() {
 }
 
-line::line(int vi1, int vi2, const color &c1, const color &c2) {
+line::line(int vi1, int vi2, const color3 &c1, const color3 &c2) {
     vertex_index[0] = vi1;
     vertex_index[1] = vi2;
     endpoint_color[0] = c1;
@@ -66,14 +66,14 @@ void line::render(framebuffer &target, const scene &parent_scene) const {
 
     if (width == 0 && height == 0) {
         float z = std::min(v1.z(), v2.z());
-        color c = (endpoint_color[0] + endpoint_color[1]) / 2.0f;
-        target.set_pixel(v1.x(), v1.y(), z, c);
+        color3 c = (endpoint_color[0] + endpoint_color[1]) / 2.0f;
+        target.set_pixel_with_xyz_clip(v1.x(), v1.y(), z, c);
     }
     else if (width >= height) {
         float y, y_delta;
         int x, x_max;
         float z, z_delta;
-        color c, c_delta;
+        color3 c, c_delta;
 
         if (v1.x() < v2.x()) {
             x = v1.x();
@@ -108,7 +108,7 @@ void line::render(framebuffer &target, const scene &parent_scene) const {
 
         for (; x <= x_max; ++x) {
             if (z <= 0.0f)
-                target.set_pixel(x, y, z, c);
+                target.set_pixel_with_xyz_clip(x, y, z, c);
 
             y += y_delta;
             z += z_delta;
@@ -119,7 +119,7 @@ void line::render(framebuffer &target, const scene &parent_scene) const {
         float x, x_delta;
         int y, y_max;
         float z, z_delta;
-        color c, c_delta;
+        color3 c, c_delta;
 
         if (v1.y() < v2.y()) {
             y = v1.y();
@@ -154,7 +154,7 @@ void line::render(framebuffer &target, const scene &parent_scene) const {
 
         for (; y <= y_max; ++y) {
             if (z <= 0.0f)
-                target.set_pixel(x, y, z, c);
+                target.set_pixel_with_xyz_clip(x, y, z, c);
 
             x += x_delta;
             z += z_delta;
@@ -164,21 +164,21 @@ void line::render(framebuffer &target, const scene &parent_scene) const {
 }
 
 void line::render(framebuffer &target,
-                  float x1, float y1, float z1, const color &c1,
-                  float x2, float y2, float z2, const color &c2) {
+                  float x1, float y1, float z1, const color3 &c1,
+                  float x2, float y2, float z2, const color3 &c2) {
     int width = abs(x2 - x1);
     int height = abs(y2 - y1);
 
     if (width == 0 && height == 0) {
         float z = std::min(z1, z2);
-        color c = (c1 + c2) / 2.0f;
-        target.set_pixel(x1, y1, z, c);
+        color3 c = (c1 + c2) / 2.0f;
+        target.set_pixel_with_xyz_clip(x1, y1, z, c);
     }
     else if (width >= height) {
         float y, y_delta;
         int x, x_max;
         float z, z_delta;
-        color c, c_delta;
+        color3 c, c_delta;
 
         if (x1 < x2) {
             x = x1;
@@ -213,7 +213,7 @@ void line::render(framebuffer &target,
 
         for (; x <= x_max; ++x) {
             if (z <= 0.0f)
-                target.set_pixel(x, y, z, c);
+                target.set_pixel_with_xyz_clip(x, y, z, c);
 
             y += y_delta;
             z += z_delta;
@@ -224,7 +224,7 @@ void line::render(framebuffer &target,
         float x, x_delta;
         int y, y_max;
         float z, z_delta;
-        color c, c_delta;
+        color3 c, c_delta;
 
         if (y1 < y2) {
             y = y1;
@@ -259,7 +259,7 @@ void line::render(framebuffer &target,
 
         for (; y <= y_max; ++y) {
             if (z <= 0.0f)
-                target.set_pixel(x, y, z, c);
+                target.set_pixel_with_xyz_clip(x, y, z, c);
 
             x += x_delta;
             z += z_delta;

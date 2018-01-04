@@ -2,7 +2,7 @@
 #define IMPORTER_H
 
 #include "mesh.h"
-#include "color.h"
+#include "color3.h"
 #include "vector.h"
 #include <fstream>
 #include <sstream>
@@ -37,7 +37,7 @@ private: // [sic]
 private:
     math::vector3f parse_ws_separated_3d_point();
     math::vector2f parse_ws_separated_uv_coords();
-    color parse_material_vector(); // color or illumination
+    color3 parse_material_vector(); // color or illumination
     void ensure_known_vector_format();
 
 private:

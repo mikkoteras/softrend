@@ -1,5 +1,5 @@
 #include "mesh.h"
-#include "color.h"
+#include "color3.h"
 #include "linear_transforms.h"
 #include "framebuffer.h"
 #include "math_util.h"
@@ -40,7 +40,7 @@ int mesh::add_vertex_normal(const vector3f &vn) {
     return last_normal_index;
 }
 
-int mesh::add_line(int v1, int v2, const color &c1, const color &c2) {
+int mesh::add_line(int v1, int v2, const color3 &c1, const color3 &c2) {
     bool first_line = last_line_index < 0;
     last_line_index = parent_scene->add_line(v1, v2, c1, c2);
 
@@ -50,7 +50,7 @@ int mesh::add_line(int v1, int v2, const color &c1, const color &c2) {
     return last_line_index;
 }
 
-int mesh::add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2) {
+int mesh::add_line(const math::vector3f &v1, const math::vector3f &v2, const color3 &c1, const color3 &c2) {
     int vi1 = add_vertex(v1);
     int vi2 = add_vertex(v2);
     return add_line(vi1, vi2, c1, c2);

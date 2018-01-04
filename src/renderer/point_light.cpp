@@ -2,13 +2,13 @@
 
 using namespace math;
 
-point_light::point_light(const vector3f &position, const color &light_color) :
+point_light::point_light(const vector3f &position, const color3 &light_color) :
     position(position),
     diffuse_color(light_color),
     specular_color(light_color) {
 }
 
-point_light::point_light(const vector3f &position, const color &diffuse_color, const color &specular_color) :
+point_light::point_light(const vector3f &position, const color3 &diffuse_color, const color3 &specular_color) :
     position(position),
     diffuse_color(diffuse_color),
     specular_color(specular_color) {
@@ -57,10 +57,10 @@ vector3f point_light::surface_to_light_unit(const vector3f &surface_point) const
     return result;
 }
 
-color point_light::diffuse() const {
+color3 point_light::diffuse() const {
     return diffuse_color;
 }
 
-color point_light::specular() const {
+color3 point_light::specular() const {
     return specular_color;
 }

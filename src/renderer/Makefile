@@ -6,7 +6,8 @@ SOURCES=alpha_test.cpp \
         benchmark.cpp \
         benchmark_frame.cpp \
         bounding_box.cpp \
-        color.cpp \
+        color3.cpp \
+        color4.cpp \
         command_line.cpp \
         constant_color_material.cpp \
         coordinate_system.cpp \

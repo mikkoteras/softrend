@@ -1,12 +1,13 @@
 #include "material_library.h"
+#include "color3.h"
 
 using namespace math;
 using namespace std;
 
 material_library::material_library() {
-    null_material.set_ambient_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
-    null_material.set_diffuse_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
-    null_material.set_specular_reflectivity(color(1.0f, 1.0f, 1.0f, 0.0f));
+    null_material.set_ambient_reflectivity(color3(1.0f, 1.0f, 1.0f));
+    null_material.set_diffuse_reflectivity(color3(1.0f, 1.0f, 1.0f));
+    null_material.set_specular_reflectivity(color3(1.0f, 1.0f, 1.0f));
 }
 
 material_library::~material_library() {

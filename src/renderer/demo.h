@@ -2,7 +2,6 @@
 #define DEMO_H
 
 #include "scene.h"
-#include "color.h"
 #include "coordinate_system.h"
 #include "mesh.h"
 

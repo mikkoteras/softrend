@@ -7,21 +7,17 @@ constant_color_material::constant_color_material() :
 constant_color_material::~constant_color_material() {
 }
 
-color constant_color_material::shade(const math::vector3f&,
-                                     const math::vector3f&,
-                                     const math::vector3f&,
-                                     const math::vector2f &uv_coordinates,
-                                     const light_list&) const {
-    color result(diffuse_color_at(uv_coordinates));
-    result.alpha() = get_dissolve();
-    return result;
+color4 constant_color_material::shade(const math::vector3f&,
+                                      const math::vector3f&,
+                                      const math::vector3f&,
+                                      const math::vector2f &uv_coordinates,
+                                      const light_list&) const {
+    return color4(diffuse_color_at(uv_coordinates), get_dissolve());
 }
 
-color constant_color_material::shade(const math::vector3f&,
-                                     const math::vector3f&,
-                                     const math::vector3f&,
-                                     const light_list&) const {
-    color result(get_diffuse_reflectivity());
-    result.alpha() = get_dissolve();
-    return result;
+color4 constant_color_material::shade(const math::vector3f&,
+                                      const math::vector3f&,
+                                      const math::vector3f&,
+                                      const light_list&) const {
+    return color4(get_diffuse_reflectivity(), get_dissolve());
 }
