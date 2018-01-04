@@ -1,17 +1,17 @@
 #include "coordinate_system.h"
-#include "color.h"
+#include "color3.h"
 #include "vector.h"
 
 using namespace math;
 
 coordinate_system::coordinate_system(scene *parent_scene) :
     coordinate_system(parent_scene,
-                      color(0.8f, 0.2f, 0.2f, 1.0f),
-                      color(0.2f, 0.8f, 0.2f, 1.0f),
-                      color(0.2f, 0.2f, 0.8f, 1.0f)) {
+                      color3(0.8f, 0.2f, 0.2f),
+                      color3(0.2f, 0.8f, 0.2f),
+                      color3(0.2f, 0.2f, 0.8f)) {
 }
 
-coordinate_system::coordinate_system(scene *parent_scene, const color &x,const color &y, const color &z) :
+coordinate_system::coordinate_system(scene *parent_scene, const color3 &x, const color3 &y, const color3 &z) :
     m(parent_scene) {
 
     const float t = 6; // ticks

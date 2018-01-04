@@ -1,7 +1,7 @@
 #ifndef TRIANGLE_RENDER_H
 #define TRIANGLE_RENDER_H
 
-#include "color.h"
+#include "color3.h"
 #include "surface_position.h"
 #include "vector.h"
 #include <string>
@@ -18,7 +18,7 @@ public:
     math::vector3f eye;
     math::vector3f surface_normal; // only used when not interpolating normals
     math::vector3f surface_midpoint; // used with flat polys
-    color shade; // used with flat gouraud polys
+    color3 shade; // used with flat gouraud polys
     const light_list *lights;
 
     surface_position &vtx(int i) { return *vertex[i]; }

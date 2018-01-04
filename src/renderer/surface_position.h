@@ -1,7 +1,7 @@
 #ifndef SURFACE_POSITION_H
 #define SURFACE_POSITION_H
 
-#include "color.h"
+#include "color3.h"
 #include "vector.h"
 
 // TODO: refactor using templates!
@@ -15,7 +15,7 @@ public:
     math::vector3f world_position;
     math::vector3f normal; // only used when interpolating normals
     math::vector2f uv;
-    color shade; // only used with gouraud
+    color3 shade; // only used with gouraud
 
 public:
     // legend: v = view coords, w = world coords, n = surface normals, t = texture coords, s = shade

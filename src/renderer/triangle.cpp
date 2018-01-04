@@ -1,5 +1,5 @@
 #include "triangle.h"
-#include "color.h"
+#include "color3.h"
 #include "framebuffer.h"
 #include "light.h"
 #include "light_list.h"
@@ -305,18 +305,18 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
     int y = left.view_position.y();
     int max_y = y + render_context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
-    
+
     if (y < 0) {
         left.add_v(-y, *render_context.left_edge_delta);
         right.add_v(-y, *render_context.right_edge_delta);
         y = 0;
     }
 
-    color shade(mat->shade(render_context.surface_midpoint,
-                           render_context.surface_normal,
-                           (render_context.eye - render_context.surface_midpoint).unit(),
-                           *render_context.lights));
-    
+    color4 shade(mat->shade(render_context.surface_midpoint,
+                            render_context.surface_normal,
+                            (render_context.eye - render_context.surface_midpoint).unit(),
+                            *render_context.lights));
+
     for (; y <= max_y; ++y) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
@@ -331,7 +331,7 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade);
+            target.set_pixel_with_z_clip(x, y, pixel.view_position.z(), shade);
             pixel.add_v(delta); // TODO: skip view_position, use z alone
         }
 
@@ -370,7 +370,7 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target) const {
         }
 
         for (; x <= max_x; ++x) {
-            target.set_pixel_unchecked(x, y, pixel.view_position.z(), pixel.shade);
+            target.set_pixel_with_z_clip(x, y, pixel.view_position.z(), pixel.shade);
             pixel.add_vs(delta); // TODO: skip view_position, use z alone
         }
 
@@ -412,11 +412,11 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target) con
 
         for (; x <= max_x; ++x) {
             if (target.depth_at(x, y) < pixel.view_position.z())
-                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                           mat->shade(pixel.world_position,
-                                                      pixel.normal.unit(),
-                                                      (render_context.eye - pixel.world_position).unit(),
-                                                      *render_context.lights));
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      mat->shade(pixel.world_position,
+                                                                 pixel.normal.unit(),
+                                                                 (render_context.eye - pixel.world_position).unit(),
+                                                                 *render_context.lights));
             
             pixel.add_vwn(delta); // TODO: skip view_position, use z alone
         }
@@ -459,12 +459,12 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target) const
 
         for (; x <= max_x; ++x) {
             if (target.depth_at(x, y) < pixel.view_position.z())
-                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                           mat->shade(pixel.world_position,
-                                                      render_context.surface_normal,
-                                                      (render_context.eye - pixel.world_position).unit(),
-                                                      pixel.uv,
-                                                      *render_context.lights));
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      mat->shade(pixel.world_position,
+                                                                 render_context.surface_normal,
+                                                                 (render_context.eye - pixel.world_position).unit(),
+                                                                 pixel.uv,
+                                                                 *render_context.lights));
 
             pixel.add_vw(delta); // TODO: skip view_position, use z alone
         }
@@ -490,11 +490,11 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
         y = 0;
     }
 
-    color shade(mat->shade(render_context.surface_midpoint,
-                           render_context.surface_normal,
-                           (render_context.eye - render_context.surface_midpoint).unit(),
-                           *render_context.lights));
-    
+    color4 shade(mat->shade(render_context.surface_midpoint,
+                            render_context.surface_normal,
+                            (render_context.eye - render_context.surface_midpoint).unit(),
+                            *render_context.lights));
+
     for (; y <= max_y; ++y) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
@@ -510,7 +510,8 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target) const {
 
         for (; x <= max_x; ++x) {
             if (target.depth_at(x, y) < pixel.view_position.z())
-                target.set_pixel_unchecked(x, y, pixel.view_position.z(), shade * mat->diffuse_texture_map(pixel.uv));
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      shade * mat->diffuse_texture_map(pixel.uv));
             
             pixel.add_vt(delta); // TODO: skip view_position, use z alone
         }
@@ -551,8 +552,8 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target) const {
 
         for (; x <= max_x; ++x) {
             if (target.depth_at(x, y) < pixel.view_position.z())
-                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                           pixel.shade * mat->diffuse_texture_map(pixel.uv));
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      pixel.shade * mat->diffuse_texture_map(pixel.uv));
             
             pixel.add_vts(delta); // TODO: skip view_position, use z alone
         }
@@ -595,12 +596,12 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target) co
 
         for (; x <= max_x; ++x) {
             if (target.depth_at(x, y) < pixel.view_position.z())
-                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                           mat->shade(pixel.world_position,
-                                                      pixel.normal.unit(),
-                                                      (render_context.eye - pixel.world_position).unit(),
-                                                      pixel.uv,
-                                                      *render_context.lights));
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      mat->shade(pixel.world_position,
+                                                                 pixel.normal.unit(),
+                                                                 (render_context.eye - pixel.world_position).unit(),
+                                                                 pixel.uv,
+                                                                 *render_context.lights));
 
             pixel.add_vwnt(delta); // TODO: skip view_position, use z alone
         }
@@ -643,12 +644,12 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target) cons
 
         for (; x <= max_x; ++x) {
             if (target.depth_at(x, y) < pixel.view_position.z())         
-                target.set_pixel_unchecked(x, y, pixel.view_position.z(),
-                                           mat->shade(pixel.world_position,
-                                                      render_context.surface_normal,
-                                                      (render_context.eye - pixel.world_position).unit(),
-                                                      pixel.uv,
-                                                      *render_context.lights));
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      mat->shade(pixel.world_position,
+                                                                 render_context.surface_normal,
+                                                                 (render_context.eye - pixel.world_position).unit(),
+                                                                 pixel.uv,
+                                                                 *render_context.lights));
 
             pixel.add_vwt(delta); // TODO: skip view_position, use z alone
         }
@@ -663,7 +664,7 @@ void triangle::visualize_normals(framebuffer &target, scene &parent_scene) const
     const vector3f *world_data = parent_scene.world_coordinate_data();
     const vector3f *normal_data = parent_scene.world_normal_data();
     const matrix4x4f &world_to_view = parent_scene.world_to_view();
-    color yellow(1.0f, 1.0f, 0.0f, 1.0f);
+    color3 yellow(1.0f, 1.0f, 0.0f);
     vector3f mid_point, mid_normal;
 
     for (int i = 0; i < 3; ++i) {
@@ -714,8 +715,8 @@ void triangle::visualize_reflection_vectors(framebuffer &target, scene &parent_s
         vector3f l = (world_to_view * (mid_point + 0.3f * light_vector).homo()).dehomo_with_divide();
         vector3f r = (world_to_view * (mid_point + 0.3f * reflection_vector).homo()).dehomo_with_divide();
 
-        color light_color(source->specular());
-        color reflected_color(light_color * mat->get_specular_reflectivity());
+        color3 light_color(source->specular());
+        color3 reflected_color(light_color * mat->get_specular_reflectivity());
 
         line::render(target, p.x(), p.y(), p.z(), light_color, l.x(), l.y(), l.z(), light_color);
 

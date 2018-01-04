@@ -26,8 +26,8 @@ alpha_test::alpha_test(bool verbose) :
         return;
     }
 
-    light_sources().set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
-    light_sources().add_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, color(0.5f, 0.5f, 0.5f, 1.0f)));
+    light_sources().set_ambient_light(color3(0.2f, 0.2f, 0.2f));
+    light_sources().add_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, color3(0.5f, 0.5f, 0.5f)));
 
     set_eye_position(vector3f{0.0f, 0.0f, 5.0f});
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});

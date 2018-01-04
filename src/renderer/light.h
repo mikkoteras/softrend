@@ -1,7 +1,7 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "color.h"
+#include "color3.h"
 #include "vector.h"
 
 class light {
@@ -16,8 +16,8 @@ public:
 
     virtual math::vector3f light_to_surface_unit(const math::vector3f &surface_point) const = 0;
     virtual math::vector3f surface_to_light_unit(const math::vector3f &surface_point) const = 0;
-    virtual color diffuse() const = 0;
-    virtual color specular() const = 0;
+    virtual color3 diffuse() const = 0;
+    virtual color3 specular() const = 0;
 };
 
 #endif

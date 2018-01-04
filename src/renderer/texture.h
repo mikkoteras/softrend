@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "color.h"
+#include "color4.h"
 #include <vector>
 #include "vector.h"
 
@@ -30,15 +30,15 @@ public:
     int index_at_point(const math::vector2f &uv) const;
     int index_at_point(float u, float v) const;
 
-    const color &at(const math::vector2f &uv) const;
-    const color &at(float u, float v) const;
-    const color &at(int i) const;
+    const color4 &at(const math::vector2f &uv) const;
+    const color4 &at(float u, float v) const;
+    const color4 &at(int i) const;
 
 private:
     int width, height;
     int max_x, max_y;
     bool transparency;
-    std::vector<color> pixels;
+    std::vector<color4> pixels;
 };
 
 #endif

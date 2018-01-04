@@ -7,7 +7,6 @@
 #include "vector.h"
 #include <vector>
 
-class color;
 class framebuffer;
 class light_list;
 class material;

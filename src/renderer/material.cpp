@@ -27,16 +27,8 @@ material *material::create(illumination_model_t illum) {
         throw unsupported_material_exception();
 }
 
-color material::diffuse_texture_map(const math::vector2f &uv) const {
-    color result;
-    
-    if (diffuse_map)
-        result = diffuse_map->at(uv);
-    else
-        result = color(1.0f, 1.0f, 1.0f, 1.0f);
-
-    result.alpha() = get_dissolve();
-    return result;
+color4 material::diffuse_texture_map(const vector2f &uv) const {
+    return color4(diffuse_map->at(uv), get_dissolve());
 }
 
 bool material::is_textured() const {
@@ -55,19 +47,19 @@ illumination_model_t material::get_illumination_model() const {
     return illumination_model;
 }
 
-const color &material::get_ambient_reflectivity() const {
+const color3 &material::get_ambient_reflectivity() const {
     return ambient_reflectivity;
 }
 
-const color &material::get_diffuse_reflectivity() const {
+const color3 &material::get_diffuse_reflectivity() const {
     return diffuse_reflectivity;
 }
 
-const color &material::get_specular_reflectivity() const {
+const color3 &material::get_specular_reflectivity() const {
     return specular_reflectivity;
 }
 
-const color &material::get_emissivity() const {
+const color3 &material::get_emissivity() const {
     return emissivity;
 }
 
@@ -99,20 +91,19 @@ const texture *material::get_emissive_map() const {
     return emissive_map;
 }
 
-void material::set_ambient_reflectivity(const color &col) {
+void material::set_ambient_reflectivity(const color3 &col) {
     ambient_reflectivity = col;
 }
 
-
-void material::set_diffuse_reflectivity(const color &col) {
+void material::set_diffuse_reflectivity(const color3 &col) {
     diffuse_reflectivity = col;
 }
 
-void material::set_specular_reflectivity(const color &col) {
+void material::set_specular_reflectivity(const color3 &col) {
     specular_reflectivity = col;
 }
 
-void material::set_emissivity(const color &col) {
+void material::set_emissivity(const color3 &col) {
     emissivity = col;
 }
 
@@ -146,28 +137,28 @@ void material::set_emissive_map(const texture *t) {
     transparency |= emissive_map && emissive_map->has_transparency();
 }
 
-color material::ambient_color_at(const vector2f &uv) const {
+color3 material::ambient_color_at(const vector2f &uv) const {
     if (ambient_map)
         return ambient_reflectivity * ambient_map->at(uv);
     else
         return ambient_reflectivity;
 }
 
-color material::diffuse_color_at(const vector2f &uv) const {
+color3 material::diffuse_color_at(const vector2f &uv) const {
     if (diffuse_map)
         return diffuse_reflectivity * diffuse_map->at(uv);
     else
         return diffuse_reflectivity;
 }
 
-color material::specular_color_at(const vector2f &uv) const {
+color3 material::specular_color_at(const vector2f &uv) const {
     if (specular_map)
         return specular_reflectivity * specular_map->at(uv);
     else
         return specular_reflectivity;
 }
 
-color material::emissive_color_at(const vector2f &uv) const {
+color3 material::emissive_color_at(const vector2f &uv) const {
     if (emissive_map)
         return emissivity * emissive_map->at(uv);
     else

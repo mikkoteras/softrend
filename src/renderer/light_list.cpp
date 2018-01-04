@@ -6,7 +6,7 @@
 using namespace std;
 
 light_list::light_list() :
-    ambient_light(color(0.0f, 0.0f, 0.0f, 1.0f)) {
+    ambient_light(0.0f, 0.0f, 0.0f) {
 }
 
 light_list::~light_list() {
@@ -17,11 +17,11 @@ light_list::~light_list() {
 }
 
 void light_list::clear() {
-    ambient_light = color(0.0f, 0.0f, 0.0f, 0.0f);
+    ambient_light = color3(0.0f, 0.0f, 0.0f);
     per_pixel_lights.clear();
 }
 
-void light_list::set_ambient_light(const color &col) {
+void light_list::set_ambient_light(const color3 &col) {
     ambient_light = col;
 }
 
@@ -33,7 +33,7 @@ void light_list::add_light(const point_light &l) {
     per_pixel_lights.push_back(new point_light(l));
 }
 
-color light_list::ambient_coeff() const {
+color3 light_list::ambient_coeff() const {
     return ambient_light;
 }
 

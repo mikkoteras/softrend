@@ -8,7 +8,7 @@
 #include "vector.h"
 #include <vector>
 
-class color;
+class color3;
 class material;
 class scene;
 
@@ -26,8 +26,8 @@ public:
 public: // for geometry creation (mostly importer)
     int add_vertex(const math::vector3f &v);
     int add_vertex_normal(const math::vector3f &vn);
-    int add_line(int v1, int v2, const color &c1, const color &c2);
-    int add_line(const math::vector3f &v1, const math::vector3f &v2, const color &c1, const color &c2);
+    int add_line(int v1, int v2, const color3 &c1, const color3 &c2);
+    int add_line(const math::vector3f &v1, const math::vector3f &v2, const color3 &c1, const color3 &c2);
     int add_triangle(int vi1, int vi2, int vi3,
                      int ni1, int ni2, int ni3,
                      const math::vector2f &uv1, const math::vector2f &uv2, const math::vector2f &uv3,

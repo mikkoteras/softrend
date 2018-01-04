@@ -1,4 +1,5 @@
 #include "auto_scene.h"
+#include "color3.h"
 #include "directional_light.h"
 #include "importer.h"
 #include "point_light.h"
@@ -102,11 +103,11 @@ void auto_scene::toggle_lights() {
     lights_on = !lights_on;
 
     if (lights_on) {
-        lights.add_light(directional_light(vector3f{0.0f, -1.0f, -0.1f}, color(1.0f, 1.0f, 1.0f, 1.0f)));
-        lights.set_ambient_light(color(0.2f, 0.2f, 0.2f, 1.0f));
+        lights.add_light(directional_light(vector3f{0.0f, -1.0f, -0.1f}, color3(1.0f, 1.0f, 1.0f)));
+        lights.set_ambient_light(color3(0.2f, 0.2f, 0.2f));
     }
     else
-        lights.set_ambient_light(color(1.0f, 1.0f, 1.0f, 1.0f));
+        lights.set_ambient_light(color3(1.0f, 1.0f, 1.0f));
 }
 
 void auto_scene::compose() {
