@@ -171,7 +171,10 @@ bool window::init_sdl() {
         return false;
 
     sdl_context_initialized = true;
-    sdl_window = SDL_CreateWindow("softrend", 0, 0, width, height, SDL_WINDOW_SHOWN);
+    sdl_window = SDL_CreateWindow("softrend",
+                                  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                  width, height,
+                                  SDL_WINDOW_SHOWN);
 
     if (!sdl_window)
         return false;
