@@ -158,7 +158,8 @@
     <ClCompile Include="benchmark.cpp" />
     <ClCompile Include="benchmark_frame.cpp" />
     <ClCompile Include="bounding_box.cpp" />
-    <ClCompile Include="color.cpp" />
+    <ClCompile Include="color3.cpp" />
+    <ClCompile Include="color4.cpp" />
     <ClCompile Include="command_line.cpp" />
     <ClCompile Include="constant_color_material.cpp" />
     <ClCompile Include="coordinate_system.cpp" />
@@ -200,6 +201,8 @@
     <ClInclude Include="benchmark_frame.h" />
     <ClInclude Include="bounding_box.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="color3.h" />
+    <ClInclude Include="color4.h" />
     <ClInclude Include="command_line.h" />
     <ClInclude Include="constant_color_material.h" />
     <ClInclude Include="coordinate_system.h" />
