@@ -2,7 +2,7 @@
 #define TRIANGLE_H
 
 #include "matrix.h"
-#include "triangle_render.h"
+#include "triangle_render_context.h"
 #include "types.h"
 #include "vector.h"
 #include <vector>
@@ -30,28 +30,27 @@ public:
 public:
     const int *vertex_indices() const;
     bool has_transparency() const;
-    void render(framebuffer &target, const scene &parent_scene) const;
+    void render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
 
 private:
-    void render_flat(framebuffer &target, const scene &parent_scene) const;
-    void render_gouraud(framebuffer &target, const scene &parent_scene) const;
-    void render_phong(framebuffer &target, const scene &parent_scene) const;
-    void render_smooth_phong(framebuffer &target, const scene &parent_scene) const;
-    void render_flat_phong(framebuffer &target, const scene &parent_scene) const;
+    void render_flat(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    void render_gouraud(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    void render_phong(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    void render_smooth_phong(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    void render_flat_phong(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
 
 private:
-    static triangle_render render_context;
-    static bool triangle_winds_clockwise();
+    static bool triangle_winds_clockwise(triangle_render_context &context);
 
-    void render_colored_flat_halftriangle(framebuffer &target) const;
-    void render_colored_gouraud_halftriangle(framebuffer &target) const;
-    void render_colored_smooth_phong_halftriangle(framebuffer &target) const;
-    void render_colored_flat_phong_halftriangle(framebuffer &target) const;
+    void render_colored_flat_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_colored_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_colored_smooth_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_colored_flat_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
     
-    void render_textured_flat_halftriangle(framebuffer &target) const;
-    void render_textured_gouraud_halftriangle(framebuffer &target) const;
-    void render_textured_smooth_phong_halftriangle(framebuffer &target) const;
-    void render_textured_flat_phong_halftriangle(framebuffer &target) const;
+    void render_textured_flat_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_textured_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_textured_smooth_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_textured_flat_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
 
 public:
     void visualize_normals(framebuffer &target, scene &parent_scene) const;

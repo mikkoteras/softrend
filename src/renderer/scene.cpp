@@ -6,6 +6,8 @@
 #include "viewport_transforms.h"
 #include <algorithm>
 #include <limits>
+#include <thread>
+#include <vector>
 
 using namespace math;
 using namespace std;
@@ -301,20 +303,35 @@ void scene::render_triangles(framebuffer &fb) {
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
 
-    // render opaque triangles using reverse painter's algorithm
+    int num_threads = 1;
+    std::vector<thread> threads(num_threads);
+    std::vector<triangle_render_context> contexts(num_threads);
+
+    for (int i = 0; i < num_threads; ++i) {
+        contexts[i].scanline_divisor = num_threads;
+        contexts[i].scanline_remainder = i;
+        threads[i] = thread(&scene::render_triangles_threaded, this, fb, contexts[i], triangle_count);
+    }
+
+    for (int i = 0; i < num_threads; ++i)
+        threads[i].join();
+}
+
+void scene::render_triangles_threaded(framebuffer &fb, triangle_render_context &context, int triangle_count) {
+    // render opaque triangles using backward painter's algorithm
     for (int i = triangle_count - 1; i >= 0; --i) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (!t.has_transparency())
-            t.render(fb, *this);
+            t.render(fb, *this, context);
     }
 
-    // superimpose translucent triangles using standard painter's algorithm
+    // superimpose translucent triangles using forward painter's algorithm
     for (int i = 0; i < triangle_count; ++i) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (t.has_transparency())
-            t.render(fb, *this);
+            t.render(fb, *this, context);
     }
 }
 

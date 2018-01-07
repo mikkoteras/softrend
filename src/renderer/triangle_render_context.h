@@ -1,5 +1,5 @@
-#ifndef TRIANGLE_RENDER_H
-#define TRIANGLE_RENDER_H
+#ifndef TRIANGLE_RENDER_CONTEXT_H
+#define TRIANGLE_RENDER_CONTEXT_H
 
 #include "color3.h"
 #include "surface_position.h"
@@ -8,7 +8,7 @@
 
 class light_list;
 
-struct triangle_render {
+struct triangle_render_context {
 public:
     surface_position *vertex[3]; // this enables fast vertex swapping during compute
     surface_position *left_edge_top, *right_edge_top;
@@ -21,9 +21,12 @@ public:
     color3 shade; // used with flat gouraud polys
     const light_list *lights;
 
+    int scanline_divisor; // == number of workers
+    int scanline_remainder; // ==> render scanlines where y % scanline_divisor == scanline_remainder
+
     surface_position &vtx(int i) { return *vertex[i]; }
     
-    triangle_render();
+    triangle_render_context();
     void prepare_edges(); // sort by y
 
     void prepare_upper_halftriangle();

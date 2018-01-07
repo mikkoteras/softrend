@@ -1,14 +1,14 @@
-#include "triangle_render.h"
+#include "triangle_render_context.h"
 #include "light_list.h"
 #include "util.h"
 #include <cmath>
 
-triangle_render::triangle_render() {
+triangle_render_context::triangle_render_context() {
     for (int i = 0; i < 3; ++i)
         vertex[i] = &edge_endpoint[i];
 }
 
-void triangle_render::prepare_edges() {
+void triangle_render_context::prepare_edges() {
     // round the view x/y positions to avoid gradient rounding artifacts
     // TODO could this be done during transformation already?
 
@@ -36,7 +36,7 @@ void triangle_render::prepare_edges() {
     }
 }
 
-void triangle_render::prepare_upper_halftriangle() {
+void triangle_render_context::prepare_upper_halftriangle() {
     int top_y = vertex[0]->view_position.y();
     int mid_y = vertex[1]->view_position.y();
     int bot_y = vertex[2]->view_position.y();
@@ -68,7 +68,7 @@ void triangle_render::prepare_upper_halftriangle() {
     halftriangle_height -= 1; // Don't draw the middle line so it won't get drawn twice.
 }
 
-void triangle_render::prepare_lower_halftriangle() {
+void triangle_render_context::prepare_lower_halftriangle() {
     int mid_y = vertex[1]->view_position.y();
     int bot_y = vertex[2]->view_position.y();
     halftriangle_height = bot_y - mid_y;

@@ -11,6 +11,7 @@
 #include "material_library.h"
 #include "scene_info.h"
 #include "triangle.h"
+#include "triangle_render_context.h"
 #include "types.h"
 #include "vector.h"
 #include <string>
@@ -95,6 +96,7 @@ private: // render helpers
     void transform_coordinates();
     void render_lines(framebuffer &fb);
     void render_triangles(framebuffer &fb);
+    void render_triangles_threaded(framebuffer &fb, triangle_render_context &context, int triangle_count);
     void overlay_wireframe_visualization(framebuffer &fb);
     void overlay_normal_visualization(framebuffer &fb);
     void overlay_reflection_vector_visualization(framebuffer &fb);
