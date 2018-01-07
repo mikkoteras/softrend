@@ -24,9 +24,18 @@ public:
     int scanline_divisor; // == number of workers
     int scanline_remainder; // ==> render scanlines where y % scanline_divisor == scanline_remainder
 
-    surface_position &vtx(int i) { return *vertex[i]; }
-    
+public:
     triangle_render_context();
+    ~triangle_render_context();
+
+    triangle_render_context(const triangle_render_context&) = delete;
+    triangle_render_context &operator=(const triangle_render_context&) = delete;
+    triangle_render_context(triangle_render_context&&) = delete;
+    triangle_render_context &operator=(triangle_render_context&&) = delete;
+
+public:
+    surface_position &vtx(int i);
+
     void prepare_edges(); // sort by y
 
     void prepare_upper_halftriangle();

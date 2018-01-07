@@ -303,16 +303,17 @@ void scene::render_triangles(framebuffer &fb) {
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
 
-    int num_threads = 1;
+    const int num_threads = 4;
     std::vector<thread> threads(num_threads);
     std::vector<triangle_render_context> contexts(num_threads);
 
     for (int i = 0; i < num_threads; ++i) {
-        contexts[i].scanline_divisor = num_threads;
-        contexts[i].scanline_remainder = i;
+        triangle_render_context &context = contexts[i];
+        context.scanline_divisor = num_threads;
+        context.scanline_remainder = i;
 
-        threads[i] = thread([&]() {
-            render_triangles_threaded(fb, contexts[i], triangle_count);
+        threads[i] = thread([=, &fb, &context]() {
+            render_triangles_threaded(fb, context, triangle_count);
         });
     }
 

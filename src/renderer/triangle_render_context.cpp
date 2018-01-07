@@ -8,6 +8,13 @@ triangle_render_context::triangle_render_context() {
         vertex[i] = &edge_endpoint[i];
 }
 
+triangle_render_context::~triangle_render_context() {
+}
+
+surface_position &triangle_render_context::vtx(int i) {
+    return *vertex[i];
+}
+
 void triangle_render_context::prepare_edges() {
     // round the view x/y positions to avoid gradient rounding artifacts
     // TODO could this be done during transformation already?
