@@ -4,9 +4,11 @@
 #include "scene.h"
 #include "vector.h"
 
+class command_line;
+
 class freecam_scene : public scene {
 public:
-    freecam_scene(float initial_eye_radius = 1.0f);
+    freecam_scene(const command_line &cl, float initial_eye_radius = 1.0f);
     ~freecam_scene();
 
     void set_point_of_interest(const math::vector3f &p);

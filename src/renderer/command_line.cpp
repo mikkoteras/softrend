@@ -7,8 +7,9 @@ using namespace std;
 command_line::command_line(int argc, char *argv[]) :
     parsed_correctly(false),
     verbose_opt(false),
-    width_opt(0),
-    height_opt(0),
+    width_opt(-1),
+    height_opt(-1),
+    rasterizer_threads_opt(-1),
     scene_mode_opt(none) {
 
     std::vector<string> args;
@@ -36,6 +37,10 @@ int command_line::width() const {
 
 int command_line::height() const {
     return height_opt;
+}
+
+int command_line::rasterizer_threads() const {
+    return rasterizer_threads_opt;
 }
 
 command_line::mode command_line::scene_mode() const {
@@ -71,6 +76,8 @@ void command_line::parse(const std::vector<std::string> &args) {
                 accept_int_parameter(args, i++, width_opt);
             else if (arg == "-h" || arg == "--height")
                 accept_int_parameter(args, i++, height_opt);
+            else if (arg == "-r")
+                accept_int_parameter(args, i++, rasterizer_threads_opt);
             else if (arg == "-v" || arg == "--verbose")
                 verbose_opt = true;
 
@@ -83,16 +90,40 @@ void command_line::parse(const std::vector<std::string> &args) {
             throw command_line_exception();
         }
         
-        if (width_opt == 0 && height_opt == 0) { // size not specified, use default
+        if (rasterizer_threads_opt < 0) {
+            rasterizer_threads_opt = 2;
+
+            if (verbose())
+                cout << "Defaulting to window size " << rasterizer_threads_opt << " rasterizer threads. " << endl;
+        }
+
+        if (width_opt < 0 && height_opt < 0) { // size not specified, use default
             width_opt = 800;
             height_opt = 600;
+
+            if (verbose())
+                cout << "Defaulting to window size " << width_opt << " x " << height_opt << "." << endl;
         }
-        else if (width_opt == 0 && height_opt != 0) {
+        else if (width_opt < 0 && height_opt >= 0) {
             cerr << "Height option specified but width missing." << std::endl;
             throw command_line_exception();
         }
-        else if (width_opt != 0 && height_opt == 0) {
+        else if (width_opt >= 0 && height_opt < 0) {
             cerr << "Width option specified but height missing." << std::endl;
+            throw command_line_exception();
+        }
+        else {
+            const int minimum_window_dimension = 100;
+
+            if (width_opt < minimum_window_dimension || height_opt < minimum_window_dimension) {
+                cerr << "Window size must be at least " << minimum_window_dimension << " x "
+                    << minimum_window_dimension << " pixels." << endl;
+                throw command_line_exception();
+            }
+        }
+
+        if (rasterizer_threads_opt == 0) {
+            cerr << "Must use at least one rasterizer thread." << endl;
             throw command_line_exception();
         }
         
@@ -108,7 +139,7 @@ void command_line::parse(const std::vector<std::string> &args) {
 
 void command_line::print_usage() const {
     cerr << "usage: softrend (-o|--object <object-file>)|(-s|--scene <scene-name>)" << endl
-         << "                [-w|--width <width> -h|--height <height>] [-v|--verbose]" << endl;
+         << "                [-w|--width <width> -h|--height <height>] [-r <threads>] [-v|--verbose]" << endl;
 }
 
 void command_line::accept_scene_mode_parameter(const vector<string> &args, unsigned arg_index, string &slot) {
@@ -134,27 +165,21 @@ void command_line::accept_int_parameter(const vector<string> &args, unsigned arg
         cerr << "Argument " << arg << " must be followed by an integer." << endl;
         throw command_line_exception();
     }
-    else if (slot != 0) {
+    else if (slot >= 0) {
         cerr << "Argument " << arg << " given multiple times." << endl;
         throw command_line_exception();
     }
-    
+
     string parameter = args[arg_index + 1];
-    
+
     if (parameter.find_first_not_of("0123456789") != string::npos) {
         cerr << "Improperly formatted integer \"" << parameter << "\"." << endl;
         throw command_line_exception();
     }
-        
+
     istringstream number(parameter);
     int result;
     number >> result;
-    const int minimum_window_dimension = 100;
-
-    if (result < minimum_window_dimension) {
-        cerr << "Argument " << arg << " must be at least " << minimum_window_dimension << "." << endl;
-        throw command_line_exception();
-    }
     
     slot = result;
 }

@@ -1,5 +1,6 @@
 #include "demo.h"
 #include "color3.h"
+#include "command_line.h"
 #include "framebuffer.h"
 #include "importer.h"
 #include "math_detail.h"
@@ -14,13 +15,14 @@ using namespace math;
 using namespace math::detail;
 using namespace std;
 
-demo::demo(bool verbose) :
+demo::demo(const command_line &cl) :
+    scene(cl),
     fern(this),
     slab(this) {
 
     create_fern();
 
-    importer::load_wavefront_object(slab, "slab.obj", materials(), verbose);
+    importer::load_wavefront_object(slab, "slab.obj", materials(), cl.verbose());
     slab.set_scaling(1.0f / slab.local_bounding_box().max_semiaxis());
 }
 

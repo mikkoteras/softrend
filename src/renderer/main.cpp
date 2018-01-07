@@ -11,9 +11,12 @@ int main(int argc, char *argv[]) {
 
         if (cl.valid()) {
             window win(cl.width(), cl.height());
+
+            if (cl.verbose())
+                std::cout << "using " << cl.rasterizer_threads() << " threads to rasterize." << std::endl;
             
             if (cl.scene_mode() == command_line::auto_scene) {
-                auto_scene sc(cl.object_filename(), cl.verbose(), auto_scene::bounding_box_touches_origin);
+                auto_scene sc(cl, auto_scene::bounding_box_touches_origin);
                 return win.run(sc);
             }
             else {
@@ -21,11 +24,11 @@ int main(int argc, char *argv[]) {
                     std::cout << "scene: " << cl.scene_name() << std::endl;
                 
                 if (cl.scene_name() == "demo") {
-                    demo sc(cl.verbose());
+                    demo sc(cl);
                     return win.run(sc);
                 }
                 else if (cl.scene_name() == "alpha") {
-                    alpha_test sc(cl.verbose());
+                    alpha_test sc(cl);
                     return win.run(sc);
                 }
             }

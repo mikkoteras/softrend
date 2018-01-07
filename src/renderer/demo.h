@@ -5,9 +5,11 @@
 #include "coordinate_system.h"
 #include "mesh.h"
 
+class command_line;
+
 class demo : public scene {
 public:
-    demo(bool verbose = false);
+    demo(const command_line &cl);
     ~demo();
 
     void prerender(framebuffer &fb) override;

@@ -1,4 +1,5 @@
 #include "freecam_scene.h"
+#include "command_line.h"
 #include "linear_transforms.h"
 #include "math_detail.h"
 #include "math_util.h"
@@ -9,7 +10,8 @@
 using namespace math;
 using namespace math::detail;
 
-freecam_scene::freecam_scene(float initial_eye_radius) :
+freecam_scene::freecam_scene(const command_line &cl, float initial_eye_radius) :
+    scene(cl),
     eye_polar_angle(0.0f),
     eye_radius(initial_eye_radius),
     eye_twist_angle(0.0f) {

@@ -4,11 +4,12 @@
 #include "scene.h"
 #include "mesh.h"
 
+class command_line;
 class framebuffer;
 
 class alpha_test : public scene {
 public:
-    alpha_test(bool verbose);
+    alpha_test(const command_line &cl);
     ~alpha_test();
 
     void compose();

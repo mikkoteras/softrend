@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "command_line.h"
 #include "directional_light.h"
 #include "framebuffer.h"
 #include "linear_transforms.h"
@@ -12,7 +13,8 @@
 using namespace math;
 using namespace std;
 
-scene::scene() :
+scene::scene(const command_line &cl) :
+    num_rasterizer_threads(cl.rasterizer_threads()),
     eye_position{0, 0, 1},
     eye_direction{0, 0, -1},
     eye_up{0, 1, 0},
@@ -303,13 +305,12 @@ void scene::render_triangles(framebuffer &fb) {
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
 
-    const int num_threads = 4;
-    std::vector<thread> threads(num_threads);
-    std::vector<triangle_render_context> contexts(num_threads);
+    std::vector<thread> threads(num_rasterizer_threads);
+    std::vector<triangle_render_context> contexts(num_rasterizer_threads);
 
-    for (int i = 0; i < num_threads; ++i) {
+    for (int i = 0; i < num_rasterizer_threads; ++i) {
         triangle_render_context &context = contexts[i];
-        context.scanline_divisor = num_threads;
+        context.scanline_divisor = num_rasterizer_threads;
         context.scanline_remainder = i;
 
         threads[i] = thread([=, &fb, &context]() {
@@ -317,7 +318,7 @@ void scene::render_triangles(framebuffer &fb) {
         });
     }
 
-    for (int i = 0; i < num_threads; ++i)
+    for (int i = 0; i < num_rasterizer_threads; ++i)
         threads[i].join();
 }
 

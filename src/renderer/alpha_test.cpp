@@ -1,4 +1,5 @@
 #include "alpha_test.h"
+#include "command_line.h"
 #include "directional_light.h"
 #include "framebuffer.h"
 #include "importer.h"
@@ -8,18 +9,18 @@
 
 using namespace math;
 
-alpha_test::alpha_test(bool verbose) :
-    scene(),
+alpha_test::alpha_test(const command_line &cl) :
+    scene(cl),
     backdrop(this),
     red_icosa(this),
     green_icosa(this),
     blue_icosa(this) {
 
     try {
-        importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), verbose);
-        importer::load_wavefront_object(red_icosa, "red_icosa.obj", materials(), verbose);
-        importer::load_wavefront_object(green_icosa, "green_icosa.obj", materials(), verbose);
-        importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), verbose);
+        importer::load_wavefront_object(backdrop, "backdrop.obj", materials(), cl.verbose());
+        importer::load_wavefront_object(red_icosa, "red_icosa.obj", materials(), cl.verbose());
+        importer::load_wavefront_object(green_icosa, "green_icosa.obj", materials(), cl.verbose());
+        importer::load_wavefront_object(blue_icosa, "blue_icosa.obj", materials(), cl.verbose());
     }
     catch (importer::importer_exception) {
         stop();

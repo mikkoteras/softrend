@@ -17,14 +17,17 @@
 #include <string>
 #include <vector>
 
+class command_line;
 class framebuffer;
 class light;
 class mesh;
 
 class scene {
 public:
-    scene();
+    scene(const command_line &cl);
     virtual ~scene();
+
+    scene() = delete;
 
 public: // for runtime options and info
     void cycle_shading_model();
@@ -111,6 +114,9 @@ protected: // runtime configurable parameters
     bool visualize_normals = false;
     bool visualize_reflection_vectors = false;
     bool visualize_wireframe = false;
+
+private: // command line parameters
+    int num_rasterizer_threads;
 
 private:
     struct triangle_distance { // for painter's algortihm

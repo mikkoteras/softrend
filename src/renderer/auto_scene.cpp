@@ -1,5 +1,6 @@
 #include "auto_scene.h"
 #include "color3.h"
+#include "command_line.h"
 #include "directional_light.h"
 #include "importer.h"
 #include "point_light.h"
@@ -10,12 +11,12 @@ using namespace math;
 using namespace std;
 using namespace std::experimental::filesystem;
 
-auto_scene::auto_scene(const path &object_file, bool verbose, object_position pos) :
-    freecam_scene(15.0f),
+auto_scene::auto_scene(const command_line &cl, object_position pos) :
+    freecam_scene(cl, 15.0f),
     object(this) {
 
     try {
-        importer::load_wavefront_object(object, object_file, materials(), verbose);
+        importer::load_wavefront_object(object, cl.object_filename(), materials(), cl.verbose());
         toggle_lights();
         
         bounding_box box = object.local_bounding_box();
