@@ -309,10 +309,12 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_re
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
 
-    if (y < 0) {
-        left.add_v(-y, *context.left_edge_delta);
-        right.add_v(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+
+    if (y_skip != 0) {
+        left.add_v(y_skip, *context.left_edge_delta);
+        right.add_v(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
 
     color4 shade(mat->shade(context.surface_midpoint,
@@ -320,7 +322,7 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_re
                             (context.eye - context.surface_midpoint).unit(),
                             *context.lights));
 
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -338,8 +340,8 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_re
             pixel.add_v(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_v(*context.left_edge_delta);
-        right.add_v(*context.right_edge_delta);
+        left.add_v(context.scanline_divisor, *context.left_edge_delta);
+        right.add_v(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
@@ -353,13 +355,15 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target, triangle
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
 
-    if (y < 0) {
-        left.add_vs(-y, *context.left_edge_delta);
-        right.add_vs(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+
+    if (y_skip != 0) {
+        left.add_vs(y_skip, *context.left_edge_delta);
+        right.add_vs(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
     
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -377,8 +381,8 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target, triangle
             pixel.add_vs(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vs(*context.left_edge_delta);
-        right.add_vs(*context.right_edge_delta);
+        left.add_vs(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vs(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
@@ -392,15 +396,15 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target, tri
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
 
-    if (y < 0) {
-        left.add_vwn(-y, *context.left_edge_delta);
-        right.add_vwn(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+
+    if (y_skip != 0) {
+        left.add_vwn(y_skip, *context.left_edge_delta);
+        right.add_vwn(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
 
-    // TODO: z-coord clip -- really necessary?
-
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -424,8 +428,8 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target, tri
             pixel.add_vwn(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vwn(*context.left_edge_delta);
-        right.add_vwn(*context.right_edge_delta);
+        left.add_vwn(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vwn(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
@@ -439,15 +443,15 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target, trian
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
 
-    if (y < 0) {
-        left.add_vw(-y, *context.left_edge_delta);
-        right.add_vw(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+
+    if (y_skip != 0) {
+        left.add_vw(y_skip, *context.left_edge_delta);
+        right.add_vw(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
 
-    // TODO: z-coord clip -- really necessary?
-
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -472,8 +476,8 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target, trian
             pixel.add_vw(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vw(*context.left_edge_delta);
-        right.add_vw(*context.right_edge_delta);
+        left.add_vw(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vw(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
@@ -487,18 +491,19 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target, triangle_r
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
     
-    if (y < 0) {
-        left.add_vt(-y, *context.left_edge_delta);
-        right.add_vt(-y, *context.right_edge_delta);
-        y = 0;
-    }
+    int y_skip = context.compute_y_skip(y);
 
+    if (y_skip != 0) {
+        left.add_vt(y_skip, *context.left_edge_delta);
+        right.add_vt(y_skip, *context.right_edge_delta);
+        y += y_skip;
+    }
     color4 shade(mat->shade(context.surface_midpoint,
                             context.surface_normal,
                             (context.eye - context.surface_midpoint).unit(),
                             *context.lights));
 
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -519,8 +524,8 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target, triangle_r
             pixel.add_vt(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vt(*context.left_edge_delta);
-        right.add_vt(*context.right_edge_delta);
+        left.add_vt(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vt(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
@@ -534,13 +539,15 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target, triangl
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
     
-    if (y < 0) {
-        left.add_vts(-y, *context.left_edge_delta);
-        right.add_vts(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+
+    if (y_skip != 0) {
+        left.add_vts(y_skip, *context.left_edge_delta);
+        right.add_vts(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
 
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -561,8 +568,8 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target, triangl
             pixel.add_vts(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vts(*context.left_edge_delta);
-        right.add_vts(*context.right_edge_delta);
+        left.add_vts(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vts(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
@@ -576,15 +583,15 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target, tr
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
 
-    if (y < 0) {
-        left.add_vwnt(-y, *context.left_edge_delta);
-        right.add_vwnt(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+
+    if (y_skip != 0) {
+        left.add_vwnt(y_skip, *context.left_edge_delta);
+        right.add_vwnt(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
 
-    // TODO: z-coord clip -- really necessary?
-
-    for (; y <= max_y; ++y) {
+    for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -609,8 +616,8 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target, tr
             pixel.add_vwnt(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vwnt(*context.left_edge_delta);
-        right.add_vwnt(*context.right_edge_delta);
+        left.add_vwnt(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vwnt(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
