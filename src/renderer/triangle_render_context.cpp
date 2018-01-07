@@ -99,3 +99,10 @@ void triangle_render_context::prepare_lower_halftriangle() {
         right_edge_delta = &long_edge_delta;
     }
 }
+
+int triangle_render_context::compute_y_skip(int y) const {
+    if (y < 0)
+        return scanline_remainder - y;
+    else
+        return ((scanline_remainder - (y % scanline_divisor)) + scanline_divisor) % scanline_divisor;
+}

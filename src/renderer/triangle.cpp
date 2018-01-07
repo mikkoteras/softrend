@@ -624,17 +624,13 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target, tria
     int max_y = y + context.halftriangle_height;
     max_y = std::min(max_y, target.pixel_height() - 1);
 
-    if (y < 0) {
-        left.add_vwt(-y, *context.left_edge_delta);
-        right.add_vwt(-y, *context.right_edge_delta);
-        y = 0;
+    int y_skip = context.compute_y_skip(y);
+    
+    if (y_skip != 0) {
+        left.add_vwt(y_skip, *context.left_edge_delta);
+        right.add_vwt(y_skip, *context.right_edge_delta);
+        y += y_skip;
     }
-
-    int y_skip = (y + context.scanline_divisor + context.scanline_remainder) % context.scanline_divisor;
-    left.add_vwt(y_skip, *context.left_edge_delta);
-    right.add_vwt(y_skip, *context.right_edge_delta);
-    y += y_skip;
-
 
     for (; y <= max_y; y += context.scanline_divisor) {
         int x = left.view_position.x();
@@ -661,8 +657,8 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target, tria
             pixel.add_vwt(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vwt(*context.left_edge_delta);
-        right.add_vwt(*context.right_edge_delta);
+        left.add_vwt(context.scanline_divisor, *context.left_edge_delta);
+        right.add_vwt(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 

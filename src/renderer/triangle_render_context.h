@@ -40,6 +40,8 @@ public:
 
     void prepare_upper_halftriangle();
     void prepare_lower_halftriangle();
+
+    int compute_y_skip(int y) const;
     
 private:
     surface_position edge_endpoint[3];
