@@ -76,6 +76,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>../../bin;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
     <OutDir>..\..\bind64\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>../../bin;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
@@ -189,7 +190,7 @@
     <ClCompile Include="surface_position.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="triangle.cpp" />
-    <ClCompile Include="triangle_render.cpp" />
+    <ClCompile Include="triangle_render_context.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
@@ -227,7 +228,7 @@
     <ClInclude Include="surface_position.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="triangle.h" />
-    <ClInclude Include="triangle_render.h" />
+    <ClInclude Include="triangle_render_context.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="window.h" />
