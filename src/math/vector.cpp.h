@@ -2,7 +2,6 @@
 #include "config/optimizations.h"
 #include <cmath>
 
-
 namespace math {
     template<typename float_t, int dim> constexpr vector<float_t, dim>::vector() {
         for (int i = 0; i < dim; ++i)
@@ -19,14 +18,16 @@ namespace math {
             elements[i] = rhs.elements[i];
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim>::vector(const std::initializer_list<float_t> &il) {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim>::vector(const std::initializer_list<float_t> &il) {
         int i = 0;
 
         for (const auto e: il)
             elements[i++] = e;
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim>::vector(const vector<float_t, dim - 1> &v, float_t h) {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim>::vector(const vector<float_t, dim - 1> &v, float_t h) {
         for (int i = 0; i < dim - 1; ++i)
             elements[i] = v.elements[i];
 
@@ -81,7 +82,8 @@ namespace math {
         return elements[dim - 1];
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator+(const vector &rhs) const {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim> vector<float_t, dim>::operator+(const vector &rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -90,7 +92,8 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator-(const vector &rhs) const {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim> vector<float_t, dim>::operator-(const vector &rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -99,7 +102,8 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator*(const float_t rhs) const {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim> vector<float_t, dim>::operator*(const float_t rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -108,7 +112,8 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::operator/(const float_t rhs) const {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim> vector<float_t, dim>::operator/(const float_t rhs) const {
         vector<float_t, dim> result;
 
         for (int i = 0; i < dim; ++i)
@@ -248,7 +253,8 @@ namespace math {
         return result;
     }
 
-    template<typename float_t, int dim> constexpr vector<float_t, dim> vector<float_t, dim>::cross(const vector &rhs) const {
+    template<typename float_t, int dim>
+    constexpr vector<float_t, dim> vector<float_t, dim>::cross(const vector &rhs) const {
         static_assert(dim == 3, "vector::cross() is undefined when dim != 3");
         return vector<float_t, 3>{
             // TODO can this use FMA?
