@@ -310,7 +310,10 @@ void scene::render_triangles(framebuffer &fb) {
     for (int i = 0; i < num_threads; ++i) {
         contexts[i].scanline_divisor = num_threads;
         contexts[i].scanline_remainder = i;
-        threads[i] = thread(&scene::render_triangles_threaded, this, fb, contexts[i], triangle_count);
+
+        threads[i] = thread([&]() {
+            render_triangles_threaded(fb, contexts[i], triangle_count);
+        });
     }
 
     for (int i = 0; i < num_threads; ++i)
