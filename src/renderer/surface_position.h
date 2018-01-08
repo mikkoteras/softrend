@@ -4,19 +4,30 @@
 #include "color3.h"
 #include "vector.h"
 
-// TODO: refactor using templates!
-
 // All the data required for a triangle render at a point. Depending
 // on the shading model and available data, many of the fields might
 // not get used.
 struct surface_position {
 public:
     math::vector3f view_position; // TODO: x and y are mostly unnecessary
-    math::vector3f world_position;
-    math::vector3f normal; // only used when interpolating normals
-    math::vector2f uv;
-    color3 shade; // only used with gouraud
+    math::vector3f world_position; // phong
+    math::vector3f normal; // smooth phong polys
+    math::vector2f uv; // textured polys
+    color3 shade; // gouraud
 
+public:
+    // Add one step to the members enumerated in interpolation_mode
+    template<unsigned interpolation_mode>
+    void add(const surface_position &delta);
+
+    // Add "multiplier" steps to the members enumerated in interpolation_mode
+    template<unsigned interpolation_mode>
+    void add(float multiplier, const surface_position &delta);
+
+    // Compute a single step delta for the members enumerated in interpolation_mode
+    template<unsigned interpolation_mode>
+    void compute_delta(const surface_position &v1, const surface_position &v2, float steps);
+    
 public:
     // legend: v = view coords, w = world coords, n = surface normals, t = texture coords, s = shade
     void add_vwnts(const surface_position &delta);
@@ -51,5 +62,7 @@ public:
 
     std::string to_string() const;
 };
+
+#include "surface_position.cpp.h"
 
 #endif
