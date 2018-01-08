@@ -8,6 +8,7 @@ material_library::material_library() {
     null_material.set_ambient_reflectivity(color3(1.0f, 1.0f, 1.0f));
     null_material.set_diffuse_reflectivity(color3(1.0f, 1.0f, 1.0f));
     null_material.set_specular_reflectivity(color3(1.0f, 1.0f, 1.0f));
+    null_material.set_specular_exponent(50.0f);
 }
 
 material_library::~material_library() {

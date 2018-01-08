@@ -1,8 +1,8 @@
 #ifndef MATERIAL_LIBRARY_H
 #define MATERIAL_LIBRARY_H
 
-#include "constant_color_material.h"
 #include "material.h"
+#include "specular_material.h"
 #include "texture.h"
 #include <map>
 #include <memory>
@@ -24,7 +24,7 @@ public:
 private:
     std::map<std::string, texture> textures;
     std::map<std::string, std::unique_ptr<material>> materials;
-    constant_color_material null_material;
+    specular_material null_material;
 };
 
 #endif
