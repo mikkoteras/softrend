@@ -300,6 +300,8 @@ bool triangle::triangle_winds_clockwise(triangle_render_context &context) {
 }
 
 void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = colored_flat;
+
     if (context.halftriangle_height <= 0)
         return;
 
@@ -312,8 +314,8 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_re
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_v(y_skip, *context.left_edge_delta);
-        right.add_v(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
 
@@ -327,25 +329,27 @@ void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_re
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_v(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_v(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
         for (; x <= max_x; ++x) {
             target.set_pixel_with_z_clip(x, y, pixel.view_position.z(), shade);
-            pixel.add_v(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_v(context.scanline_divisor, *context.left_edge_delta);
-        right.add_v(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_colored_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = colored_gouraud;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -358,8 +362,8 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target, triangle
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_vs(y_skip, *context.left_edge_delta);
-        right.add_vs(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
     
@@ -368,25 +372,27 @@ void triangle::render_colored_gouraud_halftriangle(framebuffer &target, triangle
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vs(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vs(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
         for (; x <= max_x; ++x) {
             target.set_pixel_with_z_clip(x, y, pixel.view_position.z(), pixel.shade);
-            pixel.add_vs(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vs(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vs(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = colored_smooth_phong;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -399,8 +405,8 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target, tri
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_vwn(y_skip, *context.left_edge_delta);
-        right.add_vwn(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
 
@@ -409,11 +415,11 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target, tri
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vwn(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vwn(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
@@ -425,15 +431,17 @@ void triangle::render_colored_smooth_phong_halftriangle(framebuffer &target, tri
                                                                  (context.eye - pixel.world_position).unit(),
                                                                  *context.lights));
             
-            pixel.add_vwn(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vwn(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vwn(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_colored_flat_phong_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = colored_flat_phong;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -446,8 +454,8 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target, trian
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_vw(y_skip, *context.left_edge_delta);
-        right.add_vw(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
 
@@ -456,11 +464,11 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target, trian
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vw(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vw(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
@@ -473,15 +481,17 @@ void triangle::render_colored_flat_phong_halftriangle(framebuffer &target, trian
                                                                  pixel.uv,
                                                                  *context.lights));
 
-            pixel.add_vw(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vw(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vw(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_textured_flat_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = textured_flat;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -494,8 +504,8 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target, triangle_r
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_vt(y_skip, *context.left_edge_delta);
-        right.add_vt(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
     color4 shade(mat->shade(context.surface_midpoint,
@@ -508,11 +518,11 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target, triangle_r
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vt(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vt(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
@@ -521,15 +531,17 @@ void triangle::render_textured_flat_halftriangle(framebuffer &target, triangle_r
                 target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
                                                       shade * mat->diffuse_texture_map(pixel.uv));
             
-            pixel.add_vt(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vt(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vt(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_textured_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = textured_gouraud;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -542,8 +554,8 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target, triangl
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_vts(y_skip, *context.left_edge_delta);
-        right.add_vts(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
 
@@ -552,11 +564,11 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target, triangl
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vts(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vts(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
@@ -565,15 +577,17 @@ void triangle::render_textured_gouraud_halftriangle(framebuffer &target, triangl
                 target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
                                                       pixel.shade * mat->diffuse_texture_map(pixel.uv));
             
-            pixel.add_vts(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vts(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vts(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = textured_smooth_phong;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -586,8 +600,8 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target, tr
     int y_skip = context.compute_y_skip(y);
 
     if (y_skip != 0) {
-        left.add_vwnt(y_skip, *context.left_edge_delta);
-        right.add_vwnt(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
 
@@ -596,11 +610,11 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target, tr
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vwnt(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vwnt(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
@@ -613,15 +627,17 @@ void triangle::render_textured_smooth_phong_halftriangle(framebuffer &target, tr
                                                                  pixel.uv,
                                                                  *context.lights));
 
-            pixel.add_vwnt(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vwnt(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vwnt(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 
 void triangle::render_textured_flat_phong_halftriangle(framebuffer &target, triangle_render_context &context) const {
+    static const combined_interpolation_mode_t mode = textured_flat_phong;
+    
     if (context.halftriangle_height <= 0)
         return;
 
@@ -634,8 +650,8 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target, tria
     int y_skip = context.compute_y_skip(y);
     
     if (y_skip != 0) {
-        left.add_vwt(y_skip, *context.left_edge_delta);
-        right.add_vwt(y_skip, *context.right_edge_delta);
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
         y += y_skip;
     }
 
@@ -644,11 +660,11 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target, tria
         int max_x = right.view_position.x();
         surface_position pixel = left;
         surface_position delta;
-        delta.compute_delta_vwt(left, right, max_x - x);
+        delta.compute_delta<mode>(left, right, max_x - x);
         max_x = std::min(max_x, target.pixel_width() - 1);
 
         if (x < 0) {
-            pixel.add_vwt(-x, delta);
+            pixel.add<mode>(-x, delta);
             x = 0;
         }
 
@@ -661,11 +677,11 @@ void triangle::render_textured_flat_phong_halftriangle(framebuffer &target, tria
                                                                  pixel.uv,
                                                                  *context.lights));
 
-            pixel.add_vwt(delta); // TODO: skip view_position, use z alone
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
         }
 
-        left.add_vwt(context.scanline_divisor, *context.left_edge_delta);
-        right.add_vwt(context.scanline_divisor, *context.right_edge_delta);
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
     }
 }
 

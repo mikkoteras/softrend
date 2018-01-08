@@ -30,7 +30,9 @@ enum combined_interpolation_mode_t {
     textured_flat         = interpolate_view_position | interpolate_uv,
     textured_gouraud      = interpolate_view_position | interpolate_uv | interpolate_shade,
     textured_flat_phong   = interpolate_view_position | interpolate_world_position | interpolate_uv,
-    textured_smooth_phong = interpolate_view_position | interpolate_world_position | interpolate_normal | interpolate_uv
+    textured_smooth_phong = interpolate_view_position | interpolate_world_position | interpolate_normal | interpolate_uv,
+    full                  = interpolate_view_position | interpolate_world_position | interpolate_normal |
+                            interpolate_uv | interpolate_uv
 };
 
 #endif

@@ -1,10 +1,12 @@
 // This depends on the compiler being able to cut off the statement if (false) ...;
-// If this won't work, enable_if might be tried, but it's kind of evil.
+// If this won't work, template metamagic might be tried.
 
 #include "types.h"
 
 template<unsigned interpolation_mode>
 void surface_position::add(const surface_position &delta) {
+    
+    
     if (interpolation_mode & interpolate_view_position)
         view_position += delta.view_position;
 

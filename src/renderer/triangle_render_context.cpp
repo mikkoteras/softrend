@@ -49,7 +49,7 @@ void triangle_render_context::prepare_upper_halftriangle() {
     int bot_y = vertex[2]->view_position.y();
 
     halftriangle_height = mid_y - top_y;
-    long_edge_delta.compute_delta_vwnts(*vertex[0], *vertex[2], bot_y - top_y); // TODO vwnts?
+    long_edge_delta.compute_delta<full>(*vertex[0], *vertex[2], bot_y - top_y);
     
     if (halftriangle_height == 0) {
         long_edge_midpoint = *vertex[0];
@@ -57,11 +57,11 @@ void triangle_render_context::prepare_upper_halftriangle() {
     }
 
     float top_half_height = halftriangle_height;
-    short_edge_delta.compute_delta_vwnts(*vertex[0], *vertex[1], top_half_height);
+    short_edge_delta.compute_delta<full>(*vertex[0], *vertex[1], top_half_height);
 
     left_edge_top = right_edge_top = vertex[0];
     long_edge_midpoint = *vertex[0];
-    long_edge_midpoint.add_vwnts(top_half_height, long_edge_delta);
+    long_edge_midpoint.add<full>(top_half_height, long_edge_delta);
     
     if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
         left_edge_delta = &long_edge_delta;
@@ -84,7 +84,7 @@ void triangle_render_context::prepare_lower_halftriangle() {
         return; // no scanlines to draw
 
     float bot_half_height = halftriangle_height;
-    short_edge_delta.compute_delta_vwnts(*vertex[1], *vertex[2], bot_half_height);
+    short_edge_delta.compute_delta<full>(*vertex[1], *vertex[2], bot_half_height);
 
     if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
         left_edge_top = &long_edge_midpoint;
