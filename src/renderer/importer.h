@@ -54,9 +54,11 @@ private:
     std::string accept_until_eol();
     void accept_literal(char c);
     std::string accept_command();
+    int get_line_number() const;
 
 private:
     static void chomp(std::string &s);
+    std::string error_prefix() const;
 
 private:
     static bool uvw_warning_given;
@@ -70,6 +72,7 @@ private:
     std::istringstream line_parse;
     bool at_eof;
     bool verbose;
+    int line_number;
 };
 
 #endif

@@ -72,12 +72,12 @@ void importer::load_wavefront_object(mesh &target,
                 }
 
                 if (vertex_indices.size() < 3) {
-                    cerr << "importer: too few vertices in poly: " << imp.full_line() << endl;
+                    cerr << imp.error_prefix() << "too few vertices in poly: " << imp.full_line() << endl;
                     throw importer_exception();
                 }
 
                 if (!include_normals) {
-                    cerr << "importer: objects without normals not implemented yet" << endl;
+                    cerr << "objects without normals not implemented yet" << endl;
                     throw importer_exception();
                 }
 
@@ -255,7 +255,8 @@ bool importer::uvw_warning_given = false;
 importer::importer(const path &source, bool verbose) :
     input(source.c_str()),
     at_eof(false),
-    verbose(verbose) {
+    verbose(verbose),
+    line_number(0) {
 
     original_working_directory = current_path();
     path p = path(source).parent_path();
@@ -328,10 +329,12 @@ void importer::advance_to_next_line() {
 
     getline(input, current_line);
     chomp(current_line);
+    line_number += 1;
 
     while (current_line.empty() && !input.eof()) {
         getline(input, current_line);
         chomp(current_line);
+        line_number += 1;
     }
 
     if (input.eof()) {
@@ -363,7 +366,7 @@ string importer::full_line() {
 
 char importer::peek_char() {
     if (line_parse.eof()) {
-        cerr << "importer: expected character, got EOF." << endl;
+        cerr << error_prefix() << "expected character, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -376,7 +379,7 @@ bool importer::next_char_is(char c) {
 
 int importer::accept_int() {
     if (line_parse.eof()) {
-        cerr << "importer: expected integer, got EOF." << endl;
+        cerr << error_prefix() << "expected integer, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -387,7 +390,7 @@ int importer::accept_int() {
 
 float importer::accept_float() {
     if (line_parse.eof()) {
-        cerr << "importer: expected floating point number, got EOF." << endl;
+        cerr << error_prefix() << "expected floating point number, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -398,7 +401,7 @@ float importer::accept_float() {
 
 char importer::accept_char() {
     if (line_parse.eof()) {
-        cerr << "importer: expected character, got EOF." << endl;
+        cerr << error_prefix() << "expected character, got EOF." << endl;
         throw importer_exception();
     }
 
@@ -416,8 +419,10 @@ string importer::accept_until_eol() {
 }
 
 void importer::accept_literal(char c) {
-    if (accept_char() != c) {
-        cerr << "importer: unexpected character." << endl;
+    char got = accept_char();
+    
+    if (got != c) {
+        cerr << error_prefix() << "unexpected character \'" << got << "\' (expected " << c << ")" << endl;
         throw importer_exception();
     }
 }
@@ -450,6 +455,10 @@ string importer::accept_command() {
     return result;
 }
 
+int importer::get_line_number() const {
+    return line_number;
+}
+
 void importer::chomp(string &s) {
     if (!s.empty()) {
         size_t i = s.size() - 1;
@@ -459,4 +468,10 @@ void importer::chomp(string &s) {
 
         s.resize(i + 1);
     }
+}
+
+std::string importer::error_prefix() const {
+    std::ostringstream o;
+    o << "importer: line " << line_number << ": ";
+    return o.str();
 }
