@@ -23,14 +23,13 @@ LIBS=-lmath -lstdc++
 DEBUGFLAGS=-g
 OPTIMIZATIONFLAGS=-O3 -march=haswell
 
-all: default
+default: release
 debug: CFLAGS += $(DEBUGFLAGS)
 debug: LDFLAGS += $(DEBUGFLAGS)
-debug: default
+debug: $(TARGET)
 release: CFLAGS += $(OPTIMIZATIONFLAGS)
 release: LDFLAGS += $(OPTIMIZATIONFLAGS)
-release: default
-default: $(TARGET)
+release: $(TARGET)
 
 $(TARGET): $(OBJS)
 	@mkdir -p $(BINDIR)
@@ -49,6 +48,6 @@ $(BINDIR):
 	mkdir $(BINDIR)
 
 clean:
-	rm -f *.o *.d *~
+	@rm -f *.o *.d *~
 
 -include $(DEPS)

@@ -9,9 +9,9 @@ TARGETS=$(LIB) $(LIBTEST) $(EXE)
 MAKE=make
 MAKEARGS=-j 4
 
+default: release
 debug: MAKEARGS += debug
 debug: all
-
 release: MAKEARGS += release
 release: all
 
@@ -21,8 +21,9 @@ all:
 	$(MAKE) $(MAKEARGS) -C renderer
 
 clean:
-	for d in math math_tests renderer; do cd $$d; rm -f *.o *.d *~; cd ..; done
+	$(MAKE) -C math clean
+	$(MAKE) -C math_tests clean
+	$(MAKE) -C renderer clean
 
 clobber: clean
 	rm -rf ../bin ../lib
-

@@ -51,13 +51,10 @@ OPTIMIZATIONFLAGS=-O3 -march=haswell
 LIBDIRS=-L../../lib -L/usr/lib/x86_64-linux-gnu
 LIBS=-lmath -lstdc++ -lstdc++fs -lpthread -lSDL2 -lSDL2_ttf
 
-all: default
-default: debug
-
+default: release
 debug: CFLAGS += $(DEBUGFLAGS)
 debug: LDFLAGS += $(DEBUGFLAGS)
 debug: $(TARGET)
-
 release: CFLAGS += $(OPTIMIZATIONFLAGS)
 release: LDFLAGS += $(OPTIMIZATIONFLAGS)
 release: $(TARGET)
@@ -76,6 +73,9 @@ $(TARGET): $(OBJS)
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
 
 -include $(DEPS)
+
+clean:
+	@rm -f *.o *.d *~
 
 loc:
 	@wc -l $(ls ../*/*.{h,cpp} | grep -v lodepng)

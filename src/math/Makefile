@@ -15,12 +15,9 @@ ARFLAGS=rcs
 DEBUGFLAGS=-g
 OPTIMIZATIONFLAGS=-O3 -march=haswell
 
-all: default
-default: debug
-
+default: release
 debug: CFLAGS += $(DEBUGFLAGS)
 debug: $(TARGET)
-
 release: CFLAGS += $(OPTIMIZATIONFLAGS)
 release: $(TARGET)
 
@@ -38,6 +35,9 @@ $(TARGET): $(OBJS)
 	@$(DEP) $(DEPFLAGS) $(INCLUDEDIRS) $< > $@
 
 -include $(DEPS)
+
+clean:
+	@rm -f *.o *.d *~
 
 loc:
 	@wc -l $(ls ../*/*.{h,cpp} | grep -v lodepng)
