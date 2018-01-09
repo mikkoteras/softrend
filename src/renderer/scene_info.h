@@ -18,6 +18,7 @@ public:
 private:
     std::string benchmark_stats;
     std::string render_stats;
+    std::string scene_stats;
 };
 
 #endif

@@ -180,6 +180,22 @@ const vector3f *scene::view_coordinate_data() const {
     return view_coordinates.data();
 }
 
+int scene::get_vertex_count() const {
+    return local_coordinates.size();
+}
+
+int scene::get_normal_count() const {
+    return local_normals.size();
+}
+
+int scene::get_visible_line_count() const {
+    return num_visible_lines;
+}
+
+int scene::get_visible_triangle_count() const {
+    return num_visible_triangles;
+}
+
 void scene::start() {
     clock.start();
 }
@@ -273,12 +289,16 @@ void scene::transform_coordinates() {
 }
 
 void scene::render_lines(framebuffer &fb) {
+    num_visible_lines = 0;
+
     for (mesh *m: meshes) {
         int min = m->min_line_index();
         int max = m->max_line_index();
 
         for (int i = min; i <= max; ++i)
             lines[i].render(fb, *this);
+
+        num_visible_lines += (max - min + 1);
     }
 }
 
@@ -300,6 +320,8 @@ void scene::render_triangles(framebuffer &fb) {
             triangle_order[triangle_count++].z_coordinate = farthest_vertex_z;
         }
     }
+
+    num_visible_triangles = triangle_count;
 
     // sort triangles, first is furthest forward from the screen
     auto first = triangle_order.begin();

@@ -77,6 +77,12 @@ public:
     const math::vector3f *view_coordinate_data() const;
 
 public:
+    int get_vertex_count() const;
+    int get_normal_count() const;
+    int get_visible_line_count() const;
+    int get_visible_triangle_count() const;
+
+public:
     void start();
     void stop();
     virtual bool stopped() const;
@@ -136,7 +142,11 @@ private:
     std::vector<math::vector3f> world_coordinates;
     std::vector<math::vector3f> world_normals;
     std::vector<math::vector3f> view_coordinates;
-    
+
+private:
+    int num_visible_lines;
+    int num_visible_triangles;
+
 private:
     math::vector3f eye_position;
     math::vector3f eye_direction;

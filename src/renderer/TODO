@@ -1,8 +1,9 @@
 Missing features
 ================
 
-* Add face/point/normal/etc counts to text overlay.
-* The triange_render class screams for refactoring.
+* The triange_render_context class screams for refactoring. Maybe copy the surface_point data
+  into the triangle object directly, so the halfpoly preparation can be done concurrently.
+  The means getting rid of triangle_render_context entrirely.
 * Add classes to encapsulate the solid color v. mapped color decision.
 * Fix line plotting bugs:
     - z-lines near the horizon are botched.
