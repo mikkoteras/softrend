@@ -157,7 +157,7 @@ void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
         }
     }
 }
-#include <iostream>
+
 void demo::create_fern() {
     create_fern_recursive(vector3f{0.0f, 0.0f, 0.0f}, vector3f{0.0f, 5.5f, 0.0f}, 5);
 }
