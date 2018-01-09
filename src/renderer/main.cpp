@@ -1,5 +1,4 @@
 #include "window.h"
-#include "alpha_test.h"
 #include "auto_scene.h"
 #include "command_line.h"
 #include "demo.h"
@@ -25,10 +24,6 @@ int main(int argc, char *argv[]) {
                 
                 if (cl.scene_name() == "demo") {
                     demo sc(cl);
-                    return win.run(sc);
-                }
-                else if (cl.scene_name() == "alpha") {
-                    alpha_test sc(cl);
                     return win.run(sc);
                 }
             }

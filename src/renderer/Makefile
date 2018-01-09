@@ -1,7 +1,6 @@
 BINDIR=../../bin
 TARGET=$(BINDIR)/softrend
-SOURCES=alpha_test.cpp \
-        animation_clock.cpp \
+SOURCES=animation_clock.cpp \
         auto_scene.cpp \
         benchmark.cpp \
         benchmark_frame.cpp \
