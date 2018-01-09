@@ -218,6 +218,10 @@ void importer::load_wavefront_materials(const std::string &filename, material_li
                 else
                     spec.emissive_map = tex;
             }
+            else if (command == "Tf" || command == "sharpness" || command == "Ni") {
+                cerr << "Warning: unsupported command " << command << ", ignoring." << endl;
+                throw importer_exception();
+            }
             else {
                 cerr << "Unsupported command " << command << "." << endl;
                 throw importer_exception();
