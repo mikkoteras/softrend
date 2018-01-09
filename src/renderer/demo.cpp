@@ -133,10 +133,10 @@ void demo::compose_slab_demo() {
     slab.set_rotation(0.8f * sin<float>(0.6f * t) + 0.8f, 0.0f, 0.1f);
 
     light_sources().clear();
-    light_sources().set_ambient_light(color3(0.2f, 0.2f, 0.2f));
-    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 1.0f}, color3(1.0f, 0.0f, 0.0f)));
-    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 6.0f}, color3(0.0f, 1.0f, 0.0f)));
-    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 11.0f}, color3(0.0f, 0.0f, 1.0f)));
+    light_sources().set_ambient_light(0x505050_rgb);
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 1.0f}, 0xFF0000_rgb));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 6.0f}, 0x00FF00_rgb));
+    light_sources().add_light(point_light(vector3f{1.0f, 9.0f, 11.0f}, 0x0000FF_rgb));
 }
 
 void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
@@ -157,7 +157,7 @@ void demo::key_down_event(int sdl_keycode, bool ctrl_is_down) {
         }
     }
 }
-
+#include <iostream>
 void demo::create_fern() {
     create_fern_recursive(vector3f{0.0f, 0.0f, 0.0f}, vector3f{0.0f, 5.5f, 0.0f}, 5);
 }
@@ -167,13 +167,13 @@ void demo::create_fern_recursive(const vector3f &root, const vector3f &tip, int 
     color3 c;
 
     if (generations >= 4)
-        c = color3(0.61f, 0.47f, 0.29f);
+        c = 0x9B7749_rgb;
     else if (generations == 3)
-        c = color3(0.25f, 0.50f, 0.00f);
+        c = 0x3F7F00_rgb;
     else if (generations == 2)
-        c = color3(0.06f, 0.89f, 0.04f);
+        c = 0x0FE20A_rgb;
     else
-        c = color3(0.37f, 0.89f, 0.50f);
+        c = 0x5EE27F_rgb;
 
     color3 c1 = (0.2f * root.z() + 1.0f) * 0.7f * c;
     color3 c2 = (0.2f * tip.z() + 1.0f) * 1.3f * c;

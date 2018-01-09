@@ -21,7 +21,7 @@ scene::scene(const command_line &cl) :
     fov(120.0f / (2.0f * detail::pi<float>())),
     world_to_view_matrix(matrix4x4f::identity()),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
-    coords(this, color3(0.7f, 0.6f, 0.6f), color3(0.6f, 0.7f, 0.6f), color3(0.6f, 0.6f, 0.7f)),
+    coords(this, 0xB29999_rgb, 0x99B299_rgb, 0x9999B2_rgb),
     stop_requested(false) {
 }
 
@@ -372,8 +372,8 @@ void scene::overlay_wireframe_visualization(framebuffer &fb) {
                 const vector3f &v1 = view_coordinates[vertex_indices[i]];
                 const vector3f &v2 = view_coordinates[vertex_indices[(i + 1) % 3]];
                 line::render(fb,
-                             v1.x(), v1.y(), v1.z() + 0.01f, color3(0.1f, 0.1f, 0.1f),
-                             v2.x(), v2.y(), v2.z() + 0.01f, color3(0.1f, 0.1f, 0.1f));
+                             v1.x(), v1.y(), v1.z() + 0.01f, 0x191919_rgb,
+                             v2.x(), v2.y(), v2.z() + 0.01f, 0x191919_rgb);
             }
         }
 }

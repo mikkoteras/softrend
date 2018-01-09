@@ -41,4 +41,6 @@ private:
     float r, g, b, a;
 };
 
+color4 operator"" _rgba(unsigned long long rgba);
+
 #endif

@@ -1,4 +1,5 @@
 #include "alpha_test.h"
+#include "color3.h"
 #include "command_line.h"
 #include "directional_light.h"
 #include "framebuffer.h"
@@ -27,8 +28,8 @@ alpha_test::alpha_test(const command_line &cl) :
         return;
     }
 
-    light_sources().set_ambient_light(color3(0.2f, 0.2f, 0.2f));
-    light_sources().add_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, color3(0.5f, 0.5f, 0.5f)));
+    light_sources().set_ambient_light(0x505050_rgb);
+    light_sources().add_light(directional_light(vector3f{0.0f, -1.0f, 0.0f}, 0x808080_rgb));
 
     set_eye_position(vector3f{0.0f, 0.0f, 5.0f});
     set_eye_reference_point(vector3f{0.0f, 0.0f, 0.0f});

@@ -6,6 +6,8 @@
 
 class color4;
 
+class color3_construction_exception{};
+
 class color3 {
 public:
     color3();
@@ -16,7 +18,7 @@ public:
     color3(color3 &&rhs);
     const color3 &operator=(const color3 &rhs);
     const color3 &operator=(color3 &&rhs);
-    
+
     float red() const;
     float green() const;
     float blue() const;
@@ -55,5 +57,7 @@ private:
 };
 
 color3 operator*(float lhs, const color3 &rhs);
+color3 operator"" _rgb(unsigned long long rgb);
+
 
 #endif

@@ -5,10 +5,7 @@
 using namespace math;
 
 coordinate_system::coordinate_system(scene *parent_scene) :
-    coordinate_system(parent_scene,
-                      color3(0.8f, 0.2f, 0.2f),
-                      color3(0.2f, 0.8f, 0.2f),
-                      color3(0.2f, 0.2f, 0.8f)) {
+    coordinate_system(parent_scene, 0xD05050_rgb, 0x50D050_rgb, 0x5050D0_rgb) {
 }
 
 coordinate_system::coordinate_system(scene *parent_scene, const color3 &x, const color3 &y, const color3 &z) :

@@ -205,10 +205,21 @@ std::string color3::to_string() const {
     uint32_t hex = (rint << 16) | (gint << 8) | bint;
 
     ostringstream result;
-    result << setbase(16) << setw(6) << setfill('0') << hex << "rgb";
+    result << "0x" << setbase(16) << setw(6) << setfill('0') << hex << "_rgb";
     return result.str();
 }
 
 color3 operator*(float lhs, const color3 &rhs) {
     return rhs * lhs;
+}
+
+color3 operator"" _rgb(unsigned long long rgb) {
+    if ((rgb & 0xFF000000ull) != 0)
+        throw color3_construction_exception();
+
+    float r = ((rgb & 0x00FF0000ull) >> 16) / 255.0f;
+    float g = ((rgb & 0x0000FF00ull) >> 8)  / 255.0f;
+    float b =  (rgb & 0x000000FFull)        / 255.0f;
+
+    return color3(r, g, b);
 }

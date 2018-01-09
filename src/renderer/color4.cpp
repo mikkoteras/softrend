@@ -128,6 +128,15 @@ std::string color4::to_string() const {
     uint32_t hex = (rint << 24) | (gint << 16) | (bint << 8) | aint;
 
     ostringstream result;
-    result << setbase(16) << setw(8) << setfill('0') << hex << "rgba";
+    result << "0x" << setbase(16) << setw(8) << setfill('0') << hex << "_rgba";
     return result.str();
+}
+
+color4 operator"" _rgba(unsigned long long rgba) {
+    float r = ((rgba & 0xFF000000ull) >> 24) / 255.0f;
+    float g = ((rgba & 0x00FF0000ull) >> 16) / 255.0f;
+    float b = ((rgba & 0x0000FF00ull) >> 8)  / 255.0f;
+    float a =  (rgba & 0x000000FFull)        / 255.0f;
+
+    return color4(r, g, b, a);
 }
