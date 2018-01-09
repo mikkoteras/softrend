@@ -94,7 +94,7 @@ void command_line::parse(const std::vector<std::string> &args) {
             rasterizer_threads_opt = 2;
 
             if (verbose())
-                cout << "Defaulting to window size " << rasterizer_threads_opt << " rasterizer threads. " << endl;
+                cout << "Defaulting to " << rasterizer_threads_opt << " rasterizer threads. " << endl;
         }
 
         if (width_opt < 0 && height_opt < 0) { // size not specified, use default
