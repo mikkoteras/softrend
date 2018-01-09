@@ -3,7 +3,7 @@
 
 #include "mesh.h"
 #include "color3.h"
-#include "vector.h"
+#include "math/vector.h"
 #include <fstream>
 #include <sstream>
 #include <string>

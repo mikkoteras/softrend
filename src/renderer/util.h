@@ -2,9 +2,9 @@
 #define UTIL_H
 
 #include "bounding_box.h"
-#include "matrix.h"
 #include "types.h"
-#include "vector.h"
+#include "math/matrix.h"
+#include "math/vector.h"
 #include <algorithm>
 #include <iomanip>
 #include <sstream>

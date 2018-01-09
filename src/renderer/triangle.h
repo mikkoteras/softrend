@@ -1,10 +1,10 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-#include "matrix.h"
 #include "triangle_render_context.h"
 #include "types.h"
-#include "vector.h"
+#include "math/matrix.h"
+#include "math/vector.h"
 #include <vector>
 
 class framebuffer;

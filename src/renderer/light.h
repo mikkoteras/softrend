@@ -2,7 +2,7 @@
 #define LIGHT_H
 
 #include "color3.h"
-#include "vector.h"
+#include "math/vector.h"
 
 class light {
 public:

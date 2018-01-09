@@ -3,7 +3,7 @@
 
 #include "light.h"
 #include "color3.h"
-#include "vector.h"
+#include "math/vector.h"
 
 class point_light : public light {
 public:

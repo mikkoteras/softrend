@@ -1,6 +1,6 @@
 #include "color3.h"
 #include "color4.h"
-#include "math_util.h"
+#include "math/math_util.h"
 #include <cmath>
 #include <iomanip>
 #include <sstream>

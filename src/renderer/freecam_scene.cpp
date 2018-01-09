@@ -1,9 +1,9 @@
 #include "freecam_scene.h"
 #include "command_line.h"
-#include "linear_transforms.h"
-#include "math_detail.h"
-#include "math_util.h"
-#include "vector.h"
+#include "math/linear_transforms.h"
+#include "math/math_detail.h"
+#include "math/math_util.h"
+#include "math/vector.h"
 #include "SDL.h"
 #include <algorithm>
 

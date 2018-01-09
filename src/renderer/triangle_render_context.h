@@ -3,7 +3,7 @@
 
 #include "color3.h"
 #include "surface_position.h"
-#include "vector.h"
+#include "math/vector.h"
 #include <string>
 
 class light_list;

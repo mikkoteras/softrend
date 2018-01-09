@@ -5,8 +5,8 @@
 #include "framebuffer.h"
 #include "importer.h"
 #include "line.h"
-#include "math_detail.h"
-#include "vector.h"
+#include "math/math_detail.h"
+#include "math/vector.h"
 
 using namespace math;
 

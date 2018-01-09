@@ -3,11 +3,11 @@
 #include "command_line.h"
 #include "framebuffer.h"
 #include "importer.h"
-#include "math_detail.h"
-#include "math_util.h"
 #include "point_light.h"
-#include "vector.h"
-#include "vector_util.h"
+#include "math/math_detail.h"
+#include "math/math_util.h"
+#include "math/vector.h"
+#include "math/vector_util.h"
 #include "SDL.h"
 #include <algorithm>
 

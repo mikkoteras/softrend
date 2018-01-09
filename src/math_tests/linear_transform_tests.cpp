@@ -1,8 +1,8 @@
 #include "linear_transform_tests.h"
-#include "linear_transforms.h"
-#include "matrix.h"
 #include "test_harness.h"
-#include "vector.h"
+#include "math/linear_transforms.h"
+#include "math/matrix.h"
+#include "math/vector.h"
 
 void translation_tests();
 void scale_tests();
@@ -10,6 +10,7 @@ void rotation_tests();
 void combined_tests();
 
 using namespace math;
+using namespace math::detail;
 using namespace math::linear_transforms;
 
 template<typename float_t, int dim> bool is_approximately(const vector<float_t, dim> &lhs, const vector<float_t, dim> &rhs) {
@@ -59,11 +60,10 @@ void scale_tests() {
 }
 
 void rotation_tests() {
-    const float pi = M_PI;
     vector4f a{10, 0, 0, 1};
-    vector4f b = rotate3z<float>(pi / 2) * a;
-    vector4f c = rotate3x<float>(pi / 2) * b;
-    vector4f d = rotate3y<float>(pi / 2) * c;
+    vector4f b = rotate3z<float>(pi<float>() / 2) * a;
+    vector4f c = rotate3x<float>(pi<float>() / 2) * b;
+    vector4f d = rotate3y<float>(pi<float>() / 2) * c;
     ASSERT(is_approximately(b, vector4f{0, -10, 0, 1}));
     ASSERT(is_approximately(c, vector4f{0, 0, 10, 1}));
     ASSERT(is_approximately(d, vector4f{-10, 0, 0, 1}));

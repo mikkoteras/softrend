@@ -5,7 +5,7 @@
 #include "light_list.h"
 #include "specular_material.h"
 #include "texture.h"
-#include "vector.h"
+#include "math/vector.h"
 
 using namespace math;
 

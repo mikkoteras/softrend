@@ -1,6 +1,6 @@
 #include "test_harness.h"
 #include "matrix_tests.h"
-#include "matrix.h"
+#include "math/matrix.h"
 
 void matrix_creation_tests();
 void matrix_comparison_tests();

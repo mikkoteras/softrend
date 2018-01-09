@@ -1,5 +1,5 @@
 #include "bounding_box.h"
-#include "vector_util.h"
+#include "math/vector_util.h"
 #include <cmath>
 #include <utility>
 

@@ -3,7 +3,7 @@
 #include "light.h"
 #include "light_list.h"
 #include "types.h"
-#include "vector.h"
+#include "math/vector.h"
 
 using namespace math;
 

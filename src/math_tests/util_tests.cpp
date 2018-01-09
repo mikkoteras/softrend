@@ -1,7 +1,5 @@
 #include "test_harness.h"
-#include "math_util.h"
-
-#include <iostream>
+#include "math/math_util.h"
 
 void util_period_tests();
 

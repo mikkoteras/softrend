@@ -1,6 +1,6 @@
 #include "test_harness.h"
 #include "vector_tests.h"
-#include "vector.h"
+#include "math/vector.h"
 #include <cmath>
 
 void vector_creation_tests();

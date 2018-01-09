@@ -1,8 +1,8 @@
 #ifndef LINE_H
 #define LINE_H
 
-#include "vector.h"
 #include "color3.h"
+#include "math/vector.h"
 
 class framebuffer;
 class scene;

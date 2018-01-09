@@ -2,9 +2,9 @@
 #include "command_line.h"
 #include "directional_light.h"
 #include "framebuffer.h"
-#include "linear_transforms.h"
 #include "material_library.h"
-#include "viewport_transforms.h"
+#include "math/linear_transforms.h"
+#include "math/viewport_transforms.h"
 #include <algorithm>
 #include <limits>
 #include <thread>

@@ -1,6 +1,6 @@
 #include "texture.h"
 #include "lodepng.h"
-#include "math_detail.h"
+#include "math/math_detail.h"
 #include <cmath>
 #include <iostream>
 

@@ -13,7 +13,7 @@ OBJS=$(patsubst %.cpp,%.o,$(SOURCES))
 
 DEP=g++
 DEPFLAGS=-E -MM
-INCLUDEDIRS=-I. -I.. -I../math -I../../math
+INCLUDEDIRS=-I. -I..
 CC=g++
 CFLAGS=-c -g -Wall -ansi -Wall -Werror -std=c++17
 LD=g++

@@ -41,7 +41,7 @@ OBJS=$(patsubst %.cpp,%.o,$(SOURCES))
 
 DEP=g++
 DEPFLAGS=-E -MM
-INCLUDEDIRS=-I. -I.. -I../math -I../../math -I/usr/include/SDL2
+INCLUDEDIRS=-I. -I.. -I/usr/include/SDL2
 CC=g++
 CFLAGS=-c -ansi -Wall -Werror -fmax-errors=5 -D_REENTRANT -std=c++17
 LD=g++

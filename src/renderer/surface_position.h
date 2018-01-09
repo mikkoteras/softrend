@@ -2,7 +2,7 @@
 #define SURFACE_POSITION_H
 
 #include "color3.h"
-#include "vector.h"
+#include "math/vector.h"
 
 // All the data required for a triangle render at a point. Depending
 // on the shading model and available data, many of the fields might

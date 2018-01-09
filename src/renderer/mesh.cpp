@@ -1,12 +1,12 @@
 #include "mesh.h"
 #include "color3.h"
-#include "linear_transforms.h"
 #include "framebuffer.h"
-#include "math_util.h"
 #include "scene.h"
 #include "texture.h"
 #include "util.h"
-#include "viewport_transforms.h"
+#include "math/linear_transforms.h"
+#include "math/math_util.h"
+#include "math/viewport_transforms.h"
 
 using namespace std;
 using namespace math;

@@ -2,8 +2,8 @@
 #define TEXTURE_H
 
 #include "color4.h"
+#include "math/vector.h"
 #include <vector>
-#include "vector.h"
 
 class texture_error {};
 

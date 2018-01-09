@@ -7,13 +7,13 @@
 #include "coordinate_system.h"
 #include "light_list.h"
 #include "line.h"
-#include "matrix.h"
 #include "material_library.h"
 #include "scene_info.h"
 #include "triangle.h"
 #include "triangle_render_context.h"
 #include "types.h"
-#include "vector.h"
+#include "math/matrix.h"
+#include "math/vector.h"
 #include <string>
 #include <vector>
 

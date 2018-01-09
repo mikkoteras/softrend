@@ -3,9 +3,9 @@
 
 #include "bounding_box.h"
 #include "line.h"
-#include "matrix.h"
 #include "triangle.h"
-#include "vector.h"
+#include "math/matrix.h"
+#include "math/vector.h"
 #include <vector>
 
 class color3;

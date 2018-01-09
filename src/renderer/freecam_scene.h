@@ -2,7 +2,7 @@
 #define FREECAM_SCENE
 
 #include "scene.h"
-#include "vector.h"
+#include "math/vector.h"
 
 class command_line;
 

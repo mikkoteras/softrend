@@ -1,6 +1,6 @@
 #include "vector_benchmarks.h"
 #include "test_harness.h"
-#include "vector.h"
+#include "math/vector.h"
 #include <chrono>
 #include <iostream>
 

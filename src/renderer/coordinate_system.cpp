@@ -1,6 +1,6 @@
 #include "coordinate_system.h"
 #include "color3.h"
-#include "vector.h"
+#include "math/vector.h"
 
 using namespace math;
 

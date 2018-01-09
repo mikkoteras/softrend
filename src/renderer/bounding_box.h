@@ -1,7 +1,7 @@
 #ifndef BOUNDING_BOX_H
 #define BOUNDING_BOX_H
 
-#include "vector.h"
+#include "math/vector.h"
 
 class bounding_box {
 public:

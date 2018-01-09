@@ -11,5 +11,4 @@ Missing features
     - none known
 * Implement Blinn-Phong.
 * Bug: alpha icosa with no lights and illum 1 is not invisible, why?
-* Rewrite include dir arrangement; #include "math/vector.h" instead of "vector.h".
 * Fuller .mtl file support; see http://paulbourke.net/dataformats/mtl/

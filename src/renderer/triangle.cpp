@@ -3,11 +3,11 @@
 #include "framebuffer.h"
 #include "light.h"
 #include "light_list.h"
-#include "linear_transforms.h"
 #include "material.h"
-#include "math_util.h"
-#include "matrix.h"
 #include "scene.h"
+#include "math/linear_transforms.h"
+#include "math/math_util.h"
+#include "math/matrix.h"
 #include <algorithm>
 
 using namespace math;

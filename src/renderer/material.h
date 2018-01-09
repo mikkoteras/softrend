@@ -4,7 +4,7 @@
 #include "color3.h"
 #include "color4.h"
 #include "types.h"
-#include "vector.h"
+#include "math/vector.h"
 
 class light_list;
 class texture;

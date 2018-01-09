@@ -3,7 +3,7 @@
 
 #include "light.h"
 #include "color3.h"
-#include "vector.h"
+#include "math/vector.h"
 
 class directional_light : public light {
 public:

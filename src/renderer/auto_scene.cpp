@@ -4,7 +4,7 @@
 #include "directional_light.h"
 #include "importer.h"
 #include "point_light.h"
-#include "vector.h"
+#include "math/vector.h"
 #include "SDL.h"
 
 using namespace math;
