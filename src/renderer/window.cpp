@@ -61,6 +61,9 @@ int window::run(scene &sc) {
 
         quit = read_user_input(sc);
 
+        if (quit)
+            sc.stop();
+
         // rotate contexts to move each pipeline stage forward        
         pipeline_context *swap = context[concurrent_stages - 1];
 

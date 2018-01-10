@@ -14,7 +14,9 @@
 #include "types.h"
 #include "math/matrix.h"
 #include "math/vector.h"
+#include <condition_variable>
 #include <string>
+#include <thread>
 #include <vector>
 
 class command_line;
@@ -100,12 +102,14 @@ protected: // for composition
     void set_fov(float fov_radians);
 
 private: // render helpers
-    void compute_visible_volume(const framebuffer &fb);
+    void thread_pool_loop(int thread_index);
     void construct_world_to_view(const framebuffer &fb);
+    void compute_visible_volume(const framebuffer &fb);
     void transform_coordinates();
+    void transform_coordinates_threaded(int thread_index);
     void render_lines(framebuffer &fb);
     void render_triangles(framebuffer &fb);
-    void render_triangles_threaded(framebuffer &fb, triangle_render_context &context, int triangle_count);
+    void render_triangles_threaded(int thread_index);
     void overlay_wireframe_visualization(framebuffer &fb);
     void overlay_normal_visualization(framebuffer &fb);
     void overlay_reflection_vector_visualization(framebuffer &fb);
@@ -121,16 +125,13 @@ protected: // runtime configurable parameters
     bool visualize_reflection_vectors = false;
     bool visualize_wireframe = false;
 
-private: // command line parameters
-    int num_rasterizer_threads;
-
 private:
     struct triangle_distance { // for painter's algortihm
         unsigned triangle_index;
         float z_coordinate;
         bool operator<(const triangle_distance &rhs) { return z_coordinate < rhs.z_coordinate; }
     };
-    
+
 private:
     std::vector<math::vector4f> local_coordinates;
     std::vector<math::vector4f> local_normals;
@@ -148,20 +149,30 @@ private:
     int num_visible_triangles;
 
 private:
-    math::vector3f eye_position;
-    math::vector3f eye_direction;
-    math::vector3f eye_up;
+    math::vector3f eye_position = math::vector3f{0.0f, 0.0f, 1.0f};
+    math::vector3f eye_direction = math::vector3f{0.0f, 0.0f, -1.0f};
+    math::vector3f eye_up = math::vector3f{0.0f, 1.0f, 0.0f};
     float fov;
-    math::matrix4x4f world_to_view_matrix;
+    math::matrix4x4f world_to_view_matrix = math::matrix4x4f::identity();
     bounding_box framebuffer_visible_volume;
 
 private:
     coordinate_system coords;
     
 private:
-    bool stop_requested;
     scene_info info;
     benchmark mark;
+
+private:
+    std::mutex thread_pool_mutex;
+    std::vector<std::thread> thread_pool;
+    std::vector<triangle_render_context> render_contexts;
+    std::vector<bool> thread_active;
+    std::condition_variable activate_threads;
+    std::condition_variable all_threads_ready;
+    int num_active_threads = 0;
+    bool stop_requested = false;
+    framebuffer *current_framebuffer = nullptr;
 };
 
 #endif

@@ -14,18 +14,22 @@ using namespace math;
 using namespace std;
 
 scene::scene(const command_line &cl) :
-    num_rasterizer_threads(cl.rasterizer_threads()),
-    eye_position{0, 0, 1},
-    eye_direction{0, 0, -1},
-    eye_up{0, 1, 0},
     fov(120.0f / (2.0f * detail::pi<float>())),
-    world_to_view_matrix(matrix4x4f::identity()),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
     coords(this, 0xB29999_rgb, 0x99B299_rgb, 0x9999B2_rgb),
-    stop_requested(false) {
+    render_contexts(cl.rasterizer_threads()),
+    thread_active(cl.rasterizer_threads(), false) {
+
+    for (int i = 0; i < cl.rasterizer_threads(); ++i) {
+        thread_pool.emplace_back(thread(&scene::thread_pool_loop, this, i));
+        render_contexts[i].scanline_divisor = cl.rasterizer_threads();
+        render_contexts[i].scanline_remainder = i;
+    }
 }
 
 scene::~scene() {
+    for (thread &t: thread_pool)
+        t.join();
 }
 
 void scene::cycle_shading_model() {
@@ -201,7 +205,9 @@ void scene::start() {
 }
 
 void scene::stop() {
+    unique_lock<mutex>(thread_pool_mutex);
     stop_requested = true;
+    activate_threads.notify_all();
 }
 
 bool scene::stopped() const {
@@ -240,6 +246,38 @@ void scene::set_eye_orientation(const vector3f &up_direction) {
 
 void scene::set_fov(float fov_radians) {
     fov = fov_radians;
+}
+
+void scene::thread_pool_loop(int thread_index) {
+    // TODO: this scheme is slightly too complex because it was
+    // designed to scale to a larger number of functions to call.
+    // However, it turns out that transforming vertices in a
+    // threaded manner is slightly more involved than it looks. 
+    bool stopping = false;
+    bool render;
+
+    do {
+        unique_lock<mutex> lock(thread_pool_mutex);
+        stopping = stop_requested;
+        render = thread_active[thread_index];
+
+        while (!stopping && !render) {
+            activate_threads.wait(lock);
+            stopping = stop_requested;
+            render = thread_active[thread_index];
+        }
+
+        lock.unlock();
+
+        if (!stopping && render) {
+            render_triangles_threaded(thread_index);
+            lock.lock();
+            thread_active[thread_index] = false;
+
+            if (--num_active_threads == 0)
+                all_threads_ready.notify_one();
+        }
+    } while (!stopping);
 }
 
 void scene::construct_world_to_view(const framebuffer &fb) {
@@ -327,38 +365,34 @@ void scene::render_triangles(framebuffer &fb) {
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
 
-    std::vector<thread> threads(num_rasterizer_threads);
-    std::vector<triangle_render_context> contexts(num_rasterizer_threads);
+    // go multithreaded
+    current_framebuffer = &fb; // save for thread pool workers
+    unique_lock<mutex> lock(thread_pool_mutex);
 
-    for (int i = 0; i < num_rasterizer_threads; ++i) {
-        triangle_render_context &context = contexts[i];
-        context.scanline_divisor = num_rasterizer_threads;
-        context.scanline_remainder = i;
+    for (auto i = thread_active.begin(); i != thread_active.end(); ++i)
+        *i = true;
 
-        threads[i] = thread([=, &fb, &context]() {
-            render_triangles_threaded(fb, context, triangle_count);
-        });
-    }
-
-    for (int i = 0; i < num_rasterizer_threads; ++i)
-        threads[i].join();
+    num_active_threads = thread_pool.size();
+    activate_threads.notify_all();
+    all_threads_ready.wait(lock);
+    current_framebuffer = nullptr;
 }
 
-void scene::render_triangles_threaded(framebuffer &fb, triangle_render_context &context, int triangle_count) {
+void scene::render_triangles_threaded(int thread_index) {
     // render opaque triangles using backward painter's algorithm
-    for (int i = triangle_count - 1; i >= 0; --i) {
+    for (int i = num_visible_triangles - 1; i >= 0; --i) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (!t.has_transparency())
-            t.render(fb, *this, context);
+            t.render(*current_framebuffer, *this, render_contexts[thread_index]);
     }
 
     // superimpose translucent triangles using forward painter's algorithm
-    for (int i = 0; i < triangle_count; ++i) {
+    for (int i = 0; i < num_visible_triangles; ++i) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (t.has_transparency())
-            t.render(fb, *this, context);
+            t.render(*current_framebuffer, *this, render_contexts[thread_index]);
     }
 }
 
