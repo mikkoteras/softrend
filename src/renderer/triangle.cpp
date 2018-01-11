@@ -20,8 +20,8 @@ triangle::triangle(int vi1, int vi2, int vi3,
                    const math::vector2f &uv1, const math::vector2f &uv2, const math::vector2f &uv3,
                    const material *mat) :
     vertex_index{vi1, vi2, vi3},
-    vertex_uv{uv1, uv2, uv3},
     normal_index{ni1, ni2, ni3},
+    vertex_uv{uv1, uv2, uv3},
     mat(mat),
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(true),
@@ -30,8 +30,8 @@ triangle::triangle(int vi1, int vi2, int vi3,
 
 triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) :
     vertex_index{vi1, vi2, vi3},
-    vertex_uv{vector2f(), vector2f(), vector2f()},
     normal_index{ni1, ni2, ni3},
+    vertex_uv{vector2f(), vector2f(), vector2f()},
     mat(mat),
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(false),
@@ -41,8 +41,8 @@ triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const m
 triangle::triangle(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -54,8 +54,8 @@ triangle::triangle(const triangle &rhs) {
 triangle::triangle(triangle &&rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -67,8 +67,8 @@ triangle::triangle(triangle &&rhs) {
 const triangle &triangle::operator=(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -81,8 +81,8 @@ const triangle &triangle::operator=(const triangle &rhs) {
 triangle &triangle::operator=(triangle &&rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -101,6 +101,56 @@ const int *triangle::vertex_indices() const {
 
 bool triangle::has_transparency() const {
     return mat->has_transparency();
+}
+
+#include <iostream>
+void triangle::prepare_for_render(const scene &parent_scene, shading_model_t shading_model) {
+    const vector3f *view_coord = parent_scene.view_coordinate_data();
+    int sorted_vertex_index[3] = { 0, 1, 2 };
+    int sort_index_pairs[6] = { 0, 1, 1, 2, 0, 1 }; // what to compare with what
+
+    for (int i = 0; i < 6; i += 2) {
+        const vector3f &v1 = view_coord[vertex_index[sorted_vertex_index[sort_index_pairs[i]]]];
+        const vector3f &v2 = view_coord[vertex_index[sorted_vertex_index[sort_index_pairs[i + 1]]]];
+
+        if (v1.y() > v2.y()) {
+            int swap = sorted_vertex_index[sort_index_pairs[i]];
+            sorted_vertex_index[sort_index_pairs[i]] = sorted_vertex_index[sort_index_pairs[i + 1]];
+            sorted_vertex_index[sort_index_pairs[i + 1]] = swap;
+        }
+    }
+
+    // TODO winding test, plane clipping test, height == 0 test
+
+    const vector3f *world_coord = parent_scene.world_coordinate_data();
+    const vector3f *world_normal = parent_scene.world_normal_data();
+    int rounded_y[3];
+
+    for (int i = 0; i < 3; ++i) {
+        vertex[i].view_position = view_coord[vertex_index[sorted_vertex_index[i]]];
+        vertex[i].world_position = world_coord[vertex_index[sorted_vertex_index[i]]];
+        vertex[i].normal = world_normal[normal_index[sorted_vertex_index[i]]];
+        vertex[i].uv = vertex_uv[sorted_vertex_index[i]];
+        rounded_y[i] = vertex[i].view_position.y();
+    }
+
+    if (shading_model == gouraud)
+        for (int i = 0; i < 3; ++i)
+            vertex[i].shade = mat->shade(vertex[i].world_position,
+                                         vertex[i].normal,
+                                         (parent_scene.get_eye_position() - vertex[i].world_position).unit(),
+                                         parent_scene.light_sources());
+
+    halftriangle_height[0] = rounded_y[1] - rounded_y[0];
+    halftriangle_height[1] = rounded_y[2] - rounded_y[1];
+    short_edge_delta[0].compute_delta<full>(vertex[1], vertex[0], halftriangle_height[0]);
+    short_edge_delta[1].compute_delta<full>(vertex[2], vertex[1], halftriangle_height[1]);
+    long_edge_delta.compute_delta<full>(vertex[0], vertex[2], rounded_y[2] - rounded_y[0]);
+    long_edge_midpoint = vertex[0];
+    long_edge_midpoint.add<full>(halftriangle_height[0], long_edge_delta);
+}
+
+void triangle::render(framebuffer &target, int thread_index, int thread_count) {
 }
 
 void triangle::render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const {
@@ -151,8 +201,8 @@ void triangle::render_flat(framebuffer &target, const scene &parent_scene, trian
         context.surface_normal = world_normal[normal_index[0]];
     else
         context.surface_normal = (world_normal[normal_index[0]] +
-                                         world_normal[normal_index[1]] +
-                                         world_normal[normal_index[2]]) / 3.0f;
+                                  world_normal[normal_index[1]] +
+                                  world_normal[normal_index[2]]) / 3.0f;
 
     if (mat->is_textured()) {
         for (int i = 0; i < 3; ++i) {

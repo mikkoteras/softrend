@@ -88,6 +88,10 @@ void scene::render(framebuffer &fb) {
     prerender(fb);
     transform_coordinates();
     render_lines(fb);
+
+    for (unsigned i = 0; i < triangles.size(); ++i)
+        triangles[i].prepare_for_render(*this, phong);
+    
     render_triangles(fb);
     overlay_wireframe_visualization(fb);
     overlay_normal_visualization(fb);

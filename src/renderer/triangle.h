@@ -30,6 +30,8 @@ public:
 public:
     const int *vertex_indices() const;
     bool has_transparency() const;
+    void prepare_for_render(const scene &parent_scene, shading_model_t shading_model);
+    void render(framebuffer &target, int thread_index, int thread_count);
     void render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
 
 private:
@@ -59,15 +61,21 @@ public:
 private:
     shading_model_t compute_shading_limit();
 
-private:
+private: // local coordinate data
     int vertex_index[3]; // indices to parent mesh's vertex data
-    math::vector2f vertex_uv[3];
     int normal_index[3]; // indices to parent mesh's normal data
+    math::vector2f vertex_uv[3];
     const material *mat;
 
     bool has_distinct_normals;
     bool has_uv_coordinates;
     shading_model_t shading_limit;
+
+private: // rendering data
+    surface_position vertex[3];
+    int halftriangle_height[2];
+    surface_position long_edge_delta, long_edge_midpoint;
+    surface_position short_edge_delta[2];
 };
 
 #endif

@@ -5,8 +5,6 @@
 
 template<unsigned interpolation_mode>
 void surface_position::add(const surface_position &delta) {
-    
-    
     if (interpolation_mode & interpolate_view_position)
         view_position += delta.view_position;
 
