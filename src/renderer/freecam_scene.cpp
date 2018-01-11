@@ -12,9 +12,10 @@ using namespace math::detail;
 
 freecam_scene::freecam_scene(const command_line &cl, float initial_eye_radius) :
     scene(cl),
-    eye_polar_angle(0.0f),
     eye_radius(initial_eye_radius),
-    eye_twist_angle(0.0f) {
+    eye_twist_angle(0.0f),
+    window_width(cl.width()),
+    window_height(cl.height()) {
 
     const float pi = detail::pi<float>();
     eye_azimuth_angle = 1.5f * pi;
@@ -79,8 +80,8 @@ void freecam_scene::key_down_event(int sdl_keycode, bool ctrl_is_down) {
 
 void freecam_scene::mouse_move_event(int delta_x, int delta_y, bool left_button_is_down) {
     if (left_button_is_down) {
-        eye_azimuth_angle -= 0.001f * delta_x;
-        eye_polar_angle += 0.001f * delta_y;
+        eye_azimuth_angle -= 12.0f * delta_x / window_width;
+        eye_polar_angle += 5.0f * delta_y / window_height;
     }
 }
 

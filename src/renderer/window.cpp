@@ -140,7 +140,7 @@ bool window::read_user_input(scene &s) {
                 s.cycle_shading_model();
             else if (key.keysym.mod & KMOD_CTRL && key.keysym.sym == SDLK_q)
                 quit = true;
-            else if (key.repeat == 0)
+            else
                 s.key_down_event(key.keysym.sym, key.keysym.mod & KMOD_CTRL);
         }
         else if (event.type == SDL_MOUSEMOTION) {

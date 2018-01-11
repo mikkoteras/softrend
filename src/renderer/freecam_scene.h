@@ -2,6 +2,7 @@
 #define FREECAM_SCENE
 
 #include "scene.h"
+#include "math/math_detail.h"
 #include "math/vector.h"
 
 class command_line;
@@ -19,9 +20,12 @@ public:
     void mouse_wheel_event(int delta_x, int delta_y) override;
 
 private:
-    float eye_azimuth_angle, eye_polar_angle, eye_radius;
-    float eye_twist_angle;
-    math::vector3f point_of_interest;
+    float eye_azimuth_angle = math::detail::pi<float>();
+    float eye_polar_angle = 0.0f;
+    float eye_radius;
+    float eye_twist_angle = 0.0f;
+    math::vector3f point_of_interest = math::vector3f{0.0f, 0.0f, 0.0f};
+    const float window_width, window_height;
 };
 
 #endif
