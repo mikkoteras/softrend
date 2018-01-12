@@ -84,7 +84,7 @@ void scene::render(framebuffer &fb) {
     render_context.parent_scene = this;
     render_context.eye = get_eye_position();
     render_context.light_sources = &lights;
-    render_context.num_threads = thread_pool.size();
+    render_context.num_threads = static_cast<int>(thread_pool.size());
 
     construct_world_to_view(fb);
     compute_visible_volume(fb);
@@ -188,11 +188,11 @@ const vector3f *scene::view_coordinate_data() const {
 }
 
 int scene::get_vertex_count() const {
-    return local_coordinates.size();
+    return static_cast<int>(local_coordinates.size());
 }
 
 int scene::get_normal_count() const {
-    return local_normals.size();
+    return static_cast<int>(local_normals.size());
 }
 
 int scene::get_visible_line_count() const {
@@ -374,7 +374,7 @@ void scene::render_triangles() {
     for (auto i = thread_active.begin(); i != thread_active.end(); ++i)
         *i = true;
 
-    num_active_threads = thread_pool.size();
+    num_active_threads = static_cast<int>(thread_pool.size());
     activate_threads.notify_all();
     all_threads_ready.wait(lock);
 }
