@@ -9,8 +9,8 @@
 #include "line.h"
 #include "material_library.h"
 #include "scene_info.h"
+#include "scene_render_context.h"
 #include "triangle.h"
-#include "triangle_render_context.h"
 #include "types.h"
 #include "math/matrix.h"
 #include "math/vector.h"
@@ -69,9 +69,9 @@ public: // for mesh
 public:
     const math::matrix4x4f &world_to_view();
     material_library &materials();
-    const bounding_box &visible_volume() const;
     const light_list &light_sources() const;
     light_list &light_sources();
+    const bounding_box &visible_volume() const;
     const math::vector3f &get_eye_position() const;
     const math::vector4f *local_coordinate_data() const;
     const math::vector3f *world_coordinate_data() const;
@@ -91,8 +91,8 @@ public:
 
 protected: // derived class interface
     virtual void compose() = 0;
-    virtual void prerender(framebuffer &fb);
-    virtual void postrender(framebuffer &fb);
+    virtual void prerender(const scene_render_context &scene_context);
+    virtual void postrender(const scene_render_context &scene_context);
 
 protected: // for composition
     void set_eye_position(const math::vector3f &position);
@@ -108,11 +108,11 @@ private: // render helpers
     void transform_coordinates();
     void transform_coordinates_threaded(int thread_index);
     void render_lines(framebuffer &fb);
-    void render_triangles(framebuffer &fb);
+    void render_triangles();
     void render_triangles_threaded(int thread_index);
-    void overlay_wireframe_visualization(framebuffer &fb);
-    void overlay_normal_visualization(framebuffer &fb);
-    void overlay_reflection_vector_visualization(framebuffer &fb);
+    void overlay_wireframe_visualization();
+    void overlay_normal_visualization();
+    void overlay_reflection_vector_visualization();
 
 protected:
     animation_clock clock;
@@ -164,15 +164,14 @@ private:
     benchmark mark;
 
 private:
+    scene_render_context render_context;
     std::mutex thread_pool_mutex;
     std::vector<std::thread> thread_pool;
-    std::vector<triangle_render_context> render_contexts;
     std::vector<bool> thread_active;
     std::condition_variable activate_threads;
     std::condition_variable all_threads_ready;
     int num_active_threads = 0;
     bool stop_requested = false;
-    framebuffer *current_framebuffer = nullptr;
 };
 
 #endif

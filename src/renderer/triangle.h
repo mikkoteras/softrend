@@ -12,6 +12,7 @@ class light_list;
 class material;
 class mesh;
 class scene;
+class scene_render_context;
 
 class triangle {
 public:
@@ -30,31 +31,31 @@ public:
 public:
     const int *vertex_indices() const;
     bool has_transparency() const;
-    void render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    void render(const scene_render_context &scene_context, int thread_index);
 
 private:
-    void render_flat(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
-    void render_gouraud(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
-    void render_phong(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
-    void render_smooth_phong(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
-    void render_flat_phong(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    void render_flat(const scene_render_context &scene_context, int thread_index);
+    void render_gouraud(const scene_render_context &scene_context, int thread_index);
+    void render_phong(const scene_render_context &scene_context, int thread_index);
+    void render_smooth_phong(const scene_render_context &scene_context, int thread_index);
+    void render_flat_phong(const scene_render_context &scene_context, int thread_index);
 
 private:
-    static bool triangle_winds_clockwise(triangle_render_context &context);
+    bool triangle_winds_clockwise();
 
-    void render_colored_flat_halftriangle(framebuffer &target, triangle_render_context &context) const;
-    void render_colored_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const;
-    void render_colored_smooth_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
-    void render_colored_flat_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
     
-    void render_textured_flat_halftriangle(framebuffer &target, triangle_render_context &context) const;
-    void render_textured_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const;
-    void render_textured_smooth_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
-    void render_textured_flat_phong_halftriangle(framebuffer &target, triangle_render_context &context) const;
+    void render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
 
 public:
-    void visualize_normals(framebuffer &target, scene &parent_scene) const;
-    void visualize_reflection_vectors(framebuffer &target, scene &parent_scene) const;
+    void visualize_normals(const scene_render_context &scene_context);
+    void visualize_reflection_vectors(const scene_render_context &scene_context);
     
 private:
     shading_model_t compute_shading_limit();
@@ -68,6 +69,8 @@ private:
     bool has_distinct_normals;
     bool has_uv_coordinates;
     shading_model_t shading_limit;
+
+    triangle_render_context render_context;
 };
 
 #endif

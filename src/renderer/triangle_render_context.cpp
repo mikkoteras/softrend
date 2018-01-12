@@ -100,9 +100,9 @@ void triangle_render_context::prepare_lower_halftriangle() {
     }
 }
 
-int triangle_render_context::compute_y_skip(int y) const {
+int triangle_render_context::compute_y_skip(int y, int thread_index, int num_threads) const {
     if (y < 0)
-        return scanline_remainder - y;
+        return thread_index - y;
     else
-        return ((scanline_remainder - (y % scanline_divisor)) + scanline_divisor) % scanline_divisor;
+        return ((thread_index - (y % num_threads)) + num_threads) % num_threads;
 }

@@ -17,14 +17,10 @@ scene::scene(const command_line &cl) :
     fov(120.0f / (2.0f * detail::pi<float>())),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
     coords(this, 0xB29999_rgb, 0x99B299_rgb, 0x9999B2_rgb),
-    render_contexts(cl.rasterizer_threads()),
     thread_active(cl.rasterizer_threads(), false) {
 
-    for (int i = 0; i < cl.rasterizer_threads(); ++i) {
+    for (int i = 0; i < cl.rasterizer_threads(); ++i)
         thread_pool.emplace_back(thread(&scene::thread_pool_loop, this, i));
-        render_contexts[i].scanline_divisor = cl.rasterizer_threads();
-        render_contexts[i].scanline_remainder = i;
-    }
 }
 
 scene::~scene() {
@@ -83,16 +79,23 @@ double scene::get_animation_time() const {
 
 void scene::render(framebuffer &fb) {
     compose();
+
+    render_context.target = &fb;
+    render_context.parent_scene = this;
+    render_context.eye = get_eye_position();
+    render_context.light_sources = &lights;
+    render_context.num_threads = thread_pool.size();
+
     construct_world_to_view(fb);
     compute_visible_volume(fb);
-    prerender(fb);
+    prerender(render_context);
     transform_coordinates();
     render_lines(fb);
-    render_triangles(fb);
-    overlay_wireframe_visualization(fb);
-    overlay_normal_visualization(fb);
-    overlay_reflection_vector_visualization(fb);
-    postrender(fb);
+    render_triangles();
+    overlay_wireframe_visualization();
+    overlay_normal_visualization();
+    overlay_reflection_vector_visualization();
+    postrender(render_context);
     info.update(*this);
 }
 
@@ -219,10 +222,10 @@ int scene::add_mesh(mesh *caller) {
     return static_cast<int>(meshes.size() - 1);
 }
 
-void scene::prerender(framebuffer&) {
+void scene::prerender(const scene_render_context&) {
 }
 
-void scene::postrender(framebuffer&) {
+void scene::postrender(const scene_render_context&) {
 }
 
 void scene::set_eye_position(const vector3f &position) {
@@ -340,7 +343,7 @@ void scene::render_lines(framebuffer &fb) {
     }
 }
 
-void scene::render_triangles(framebuffer &fb) {
+void scene::render_triangles() {
     triangle_order.resize(triangles.size()); // TODO maybe put this elsewhere
     int triangle_count = 0;
 
@@ -366,7 +369,6 @@ void scene::render_triangles(framebuffer &fb) {
     sort(first, first + triangle_count);
 
     // go multithreaded
-    current_framebuffer = &fb; // save for thread pool workers
     unique_lock<mutex> lock(thread_pool_mutex);
 
     for (auto i = thread_active.begin(); i != thread_active.end(); ++i)
@@ -375,7 +377,6 @@ void scene::render_triangles(framebuffer &fb) {
     num_active_threads = thread_pool.size();
     activate_threads.notify_all();
     all_threads_ready.wait(lock);
-    current_framebuffer = nullptr;
 }
 
 void scene::render_triangles_threaded(int thread_index) {
@@ -384,7 +385,7 @@ void scene::render_triangles_threaded(int thread_index) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (!t.has_transparency())
-            t.render(*current_framebuffer, *this, render_contexts[thread_index]);
+            t.render(render_context, thread_index);
     }
 
     // superimpose translucent triangles using forward painter's algorithm
@@ -392,11 +393,11 @@ void scene::render_triangles_threaded(int thread_index) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (t.has_transparency())
-            t.render(*current_framebuffer, *this, render_contexts[thread_index]);
+            t.render(render_context, thread_index);
     }
 }
 
-void scene::overlay_wireframe_visualization(framebuffer &fb) {
+void scene::overlay_wireframe_visualization() {
     // TODO: remove duplicates
     if (visualize_wireframe)
         for (triangle t: triangles) {
@@ -405,25 +406,25 @@ void scene::overlay_wireframe_visualization(framebuffer &fb) {
             for (int i = 0; i < 3; ++i) {
                 const vector3f &v1 = view_coordinates[vertex_indices[i]];
                 const vector3f &v2 = view_coordinates[vertex_indices[(i + 1) % 3]];
-                line::render(fb,
+                line::render(*render_context.target,
                              v1.x(), v1.y(), v1.z() + 0.01f, 0x191919_rgb,
                              v2.x(), v2.y(), v2.z() + 0.01f, 0x191919_rgb);
             }
         }
 }
 
-void scene::overlay_normal_visualization(framebuffer &fb) {
+void scene::overlay_normal_visualization() {
     if (visualize_normals)
-        for (const triangle &t: triangles)
-            t.visualize_normals(fb, *this);
+        for (triangle &t: triangles)
+            t.visualize_normals(render_context);
 }
 
-void scene::overlay_reflection_vector_visualization(framebuffer &fb) {
+void scene::overlay_reflection_vector_visualization() {
     if (visualize_reflection_vectors) {
         size_t step = triangles.size() / 250;
         step = max<size_t>(step, 1);
 
         for (size_t i = 0; i < triangles.size(); i += step)
-            triangles[i].visualize_reflection_vectors(fb, *this);
+            triangles[i].visualize_reflection_vectors(render_context);
     }
 }

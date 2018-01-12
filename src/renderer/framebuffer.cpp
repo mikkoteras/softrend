@@ -3,6 +3,8 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+
 using namespace std;
 
 framebuffer::framebuffer(int w, int h) :
@@ -65,6 +67,9 @@ void framebuffer::set_pixel_with_xyz_clip(int x, int y, float z, const color4 &c
 }
 
 void framebuffer::set_pixel_with_z_clip(int x, int y, float z, const color3 &c) {
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        std::cout << "error 1" << std::endl;
+    
     int i = y * width + x;
 
     if (z <= 0.0f && z > depth_buffer[i]) {
@@ -83,6 +88,9 @@ void framebuffer::set_pixel_with_z_clip(int x, int y, float z, const color4 &c) 
 }
 
 void framebuffer::set_pixel_overwriting_z_buffer(int x, int y, float z, const color3 &c) {
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        std::cout << "error 2" << std::endl;
+    
     int i = y * width + x;
 
     if (z <= 0.0f) {
@@ -92,6 +100,9 @@ void framebuffer::set_pixel_overwriting_z_buffer(int x, int y, float z, const co
 }
 
 void framebuffer::set_pixel_overwriting_z_buffer(int x, int y, float z, const color4 &c) {
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        std::cout << "error 3" << std::endl;
+    
     int i = y * width + x;
 
     if (z <= 0.0f) {

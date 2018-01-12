@@ -6,8 +6,6 @@
 #include "math/vector.h"
 #include <string>
 
-class light_list;
-
 struct triangle_render_context {
 public:
     surface_position *vertex[3]; // this enables fast vertex swapping during compute
@@ -19,10 +17,6 @@ public:
     math::vector3f surface_normal; // only used when not interpolating normals
     math::vector3f surface_midpoint; // used with flat polys
     color3 shade; // used with flat gouraud polys
-    const light_list *lights;
-
-    int scanline_divisor; // == number of workers
-    int scanline_remainder; // ==> render scanlines where y % scanline_divisor == scanline_remainder
 
 public:
     triangle_render_context();
@@ -41,7 +35,7 @@ public:
     void prepare_upper_halftriangle();
     void prepare_lower_halftriangle();
 
-    int compute_y_skip(int y) const;
+    int compute_y_skip(int y, int thread_index, int num_threads) const;
     
 private:
     surface_position edge_endpoint[3];

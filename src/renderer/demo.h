@@ -12,11 +12,11 @@ public:
     demo(const command_line &cl);
     ~demo();
 
-    void prerender(framebuffer &fb) override;
+    void prerender(const scene_render_context &scene_context) override;
     void compose() override;
 
-    void render_dot_curve(framebuffer &fb);
-    void render_line_spiral(framebuffer &fb);
+    void render_dot_curve(const scene_render_context &scene_context);
+    void render_line_spiral(const scene_render_context &scene_context);
     
     void compose_fern();
     void compose_slab_demo();

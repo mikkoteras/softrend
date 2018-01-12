@@ -45,22 +45,22 @@ void demo::compose() {
     }
 }
 
-void demo::prerender(framebuffer &fb) {
+void demo::prerender(const scene_render_context &scene_context) {
     switch (stage) {
     case dot_curve:
-        render_dot_curve(fb);
+        render_dot_curve(scene_context);
         break;
     case line_spiral:
-        render_line_spiral(fb);
+        render_line_spiral(scene_context);
         break;
     default:
         break;
     }
 }
 
-void demo::render_dot_curve(framebuffer &fb) {
-    float cx = fb.pixel_width() / 2.0f;
-    float cy = fb.pixel_height() / 2.0f;
+void demo::render_dot_curve(const scene_render_context &scene_context) {
+    float cx = scene_context.target->pixel_width() / 2.0f;
+    float cy = scene_context.target->pixel_height() / 2.0f;
 
     float t = clock.seconds() / 10.0f;
 
@@ -68,15 +68,15 @@ void demo::render_dot_curve(framebuffer &fb) {
         float v = t + u;
         float x1 = cx + (v + v * cos<float>(5.0f * v)) * cos<float>(v);
         float y1 = cy + (v + v * sin<float>(3.0f * v)) * sin<float>(v);
-        fb.set_pixel_with_xy_clip(x1, y1, color3(fabs(sin<float>(v)),
-                                                 fabs(sin<float>(v / 200.0f * pi<float>())),
-                                                 fabs(sin<float>(v + pi<float>() / 2.0f))));
+        scene_context.target->set_pixel_with_xy_clip(x1, y1, color3(fabs(sin<float>(v)),
+                                                                    fabs(sin<float>(v / 200.0f * pi<float>())),
+                                                                    fabs(sin<float>(v + pi<float>() / 2.0f))));
     }
 }
 
-void demo::render_line_spiral(framebuffer &fb) {
-    float cx = fb.pixel_width() / 2.0f;
-    float cy = fb.pixel_height() / 2.0f;
+void demo::render_line_spiral(const scene_render_context &scene_context) {
+    float cx = scene_context.target->pixel_width() / 2.0f;
+    float cy = scene_context.target->pixel_height() / 2.0f;
 
     float t = clock.seconds();
     
@@ -93,7 +93,7 @@ void demo::render_line_spiral(framebuffer &fb) {
         color3 c1(abs<float>(cos<float>(t)), 0.0f, abs<float>(sin<float>(t + s)));
         color3 c2(abs<float>(sin<float>(s)), 0.0f, abs<float>(cos<float>(t + s)));
 
-        line::render(fb, x1, y1, 0, c1, x2, y2, 0, c2);
+        line::render(*scene_context.target, x1, y1, 0, c1, x2, y2, 0, c2);
     }
 }
 
