@@ -12,7 +12,7 @@ class light_list;
 class material;
 class mesh;
 class scene;
-class scene_render_context;
+struct scene_render_context;
 
 class triangle {
 public:
