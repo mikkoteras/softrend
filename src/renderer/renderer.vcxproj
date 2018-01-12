@@ -153,7 +153,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="alpha_test.cpp" />
     <ClCompile Include="animation_clock.cpp" />
     <ClCompile Include="auto_scene.cpp" />
     <ClCompile Include="benchmark.cpp" />
@@ -195,7 +194,6 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="alpha_test.h" />
     <ClInclude Include="animation_clock.h" />
     <ClInclude Include="auto_scene.h" />
     <ClInclude Include="benchmark.h" />
@@ -224,6 +222,7 @@
     <ClInclude Include="point_light.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_info.h" />
+    <ClInclude Include="scene_render_context.h" />
     <ClInclude Include="specular_material.h" />
     <ClInclude Include="surface_position.h" />
     <ClInclude Include="texture.h" />
