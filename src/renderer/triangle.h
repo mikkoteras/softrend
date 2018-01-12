@@ -31,27 +31,28 @@ public:
 public:
     const int *vertex_indices() const;
     bool has_transparency() const;
-    void render(const scene_render_context &scene_context, int thread_index);
+    void prepare_for_render(const scene_render_context &scene_context);
+    void render(const scene_render_context &scene_context, int thread_index) const;
 
 private:
-    void render_flat(const scene_render_context &scene_context, int thread_index);
-    void render_gouraud(const scene_render_context &scene_context, int thread_index);
-    void render_phong(const scene_render_context &scene_context, int thread_index);
-    void render_smooth_phong(const scene_render_context &scene_context, int thread_index);
-    void render_flat_phong(const scene_render_context &scene_context, int thread_index);
+    void render_flat(const scene_render_context &scene_context, int thread_index) const;
+    void render_gouraud(const scene_render_context &scene_context, int thread_index) const;
+    void render_phong(const scene_render_context &scene_context, int thread_index) const;
+    void render_smooth_phong(const scene_render_context &scene_context, int thread_index) const;
+    void render_flat_phong(const scene_render_context &scene_context, int thread_index) const;
 
 private:
-    bool triangle_winds_clockwise();
+    bool triangle_winds_clockwise() const;
 
-    void render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index);
-    void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index);
-    void render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
-    void render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
     
-    void render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index);
-    void render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index);
-    void render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
-    void render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index);
+    void render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
 
 public:
     void visualize_normals(const scene_render_context &scene_context);
@@ -71,6 +72,7 @@ private:
     shading_model_t shading_limit;
 
     triangle_render_context render_context;
+    bool skip_render;
 };
 
 #endif

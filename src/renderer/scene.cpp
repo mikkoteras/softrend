@@ -347,7 +347,8 @@ void scene::render_triangles() {
     triangle_order.resize(triangles.size()); // TODO maybe put this elsewhere
     int triangle_count = 0;
 
-    // create list of visible triangle indices and their farthest vertex z-coords
+    // create a list of visible triangle indices and their farthest vertex z-coords,
+    // the use it to sort the triangles triangles furthest to nearest from the screen
     for (mesh *m: meshes) {
         int min = m->min_triangle_index();
         int max = m->max_triangle_index();
@@ -364,11 +365,14 @@ void scene::render_triangles() {
 
     num_visible_triangles = triangle_count;
 
-    // sort triangles, first is furthest forward from the screen
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
 
-    // go multithreaded
+    // prepare triangle render contexts
+    for (int i = 0; i < triangle_count; ++i) // TODO multi-thread
+        triangles[triangle_order[i].triangle_index].prepare_for_render(render_context);
+
+    // render multi-threaded
     unique_lock<mutex> lock(thread_pool_mutex);
 
     for (auto i = thread_active.begin(); i != thread_active.end(); ++i)

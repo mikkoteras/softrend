@@ -15,6 +15,10 @@ surface_position &triangle_render_context::vtx(int i) {
     return *vertex[i];
 }
 
+const surface_position &triangle_render_context::vtx(int i) const {
+    return *vertex[i];
+}
+
 void triangle_render_context::prepare_edges() {
     // round the view x/y positions to avoid gradient rounding artifacts
     // TODO could this be done during transformation already?

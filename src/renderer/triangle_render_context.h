@@ -13,7 +13,6 @@ public:
     surface_position *left_edge_delta, *right_edge_delta;
     int halftriangle_height;
 
-    math::vector3f eye;
     math::vector3f surface_normal; // only used when not interpolating normals
     math::vector3f surface_midpoint; // used with flat polys
     color3 shade; // used with flat gouraud polys
@@ -29,6 +28,7 @@ public:
 
 public:
     surface_position &vtx(int i);
+    const surface_position &vtx(int i) const;
 
     void prepare_edges(); // sort by y
 

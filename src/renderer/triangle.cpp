@@ -103,24 +103,49 @@ bool triangle::has_transparency() const {
     return mat->has_transparency();
 }
 
-void triangle::render(const scene_render_context &scene_context, int thread_index) {
+void triangle::prepare_for_render(const scene_render_context &scene_context) {
     const vector3f *view_coord = scene_context.parent_scene->view_coordinate_data();
+    
 
     for (int i = 0; i < 3; ++i)
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
 
-    if (triangle_winds_clockwise())
+    skip_render = triangle_winds_clockwise() ||
+                  scene_context.parent_scene->visible_volume().clip(render_context.vtx(0).view_position,
+                                                                    render_context.vtx(1).view_position,
+                                                                    render_context.vtx(2).view_position);
+
+    if (skip_render)
         return;
 
     const vector3f *world_coord = scene_context.parent_scene->world_coordinate_data();
+    const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
+    render_context.surface_midpoint = vector3f{0.0f, 0.0f, 0.0f};
 
-    for (int i = 0; i < 3; ++i)
-        render_context.vtx(i).world_position = world_coord[vertex_index[i]];
+    for (int i = 0; i < 3; ++i) {
+        surface_position &vtx = render_context.vtx(i);
+        vtx.world_position = world_coord[vertex_index[i]];
+        vtx.normal = world_normal[normal_index[i]];
+        vtx.uv = vertex_uv[i];
+        render_context.surface_midpoint += vtx.world_position;
+    }
 
-    // plane clip
-    if (scene_context.parent_scene->visible_volume().clip(render_context.vtx(0).view_position,
-                                           render_context.vtx(1).view_position,
-                                           render_context.vtx(2).view_position))
+    render_context.surface_midpoint /= 3.0f;
+
+    if (shading_limit >= gouraud && scene_context.parent_scene->get_shading_model() == gouraud)
+        for (int i = 0; i < 3; ++i) {
+            surface_position &vtx = render_context.vtx(i);
+            vtx.shade = mat->shade(vtx.world_position,
+                                   vtx.normal,
+                                   (scene_context.eye - vtx.world_position).unit(),
+                                   *scene_context.light_sources);
+        }
+
+    render_context.prepare_edges();
+}
+
+void triangle::render(const scene_render_context &scene_context, int thread_index) const {
+    if (skip_render)
         return;
 
     shading_model_t shading = scene_context.parent_scene->get_shading_model();
@@ -133,41 +158,14 @@ void triangle::render(const scene_render_context &scene_context, int thread_inde
         render_phong(scene_context, thread_index);
 }
 
-void triangle::render_flat(const scene_render_context &scene_context, int thread_index) {
-    const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
-    render_context.surface_midpoint = vector3f{0.0f, 0.0f, 0.0f};
-    
-    for (int i = 0; i < 3; ++i) {
-        surface_position &vtx = render_context.vtx(i);
-        render_context.surface_midpoint += vtx.world_position;
-        vtx.uv[0] = vertex_uv[i][0];
-        vtx.uv[1] = vertex_uv[i][1];
-    }
-
-    render_context.surface_midpoint /= 3.0f;
-    
-    if (has_distinct_normals)
-        render_context.surface_normal = world_normal[normal_index[0]];
-    else
-        render_context.surface_normal = (world_normal[normal_index[0]] +
-                                         world_normal[normal_index[1]] +
-                                         world_normal[normal_index[2]]) / 3.0f;
-
+void triangle::render_flat(const scene_render_context &scene_context, int thread_index) const {
     if (mat->is_textured()) {
-        for (int i = 0; i < 3; ++i) {
-            surface_position &vtx = render_context.vtx(i);
-            vtx.uv[0] = vertex_uv[i][0];
-            vtx.uv[1] = vertex_uv[i][1];
-        }
-
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_textured_flat_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
         render_textured_flat_halftriangle(scene_context, thread_index);
     }
     else {
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_colored_flat_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
@@ -175,34 +173,19 @@ void triangle::render_flat(const scene_render_context &scene_context, int thread
     }
 }
 
-void triangle::render_gouraud(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_gouraud(const scene_render_context &scene_context, int thread_index) const {
     const vector3f *world_data = scene_context.parent_scene->world_coordinate_data();
     const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
 
-    for (int i = 0; i < 3; ++i) {
-        vector3f vertex = world_data[vertex_index[i]];
-        render_context.vtx(i).shade = mat->shade(vertex,
-                                                 world_normal[normal_index[i]],
-                                                 (scene_context.parent_scene->get_eye_position() - vertex).unit(),
-                                                 vertex_uv[i], // FIXME -- add shade_gouraud()
-                                                 scene_context.parent_scene->light_sources());
-    }
+    
 
     if (mat->is_textured()) {
-        for (int i = 0; i < 3; ++i) {
-            surface_position &vtx = render_context.vtx(i);
-            vtx.uv[0] = vertex_uv[i][0];
-            vtx.uv[1] = vertex_uv[i][1];
-        }
-
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_textured_gouraud_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
         render_textured_gouraud_halftriangle(scene_context, thread_index);
     }
     else {
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_colored_gouraud_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
@@ -210,36 +193,21 @@ void triangle::render_gouraud(const scene_render_context &scene_context, int thr
     }
 }
 
-void triangle::render_phong(const scene_render_context &scene_context, int thread_index) {
-    render_context.eye = scene_context.eye;
-
+void triangle::render_phong(const scene_render_context &scene_context, int thread_index) const {
     if (has_distinct_normals)
         render_smooth_phong(scene_context, thread_index);
     else
         render_flat_phong(scene_context, thread_index);
 }
 
-void triangle::render_smooth_phong(const scene_render_context &scene_context, int thread_index) {
-    const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
-    
-    for (int i = 0; i < 3; ++i) // TODO refactor
-        render_context.vtx(i).normal = world_normal[normal_index[i]];
-
+void triangle::render_smooth_phong(const scene_render_context &scene_context, int thread_index) const {
     if (mat->is_textured() && has_uv_coordinates) {
-        for (int i = 0; i < 3; ++i) {
-            surface_position &vtx = render_context.vtx(i);
-            vtx.uv[0] = vertex_uv[i][0];
-            vtx.uv[1] = vertex_uv[i][1];
-        }
-
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_textured_smooth_phong_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
         render_textured_smooth_phong_halftriangle(scene_context, thread_index);
     }
     else {
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_colored_smooth_phong_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
@@ -247,31 +215,14 @@ void triangle::render_smooth_phong(const scene_render_context &scene_context, in
     }
 }
 
-void triangle::render_flat_phong(const scene_render_context &scene_context, int thread_index) {
-    const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
-
-    if (has_distinct_normals)
-        render_context.surface_normal = world_normal[normal_index[0]];
-    else
-        render_context.surface_normal = (world_normal[normal_index[0]] +
-                                         world_normal[normal_index[1]] +
-                                         world_normal[normal_index[2]]) / 3.0f;
-
+void triangle::render_flat_phong(const scene_render_context &scene_context, int thread_index) const {
     if (mat->is_textured() && has_uv_coordinates) {
-        for (int i = 0; i < 3; ++i) {
-            surface_position &vtx = render_context.vtx(i);
-            vtx.uv[0] = vertex_uv[i][0];
-            vtx.uv[1] = vertex_uv[i][1];
-        }
-
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_textured_flat_phong_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
         render_textured_flat_phong_halftriangle(scene_context, thread_index);
     }
     else {
-        render_context.prepare_edges();
         render_context.prepare_upper_halftriangle();
         render_colored_flat_phong_halftriangle(scene_context, thread_index);
         render_context.prepare_lower_halftriangle();
@@ -279,11 +230,10 @@ void triangle::render_flat_phong(const scene_render_context &scene_context, int 
     }
 }
 
-bool triangle::triangle_winds_clockwise() {
+bool triangle::triangle_winds_clockwise() const {
     float x[3], y[3];
     
     for (int i = 0; i < 3; ++i) {
-        // TODO make sure this is correct - isn't the vtx() order somewhat arbitrary?
         const vector3f &v = render_context.vtx(i).view_position;
         x[i] = v.x();
         y[i] = v.y();
@@ -296,7 +246,7 @@ bool triangle::triangle_winds_clockwise() {
     return sum < 0.0f;
 }
 
-void triangle::render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = colored_flat;
 
     if (render_context.halftriangle_height <= 0)
@@ -344,7 +294,7 @@ void triangle::render_colored_flat_halftriangle(const scene_render_context &scen
     }
 }
 
-void triangle::render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = colored_gouraud;
     
     if (render_context.halftriangle_height <= 0)
@@ -387,7 +337,7 @@ void triangle::render_colored_gouraud_halftriangle(const scene_render_context &s
     }
 }
 
-void triangle::render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = colored_smooth_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -425,7 +375,7 @@ void triangle::render_colored_smooth_phong_halftriangle(const scene_render_conte
                 scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
                                                                      mat->shade(pixel.world_position,
                                                                                 pixel.normal.unit(),
-                                                                                (render_context.eye - pixel.world_position).unit(),
+                                                                                (scene_context.eye - pixel.world_position).unit(),
                                                                                 *scene_context.light_sources));
             
             pixel.add<mode>(delta); // TODO: skip view_position, use z alone
@@ -436,7 +386,7 @@ void triangle::render_colored_smooth_phong_halftriangle(const scene_render_conte
     }
 }
 
-void triangle::render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = colored_flat_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -474,7 +424,7 @@ void triangle::render_colored_flat_phong_halftriangle(const scene_render_context
                 scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
                                                                      mat->shade(pixel.world_position,
                                                                                 render_context.surface_normal,
-                                                                                (render_context.eye - pixel.world_position).unit(),
+                                                                                (scene_context.eye - pixel.world_position).unit(),
                                                                                 pixel.uv,
                                                                                 *scene_context.light_sources));
 
@@ -486,7 +436,7 @@ void triangle::render_colored_flat_phong_halftriangle(const scene_render_context
     }
 }
 
-void triangle::render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = textured_flat;
     
     if (render_context.halftriangle_height <= 0)
@@ -507,7 +457,7 @@ void triangle::render_textured_flat_halftriangle(const scene_render_context &sce
     }
     color4 shade(mat->shade(render_context.surface_midpoint,
                             render_context.surface_normal,
-                            (render_context.eye - render_context.surface_midpoint).unit(),
+                            (scene_context.eye - render_context.surface_midpoint).unit(),
                             *scene_context.light_sources));
 
     for (; y <= max_y; y += scene_context.num_threads) {
@@ -536,7 +486,7 @@ void triangle::render_textured_flat_halftriangle(const scene_render_context &sce
     }
 }
 
-void triangle::render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = textured_gouraud;
     
     if (render_context.halftriangle_height <= 0)
@@ -582,7 +532,7 @@ void triangle::render_textured_gouraud_halftriangle(const scene_render_context &
     }
 }
 
-void triangle::render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = textured_smooth_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -620,7 +570,7 @@ void triangle::render_textured_smooth_phong_halftriangle(const scene_render_cont
                 scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
                                                                      mat->shade(pixel.world_position,
                                                                                 pixel.normal.unit(),
-                                                                                (render_context.eye - pixel.world_position).unit(),
+                                                                                (scene_context.eye - pixel.world_position).unit(),
                                                                                 pixel.uv,
                                                                                 *scene_context.light_sources));
 
@@ -632,7 +582,7 @@ void triangle::render_textured_smooth_phong_halftriangle(const scene_render_cont
     }
 }
 
-void triangle::render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) {
+void triangle::render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const {
     static const combined_interpolation_mode_t mode = textured_flat_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -670,7 +620,7 @@ void triangle::render_textured_flat_phong_halftriangle(const scene_render_contex
                 scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
                                                                      mat->shade(pixel.world_position,
                                                                                 render_context.surface_normal,
-                                                                                (render_context.eye - pixel.world_position).unit(),
+                                                                                (scene_context.eye - pixel.world_position).unit(),
                                                                                 pixel.uv,
                                                                                 *scene_context.light_sources));
 

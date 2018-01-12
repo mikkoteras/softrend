@@ -106,7 +106,6 @@ private: // render helpers
     void construct_world_to_view(const framebuffer &fb);
     void compute_visible_volume(const framebuffer &fb);
     void transform_coordinates();
-    void transform_coordinates_threaded(int thread_index);
     void render_lines(framebuffer &fb);
     void render_triangles();
     void render_triangles_threaded(int thread_index);
