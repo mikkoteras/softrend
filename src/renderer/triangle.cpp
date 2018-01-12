@@ -103,11 +103,10 @@ bool triangle::has_transparency() const {
     return mat->has_transparency();
 }
 
-#include <iostream>
 void triangle::prepare_for_render(const scene &parent_scene, shading_model_t shading_model) {
     const vector3f *view_coord = parent_scene.view_coordinate_data();
     int sorted_vertex_index[3] = { 0, 1, 2 };
-    int sort_index_pairs[6] = { 0, 1, 1, 2, 0, 1 }; // what to compare with what
+    static const int sort_index_pairs[6] = { 0, 1, 1, 2, 0, 1 }; // what to compare with what
 
     for (int i = 0; i < 6; i += 2) {
         const vector3f &v1 = view_coord[vertex_index[sorted_vertex_index[sort_index_pairs[i]]]];
@@ -120,11 +119,16 @@ void triangle::prepare_for_render(const scene &parent_scene, shading_model_t sha
         }
     }
 
-    // TODO winding test, plane clipping test, height == 0 test
+    if ((skip_drawing_this_triangle = winds_clockwise()))
+        return;
+
+    // TODO plane clipping test, height == 0 test
 
     const vector3f *world_coord = parent_scene.world_coordinate_data();
     const vector3f *world_normal = parent_scene.world_normal_data();
+
     int rounded_y[3];
+    surface_position vertex[3];
 
     for (int i = 0; i < 3; ++i) {
         vertex[i].view_position = view_coord[vertex_index[sorted_vertex_index[i]]];
@@ -141,17 +145,110 @@ void triangle::prepare_for_render(const scene &parent_scene, shading_model_t sha
                                          (parent_scene.get_eye_position() - vertex[i].world_position).unit(),
                                          parent_scene.light_sources());
 
+    int triangle_height = rounded_y[2] - rounded_y[0];
     halftriangle_height[0] = rounded_y[1] - rounded_y[0];
     halftriangle_height[1] = rounded_y[2] - rounded_y[1];
-    short_edge_delta[0].compute_delta<full>(vertex[1], vertex[0], halftriangle_height[0]);
-    short_edge_delta[1].compute_delta<full>(vertex[2], vertex[1], halftriangle_height[1]);
-    long_edge_delta.compute_delta<full>(vertex[0], vertex[2], rounded_y[2] - rounded_y[0]);
-    long_edge_midpoint = vertex[0];
-    long_edge_midpoint.add<full>(halftriangle_height[0], long_edge_delta);
+
+    const vector3f &v0 = vertex[0].view_position;
+    const vector3f &v1 = vertex[1].view_position;
+    const vector3f &v2 = vertex[2].view_position;
+
+    float x_delta_1 = (v1.x() - v0.x()) / (v1.y() - v0.y());
+    float x_delta_2 = (v2.x() - v0.x()) / (v2.y() - v0.y());
+
+    if (x_delta_1 < x_delta_2) {
+        delta_left[0].compute_delta<full>(vertex[0], vertex[1], halftriangle_height[0]);
+        delta_left[1].compute_delta<full>(vertex[0], vertex[2], halftriangle_height[1]);
+        delta_right[0].compute_delta<full>(vertex[1], vertex[2], triangle_height);
+        delta_right[1] = delta_right[0];
+        top_left_vertex[1] = vertex[1];
+        top_right_vertex[1] = vertex[0];
+        top_right_vertex[1].add<full>(halftriangle_height[0], delta_right[0]);
+    }
+    else {
+        delta_right[0].compute_delta<full>(vertex[0], vertex[1], halftriangle_height[0]);
+        delta_right[1].compute_delta<full>(vertex[1], vertex[2], halftriangle_height[1]);
+        delta_left[0].compute_delta<full>(vertex[1], vertex[2], triangle_height);
+        delta_left[1] = delta_left[0];
+        top_right_vertex[1] = vertex[1];
+        top_left_vertex[1] = vertex[0];
+        top_left_vertex[1].add<full>(halftriangle_height[0], delta_left[0]);
+    }
+
+    top_left_vertex[0] = top_right_vertex[1] = vertex[0];
 }
 
-void triangle::render(framebuffer &target, int thread_index, int thread_count) {
+void triangle::render(const scene &parent_scene, framebuffer &target, int thread_index, int thread_count) {
+    render_phong(parent_scene, target, thread_index, thread_count);
 }
+
+void triangle::render_phong(const scene &parent_scene, framebuffer &target, int thread_index, int thread_count) {
+    render_flat_phong(parent_scene, target, thread_index, thread_count);
+}
+
+void triangle::render_flat_phong(const scene &parent_scene, framebuffer &target, int thread_index, int thread_count) {
+    render_textured_flat_phong_halftriangle(parent_scene, target, thread_index, thread_count, 0);
+    render_textured_flat_phong_halftriangle(parent_scene, target, thread_index, thread_count, 1);
+}
+
+void triangle::render_textured_flat_phong_halftriangle(const scene &parent_scene, framebuffer &target,
+                                                       int thread_index, int thread_count, int halftriangle_index) {
+    static const combined_interpolation_mode_t mode = textured_flat_phong;
+    
+    if (halftriangle_height[halftriangle_index] <= 0)
+        return;
+
+    surface_position left, right;
+    
+    if (halftriangle_index == 0)
+        left = right = vertex[0];
+
+    surface_position left = *context.left_edge_top;
+    surface_position right = *context.right_edge_top;
+    int y = left.view_position.y();
+    int max_y = y + context.halftriangle_height;
+    max_y = std::min(max_y, target.pixel_height() - 1);
+
+    int y_skip = context.compute_y_skip(y);
+    
+    if (y_skip != 0) {
+        left.add<mode>(y_skip, *context.left_edge_delta);
+        right.add<mode>(y_skip, *context.right_edge_delta);
+        y += y_skip;
+    }
+
+    for (; y <= max_y; y += context.scanline_divisor) {
+        int x = left.view_position.x();
+        int max_x = right.view_position.x();
+        surface_position pixel = left;
+        surface_position delta;
+        delta.compute_delta<mode>(left, right, max_x - x);
+        max_x = std::min(max_x, target.pixel_width() - 1);
+
+        if (x < 0) {
+            pixel.add<mode>(-x, delta);
+            x = 0;
+        }
+
+        for (; x <= max_x; ++x) {
+            if (target.depth_at(x, y) < pixel.view_position.z())         
+                target.set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(),
+                                                      mat->shade(pixel.world_position,
+                                                                 context.surface_normal,
+                                                                 (context.eye - pixel.world_position).unit(),
+                                                                 pixel.uv,
+                                                                 *context.lights));
+
+            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
+        }
+
+        left.add<mode>(context.scanline_divisor, *context.left_edge_delta);
+        right.add<mode>(context.scanline_divisor, *context.right_edge_delta);
+    }
+}
+
+
+
 
 void triangle::render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const {
     const vector3f *view_coord = parent_scene.view_coordinate_data();
@@ -347,6 +444,12 @@ bool triangle::triangle_winds_clockwise(triangle_render_context &context) {
                 (x[0] - x[2]) * (y[0] + y[2]);
     
     return sum < 0.0f;
+}
+
+bool triangle::triangle_winds_clockwise() {
+    return (vertex[1].x() - vertex[0].x()) * (vertex[1].y() + vertex[0].y()) +
+           (vertex[2].x() - vertex[1].x()) * (vertex[2].y() + vertex[1].y()) +
+           (vertex[0].x() - vertex[2].x()) * (vertex[0].y() + vertex[2].y()) < 0.0f;
 }
 
 void triangle::render_colored_flat_halftriangle(framebuffer &target, triangle_render_context &context) const {

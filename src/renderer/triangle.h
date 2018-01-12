@@ -30,10 +30,16 @@ public:
 public:
     const int *vertex_indices() const;
     bool has_transparency() const;
-    void prepare_for_render(const scene &parent_scene, shading_model_t shading_model);
-    void render(framebuffer &target, int thread_index, int thread_count);
-    void render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
 
+    void prepare_for_render(const scene &parent_scene, shading_model_t shading_model);
+    void render(const scene &parent_scene, framebuffer &target, int thread_index, int thread_count);
+    void render_phong(const scene &parent_scene, framebuffer &target, int thread_index, int thread_count);
+    void render_flat_phong(const scene &parent_scene, framebuffer &target, int thread_index, int thread_count);
+    void render_textured_flat_phong_halftriangle(const scene &parent_scene, framebuffer &target,
+                                                 int thread_index, int thread_count, int halftriangle_index);
+    
+    void render(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
+    
 private:
     void render_flat(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
     void render_gouraud(framebuffer &target, const scene &parent_scene, triangle_render_context &context) const;
@@ -43,6 +49,7 @@ private:
 
 private:
     static bool triangle_winds_clockwise(triangle_render_context &context);
+    bool winds_clockwise();
 
     void render_colored_flat_halftriangle(framebuffer &target, triangle_render_context &context) const;
     void render_colored_gouraud_halftriangle(framebuffer &target, triangle_render_context &context) const;
@@ -72,10 +79,10 @@ private: // local coordinate data
     shading_model_t shading_limit;
 
 private: // rendering data
-    surface_position vertex[3];
+    surface_position top_left_vertex[2], top_right_vertex[2];
+    surface_position delta_left[2], delta_right[2];
     int halftriangle_height[2];
-    surface_position long_edge_delta, long_edge_midpoint;
-    surface_position short_edge_delta[2];
+    bool skip_drawing_this_triangle;
 };
 
 #endif
