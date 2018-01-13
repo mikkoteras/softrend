@@ -329,12 +329,9 @@ void scene::render_triangles() {
 
     auto first = triangle_order.begin();
     sort(first, first + triangle_count);
-
-    // prepare triangle render contexts
-    for (int i = 0; i < triangle_count; ++i) // TODO multi-thread
-        triangles[triangle_order[i].triangle_index].prepare_for_render(render_context);
-
+    
     // render multi-threaded
+    threads.execute(&scene::prepare_triangles_for_render_threaded);
     threads.execute(&scene::render_triangles_threaded);
 }
 
