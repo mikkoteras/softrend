@@ -104,7 +104,7 @@ void triangle_render_context::prepare_lower_halftriangle() {
     }
 }
 
-int triangle_render_context::compute_y_skip(int y, int thread_index, int num_threads) const {
+int triangle_render_context::compute_y_skip(int y, size_t thread_index, size_t num_threads) const {
     if (y < 0)
         return thread_index - y;
     else

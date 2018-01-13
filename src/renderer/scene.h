@@ -10,6 +10,7 @@
 #include "material_library.h"
 #include "scene_info.h"
 #include "scene_render_context.h"
+#include "thread_pool.h"
 #include "triangle.h"
 #include "types.h"
 #include "math/matrix.h"
@@ -102,16 +103,18 @@ protected: // for composition
     void set_fov(float fov_radians);
 
 private: // render helpers
-    void thread_pool_loop(int thread_index);
     void construct_world_to_view(const framebuffer &fb);
     void compute_visible_volume(const framebuffer &fb);
     void transform_coordinates();
     void render_lines(framebuffer &fb);
     void render_triangles();
-    void render_triangles_threaded(int thread_index);
+    void prepare_triangles_for_render_threaded(size_t thread_index);
+    void render_triangles_threaded(size_t thread_index);
     void overlay_wireframe_visualization();
     void overlay_normal_visualization();
     void overlay_reflection_vector_visualization();
+
+    void foo(size_t bar);
 
 protected:
     animation_clock clock;
@@ -147,7 +150,7 @@ private:
     int num_visible_lines;
     int num_visible_triangles;
 
-private:
+private: // TODO: refactor this into class projection or something
     math::vector3f eye_position = math::vector3f{0.0f, 0.0f, 1.0f};
     math::vector3f eye_direction = math::vector3f{0.0f, 0.0f, -1.0f};
     math::vector3f eye_up = math::vector3f{0.0f, 1.0f, 0.0f};
@@ -163,13 +166,9 @@ private:
     benchmark mark;
 
 private:
+    const size_t num_threads;
+    thread_pool threads;
     scene_render_context render_context;
-    std::mutex thread_pool_mutex;
-    std::vector<std::thread> thread_pool;
-    std::vector<bool> thread_active;
-    std::condition_variable activate_threads;
-    std::condition_variable all_threads_ready;
-    int num_active_threads = 0;
     bool stop_requested = false;
 };
 

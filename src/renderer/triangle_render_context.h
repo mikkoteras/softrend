@@ -35,7 +35,7 @@ public:
     void prepare_upper_halftriangle();
     void prepare_lower_halftriangle();
 
-    int compute_y_skip(int y, int thread_index, int num_threads) const;
+    int compute_y_skip(int y, size_t thread_index, size_t num_threads) const;
     
 private:
     surface_position edge_endpoint[3];

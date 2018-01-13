@@ -17,15 +17,11 @@ scene::scene(const command_line &cl) :
     fov(120.0f / (2.0f * detail::pi<float>())),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
     coords(this, 0xB29999_rgb, 0x99B299_rgb, 0x9999B2_rgb),
-    thread_active(cl.rasterizer_threads(), false) {
-
-    for (int i = 0; i < cl.rasterizer_threads(); ++i)
-        thread_pool.emplace_back(thread(&scene::thread_pool_loop, this, i));
+    num_threads(cl.rasterizer_threads()),
+    threads(this, num_threads) {
 }
 
 scene::~scene() {
-    for (thread &t: thread_pool)
-        t.join();
 }
 
 void scene::cycle_shading_model() {
@@ -84,7 +80,7 @@ void scene::render(framebuffer &fb) {
     render_context.parent_scene = this;
     render_context.eye = get_eye_position();
     render_context.light_sources = &lights;
-    render_context.num_threads = static_cast<int>(thread_pool.size());
+    render_context.num_threads = num_threads;
 
     construct_world_to_view(fb);
     compute_visible_volume(fb);
@@ -208,9 +204,7 @@ void scene::start() {
 }
 
 void scene::stop() {
-    unique_lock<mutex>(thread_pool_mutex);
     stop_requested = true;
-    activate_threads.notify_all();
 }
 
 bool scene::stopped() const {
@@ -249,38 +243,6 @@ void scene::set_eye_orientation(const vector3f &up_direction) {
 
 void scene::set_fov(float fov_radians) {
     fov = fov_radians;
-}
-
-void scene::thread_pool_loop(int thread_index) {
-    // TODO: this scheme is slightly too complex because it was
-    // designed to scale to a larger number of functions to call.
-    // However, it turns out that transforming vertices in a
-    // threaded manner is slightly more involved than it looks. 
-    bool stopping = false;
-    bool render;
-
-    do {
-        unique_lock<mutex> lock(thread_pool_mutex);
-        stopping = stop_requested;
-        render = thread_active[thread_index];
-
-        while (!stopping && !render) {
-            activate_threads.wait(lock);
-            stopping = stop_requested;
-            render = thread_active[thread_index];
-        }
-
-        lock.unlock();
-
-        if (!stopping && render) {
-            render_triangles_threaded(thread_index);
-            lock.lock();
-            thread_active[thread_index] = false;
-
-            if (--num_active_threads == 0)
-                all_threads_ready.notify_one();
-        }
-    } while (!stopping);
 }
 
 void scene::construct_world_to_view(const framebuffer &fb) {
@@ -373,17 +335,15 @@ void scene::render_triangles() {
         triangles[triangle_order[i].triangle_index].prepare_for_render(render_context);
 
     // render multi-threaded
-    unique_lock<mutex> lock(thread_pool_mutex);
-
-    for (auto i = thread_active.begin(); i != thread_active.end(); ++i)
-        *i = true;
-
-    num_active_threads = static_cast<int>(thread_pool.size());
-    activate_threads.notify_all();
-    all_threads_ready.wait(lock);
+    threads.execute(&scene::render_triangles_threaded);
 }
 
-void scene::render_triangles_threaded(int thread_index) {
+void scene::prepare_triangles_for_render_threaded(size_t thread_index) {
+    for (size_t i = thread_index; i < num_visible_triangles; i += num_threads)
+        triangles[triangle_order[i].triangle_index].prepare_for_render(render_context);
+}
+
+void scene::render_triangles_threaded(size_t thread_index) {
     // render opaque triangles using backward painter's algorithm
     for (int i = num_visible_triangles - 1; i >= 0; --i) {
         triangle &t = triangles[triangle_order[i].triangle_index];

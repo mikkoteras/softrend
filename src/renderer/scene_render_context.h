@@ -11,7 +11,7 @@ struct scene_render_context {
     scene *parent_scene;
     math::vector3f eye;
     const light_list *light_sources;
-    int num_threads;
+    size_t num_threads;
 };
 
 #endif
