@@ -9,9 +9,9 @@
 struct triangle_render_context {
 public:
     surface_position *vertex[3]; // this enables fast vertex swapping during compute
-    surface_position *left_edge_top, *right_edge_top;
-    surface_position *left_edge_delta, *right_edge_delta;
-    int halftriangle_height;
+    surface_position *left_edge_top[2], *right_edge_top[2];
+    surface_position *left_edge_delta[2], *right_edge_delta[2];
+    int halftriangle_height[2];
 
     math::vector3f surface_normal; // only used when not interpolating normals
     math::vector3f surface_midpoint; // used with flat polys
@@ -40,7 +40,7 @@ public:
 private:
     surface_position edge_endpoint[3];
     surface_position long_edge_midpoint;
-    surface_position short_edge_delta, long_edge_delta;
+    surface_position short_edge_delta[2], long_edge_delta;
 };
 
 #endif

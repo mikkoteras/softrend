@@ -44,15 +44,15 @@ private:
 private:
     bool triangle_winds_clockwise() const;
 
-    void render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index) const;
-    void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) const;
-    void render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
-    void render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
+    void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
+    void render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
+    void render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
     
-    void render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index) const;
-    void render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index) const;
-    void render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
-    void render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index) const;
+    void render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
+    void render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
+    void render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
+    void render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const;
 
 public:
     void visualize_normals(const scene_render_context &scene_context);
