@@ -20,8 +20,8 @@ triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3,
                    const math::vector2f &uv1, const math::vector2f &uv2, const math::vector2f &uv3,
                    const material *mat) :
     vertex_index{vi1, vi2, vi3},
-    vertex_uv{uv1, uv2, uv3},
     normal_index{ni1, ni2, ni3},
+    vertex_uv{uv1, uv2, uv3},
     mat(mat),
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(true),
@@ -106,7 +106,6 @@ bool triangle::has_transparency() const {
 void triangle::prepare_for_render(const scene_render_context &scene_context) {
     const vector3f *view_coord = scene_context.parent_scene->view_coordinate_data();
     
-
     for (int i = 0; i < 3; ++i)
         render_context.vtx(i).view_position = view_coord[vertex_index[i]];
 

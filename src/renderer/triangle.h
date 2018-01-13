@@ -57,14 +57,14 @@ private:
 public:
     void visualize_normals(const scene_render_context &scene_context);
     void visualize_reflection_vectors(const scene_render_context &scene_context);
-    
+
 private:
     shading_model_t compute_shading_limit();
 
 private:
     int vertex_index[3]; // indices to parent mesh's vertex data
-    math::vector2f vertex_uv[3];
     int normal_index[3]; // indices to parent mesh's normal data
+    math::vector2f vertex_uv[3];
     const material *mat;
 
     bool has_distinct_normals;
