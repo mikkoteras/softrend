@@ -270,24 +270,29 @@ void scene::transform_coordinates() {
     for (mesh *m: meshes) {
         const matrix4x4f &local_to_world = m->local_to_world();
 
-        int min = m->min_normal_index();
-        int max = m->max_normal_index();
+        unsigned first = m->first_normal_index();
+        unsigned count = m->num_normal_indices();
 
-        for (int i = min; i <= max; ++i) {
-            world_normals[i] = (local_to_world * local_normals[i]).dehomo();
-            world_normals[i].normalize();
+        for (unsigned i = 0; i < count; ++i) {
+            unsigned index = first + i;
+            world_normals[index] = (local_to_world * local_normals[index]).dehomo();
+            world_normals[index].normalize();
         }
 
-        min = m->min_vertex_index();
-        max = m->max_vertex_index();
+        first = m->first_vertex_index();
+        count = m->num_vertex_indices();
 
-        for (int i = min; i <= max; ++i)
-            world_coordinates[i] = (local_to_world * local_coordinates[i]).dehomo();
+        for (unsigned i = 0; i < count; ++i) {
+            unsigned index = first + i;
+            world_coordinates[index] = (local_to_world * local_coordinates[index]).dehomo();
+        }
     
         const matrix4x4f local_to_view = world_to_view_matrix * local_to_world;
 
-        for (int i = min; i <= max; ++i)
-            view_coordinates[i] = (local_to_view * local_coordinates[i]).dehomo_with_divide();
+        for (unsigned i = 0; i < count; ++i) {
+            unsigned index = first + i;
+            view_coordinates[index] = (local_to_view * local_coordinates[index]).dehomo_with_divide();
+        }
     }
 }
 
@@ -295,28 +300,28 @@ void scene::render_lines(framebuffer &fb) {
     num_visible_lines = 0;
 
     for (mesh *m: meshes) {
-        int min = m->min_line_index();
-        int max = m->max_line_index();
+        unsigned first = m->first_line_index();
+        unsigned count = m->num_line_indices();
 
-        for (int i = min; i <= max; ++i)
-            lines[i].render(fb, *this);
+        for (unsigned i = 0; i < count; ++i)
+            lines[first + i].render(fb, *this);
 
-        num_visible_lines += (max - min + 1);
+        num_visible_lines += count;
     }
 }
 
 void scene::render_triangles() {
     triangle_order.resize(triangles.size()); // TODO maybe put this elsewhere
-    int triangle_count = 0;
+    unsigned triangle_count = 0;
 
     // create a list of visible triangle indices and their farthest vertex z-coords,
     // the use it to sort the triangles triangles furthest to nearest from the screen
     for (mesh *m: meshes) {
-        int min = m->min_triangle_index();
-        int max = m->max_triangle_index();
+        unsigned first = m->first_triangle_index();
+        unsigned count = m->num_triangle_indices();
 
-        for (int i = min; i <= max; ++i) {
-            const int *vertex_indices = triangles[i].vertex_indices();
+        for (unsigned i = 0; i < count; ++i) {
+            const unsigned *vertex_indices = triangles[first + i].vertex_indices();
             float farthest_vertex_z = view_coordinates[vertex_indices[0]].z();
             farthest_vertex_z = std::min(farthest_vertex_z, view_coordinates[vertex_indices[1]].z());
             farthest_vertex_z = std::min(farthest_vertex_z, view_coordinates[vertex_indices[2]].z());
@@ -335,22 +340,22 @@ void scene::render_triangles() {
     threads.execute(&scene::render_triangles_threaded);
 }
 
-void scene::prepare_triangles_for_render_threaded(size_t thread_index) {
-    for (size_t i = thread_index; i < num_visible_triangles; i += num_threads)
+void scene::prepare_triangles_for_render_threaded(unsigned thread_index) {
+    for (unsigned i = thread_index; i < num_visible_triangles; i += num_threads)
         triangles[triangle_order[i].triangle_index].prepare_for_render(render_context);
 }
 
-void scene::render_triangles_threaded(size_t thread_index) {
+void scene::render_triangles_threaded(unsigned thread_index) {
     // render opaque triangles using backward painter's algorithm
-    for (int i = num_visible_triangles - 1; i >= 0; --i) {
-        triangle &t = triangles[triangle_order[i].triangle_index];
+    for (unsigned i = 0; i < num_visible_triangles; ++i) {
+        triangle &t = triangles[triangle_order[num_visible_triangles - i].triangle_index];
 
         if (!t.has_transparency())
             t.render(render_context, thread_index);
     }
 
     // superimpose translucent triangles using forward painter's algorithm
-    for (int i = 0; i < num_visible_triangles; ++i) {
+    for (unsigned i = 0; i < num_visible_triangles; ++i) {
         triangle &t = triangles[triangle_order[i].triangle_index];
 
         if (t.has_transparency())
@@ -362,9 +367,9 @@ void scene::overlay_wireframe_visualization() {
     // TODO: remove duplicates
     if (visualize_wireframe)
         for (triangle t: triangles) {
-            const int *vertex_indices = t.vertex_indices();
+            const unsigned *vertex_indices = t.vertex_indices();
             
-            for (int i = 0; i < 3; ++i) {
+            for (unsigned i = 0; i < 3; ++i) {
                 const vector3f &v1 = view_coordinates[vertex_indices[i]];
                 const vector3f &v2 = view_coordinates[vertex_indices[(i + 1) % 3]];
                 line::render(*render_context.target,
@@ -382,10 +387,10 @@ void scene::overlay_normal_visualization() {
 
 void scene::overlay_reflection_vector_visualization() {
     if (visualize_reflection_vectors) {
-        size_t step = triangles.size() / 250;
-        step = max<size_t>(step, 1);
+        unsigned step = static_cast<unsigned>(triangles.size() / 250);
+        step = max<unsigned>(step, 1);
 
-        for (size_t i = 0; i < triangles.size(); i += step)
+        for (unsigned i = 0; i < triangles.size(); i += step)
             triangles[i].visualize_reflection_vectors(render_context);
     }
 }

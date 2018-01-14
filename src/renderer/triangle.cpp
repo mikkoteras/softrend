@@ -16,7 +16,7 @@ using namespace math;
 triangle::triangle() {
 }
 
-triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3,
+triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsigned ni2, unsigned ni3,
                    const math::vector2f &uv1, const math::vector2f &uv2, const math::vector2f &uv3,
                    const material *mat) :
     vertex_index{vi1, vi2, vi3},
@@ -28,7 +28,8 @@ triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3,
     shading_limit(compute_shading_limit()) {
 }
 
-triangle::triangle(int vi1, int vi2, int vi3, int ni1, int ni2, int ni3, const material *mat) :
+triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsigned ni2, unsigned ni3,
+                   const material *mat) :
     vertex_index{vi1, vi2, vi3},
     vertex_uv{vector2f(), vector2f(), vector2f()},
     normal_index{ni1, ni2, ni3},
@@ -95,7 +96,7 @@ triangle &triangle::operator=(triangle &&rhs) {
 triangle::~triangle() {
 }
 
-const int *triangle::vertex_indices() const {
+const unsigned *triangle::vertex_indices() const {
     return vertex_index;
 }
 
@@ -145,7 +146,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
     render_context.prepare_lower_halftriangle();
 }
 
-void triangle::render(const scene_render_context &scene_context, int thread_index) const {
+void triangle::render(const scene_render_context &scene_context, unsigned thread_index) const {
     if (skip_render)
         return;
 
@@ -159,7 +160,7 @@ void triangle::render(const scene_render_context &scene_context, int thread_inde
         render_phong(scene_context, thread_index);
 }
 
-void triangle::render_flat(const scene_render_context &scene_context, int thread_index) const {
+void triangle::render_flat(const scene_render_context &scene_context, unsigned thread_index) const {
     if (mat->is_textured()) {
         render_textured_flat_halftriangle(scene_context, thread_index, 0);
         render_textured_flat_halftriangle(scene_context, thread_index, 1);
@@ -170,7 +171,7 @@ void triangle::render_flat(const scene_render_context &scene_context, int thread
     }
 }
 
-void triangle::render_gouraud(const scene_render_context &scene_context, int thread_index) const {
+void triangle::render_gouraud(const scene_render_context &scene_context, unsigned thread_index) const {
     const vector3f *world_data = scene_context.parent_scene->world_coordinate_data();
     const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
 
@@ -184,14 +185,14 @@ void triangle::render_gouraud(const scene_render_context &scene_context, int thr
     }
 }
 
-void triangle::render_phong(const scene_render_context &scene_context, int thread_index) const {
+void triangle::render_phong(const scene_render_context &scene_context, unsigned thread_index) const {
     if (has_distinct_normals)
         render_smooth_phong(scene_context, thread_index);
     else
         render_flat_phong(scene_context, thread_index);
 }
 
-void triangle::render_smooth_phong(const scene_render_context &scene_context, int thread_index) const {
+void triangle::render_smooth_phong(const scene_render_context &scene_context, unsigned thread_index) const {
     if (mat->is_textured() && has_uv_coordinates) {
         render_textured_smooth_phong_halftriangle(scene_context, thread_index, 0);
         render_textured_smooth_phong_halftriangle(scene_context, thread_index, 1);
@@ -202,7 +203,7 @@ void triangle::render_smooth_phong(const scene_render_context &scene_context, in
     }
 }
 
-void triangle::render_flat_phong(const scene_render_context &scene_context, int thread_index) const {
+void triangle::render_flat_phong(const scene_render_context &scene_context, unsigned thread_index) const {
     if (mat->is_textured() && has_uv_coordinates) {
         render_textured_flat_phong_halftriangle(scene_context, thread_index, 0);
         render_textured_flat_phong_halftriangle(scene_context, thread_index, 1);
@@ -229,7 +230,7 @@ bool triangle::triangle_winds_clockwise() const {
     return sum < 0.0f;
 }
 
-void triangle::render_colored_flat_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_colored_flat_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = colored_flat;
 
     if (render_context.halftriangle_height <= 0)
@@ -254,7 +255,7 @@ void triangle::render_colored_flat_halftriangle(const scene_render_context &scen
                             (scene_context.eye - render_context.surface_midpoint).unit(),
                             *scene_context.light_sources));
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -277,7 +278,7 @@ void triangle::render_colored_flat_halftriangle(const scene_render_context &scen
     }
 }
 
-void triangle::render_colored_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_colored_gouraud_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = colored_gouraud;
     
     if (render_context.halftriangle_height <= 0)
@@ -297,7 +298,7 @@ void triangle::render_colored_gouraud_halftriangle(const scene_render_context &s
         y += y_skip;
     }
     
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -320,7 +321,7 @@ void triangle::render_colored_gouraud_halftriangle(const scene_render_context &s
     }
 }
 
-void triangle::render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = colored_smooth_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -340,7 +341,7 @@ void triangle::render_colored_smooth_phong_halftriangle(const scene_render_conte
         y += y_skip;
     }
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -369,7 +370,7 @@ void triangle::render_colored_smooth_phong_halftriangle(const scene_render_conte
     }
 }
 
-void triangle::render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = colored_flat_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -389,7 +390,7 @@ void triangle::render_colored_flat_phong_halftriangle(const scene_render_context
         y += y_skip;
     }
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -419,7 +420,7 @@ void triangle::render_colored_flat_phong_halftriangle(const scene_render_context
     }
 }
 
-void triangle::render_textured_flat_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_textured_flat_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = textured_flat;
     
     if (render_context.halftriangle_height <= 0)
@@ -443,7 +444,7 @@ void triangle::render_textured_flat_halftriangle(const scene_render_context &sce
                             (scene_context.eye - render_context.surface_midpoint).unit(),
                             *scene_context.light_sources));
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -469,7 +470,7 @@ void triangle::render_textured_flat_halftriangle(const scene_render_context &sce
     }
 }
 
-void triangle::render_textured_gouraud_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_textured_gouraud_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = textured_gouraud;
     
     if (render_context.halftriangle_height <= 0)
@@ -489,7 +490,7 @@ void triangle::render_textured_gouraud_halftriangle(const scene_render_context &
         y += y_skip;
     }
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -515,7 +516,7 @@ void triangle::render_textured_gouraud_halftriangle(const scene_render_context &
     }
 }
 
-void triangle::render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = textured_smooth_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -535,7 +536,7 @@ void triangle::render_textured_smooth_phong_halftriangle(const scene_render_cont
         y += y_skip;
     }
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;
@@ -565,7 +566,7 @@ void triangle::render_textured_smooth_phong_halftriangle(const scene_render_cont
     }
 }
 
-void triangle::render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, int thread_index, int triangle_half) const {
+void triangle::render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = textured_flat_phong;
     
     if (render_context.halftriangle_height <= 0)
@@ -585,7 +586,7 @@ void triangle::render_textured_flat_phong_halftriangle(const scene_render_contex
         y += y_skip;
     }
 
-    for (; y <= max_y; y += scene_context.num_threads) {
+    for (int step = static_cast<int>(scene_context.num_threads); y <= max_y; y += step) {
         int x = left.view_position.x();
         int max_x = right.view_position.x();
         surface_position pixel = left;

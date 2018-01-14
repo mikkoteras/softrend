@@ -108,13 +108,11 @@ private: // render helpers
     void transform_coordinates();
     void render_lines(framebuffer &fb);
     void render_triangles();
-    void prepare_triangles_for_render_threaded(size_t thread_index);
-    void render_triangles_threaded(size_t thread_index);
+    void prepare_triangles_for_render_threaded(unsigned thread_index);
+    void render_triangles_threaded(unsigned thread_index);
     void overlay_wireframe_visualization();
     void overlay_normal_visualization();
     void overlay_reflection_vector_visualization();
-
-    void foo(size_t bar);
 
 protected:
     animation_clock clock;
@@ -147,8 +145,8 @@ private:
     std::vector<math::vector3f> view_coordinates;
 
 private:
-    int num_visible_lines;
-    int num_visible_triangles;
+    unsigned num_visible_lines;
+    unsigned num_visible_triangles;
 
 private: // TODO: refactor this into class projection or something
     math::vector3f eye_position = math::vector3f{0.0f, 0.0f, 1.0f};
@@ -166,7 +164,7 @@ private:
     benchmark mark;
 
 private:
-    const size_t num_threads;
+    const unsigned num_threads;
     thread_pool<scene> threads;
     scene_render_context render_context;
     bool stop_requested = false;
