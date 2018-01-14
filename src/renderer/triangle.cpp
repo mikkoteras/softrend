@@ -172,9 +172,6 @@ void triangle::render_flat(const scene_render_context &scene_context, unsigned t
 }
 
 void triangle::render_gouraud(const scene_render_context &scene_context, unsigned thread_index) const {
-    const vector3f *world_data = scene_context.parent_scene->world_coordinate_data();
-    const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
-
     if (mat->is_textured()) {
         render_textured_gouraud_halftriangle(scene_context, thread_index, 0);
         render_textured_gouraud_halftriangle(scene_context, thread_index, 1);
