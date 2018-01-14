@@ -167,7 +167,7 @@ private:
 
 private:
     const size_t num_threads;
-    thread_pool threads;
+    thread_pool<scene> threads;
     scene_render_context render_context;
     bool stop_requested = false;
 };

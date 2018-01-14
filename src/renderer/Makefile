@@ -30,7 +30,6 @@ SOURCES=animation_clock.cpp \
         specular_material.cpp \
         surface_position.cpp \
         texture.cpp \
-        thread_pool.cpp \
         triangle.cpp \
         triangle_render_context.cpp \
         util.cpp \

@@ -188,7 +188,6 @@
     <ClCompile Include="specular_material.cpp" />
     <ClCompile Include="surface_position.cpp" />
     <ClCompile Include="texture.cpp" />
-    <ClCompile Include="thread_pool.cpp" />
     <ClCompile Include="triangle.cpp" />
     <ClCompile Include="triangle_render_context.cpp" />
     <ClCompile Include="util.cpp" />
@@ -227,6 +226,7 @@
     <ClInclude Include="specular_material.h" />
     <ClInclude Include="surface_position.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="thread_pool.cpp.h" />
     <ClInclude Include="thread_pool.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="triangle_render_context.h" />
