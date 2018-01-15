@@ -18,7 +18,7 @@ public:
     bool verbose() const;
     int width() const;
     int height() const;
-    int rasterizer_threads() const;
+    int render_threads() const;
     mode scene_mode() const;
     const std::string &object_filename() const;
     const std::string &scene_name() const;
@@ -38,7 +38,7 @@ private:
     bool verbose_opt;
     int width_opt;
     int height_opt;
-    int rasterizer_threads_opt;
+    int render_threads_opt;
     mode scene_mode_opt;
     std::string object_filename_opt;
     std::string scene_name_opt;

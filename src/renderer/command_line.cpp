@@ -9,7 +9,7 @@ command_line::command_line(int argc, char *argv[]) :
     verbose_opt(false),
     width_opt(-1),
     height_opt(-1),
-    rasterizer_threads_opt(-1),
+    render_threads_opt(-1),
     scene_mode_opt(none) {
 
     std::vector<string> args;
@@ -39,8 +39,8 @@ int command_line::height() const {
     return height_opt;
 }
 
-int command_line::rasterizer_threads() const {
-    return rasterizer_threads_opt;
+int command_line::render_threads() const {
+    return render_threads_opt;
 }
 
 command_line::mode command_line::scene_mode() const {
@@ -77,7 +77,7 @@ void command_line::parse(const std::vector<std::string> &args) {
             else if (arg == "-h" || arg == "--height")
                 accept_int_parameter(args, i++, height_opt);
             else if (arg == "-r")
-                accept_int_parameter(args, i++, rasterizer_threads_opt);
+                accept_int_parameter(args, i++, render_threads_opt);
             else if (arg == "-v" || arg == "--verbose")
                 verbose_opt = true;
 
@@ -90,11 +90,11 @@ void command_line::parse(const std::vector<std::string> &args) {
             throw command_line_exception();
         }
         
-        if (rasterizer_threads_opt < 0) {
-            rasterizer_threads_opt = 2;
+        if (render_threads_opt < 0) {
+            render_threads_opt = 2;
 
             if (verbose())
-                cout << "Defaulting to " << rasterizer_threads_opt << " rasterizer threads. " << endl;
+                cout << "Defaulting to " << render_threads_opt << " render threads. " << endl;
         }
 
         if (width_opt < 0 && height_opt < 0) { // size not specified, use default
@@ -122,8 +122,8 @@ void command_line::parse(const std::vector<std::string> &args) {
             }
         }
 
-        if (rasterizer_threads_opt == 0) {
-            cerr << "Must use at least one rasterizer thread." << endl;
+        if (render_threads_opt == 0) {
+            cerr << "Must use at least one render thread." << endl;
             throw command_line_exception();
         }
         

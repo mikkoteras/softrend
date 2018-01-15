@@ -17,7 +17,7 @@ scene::scene(const command_line &cl) :
     fov(120.0f / (2.0f * detail::pi<float>())),
     framebuffer_visible_volume(vector3f{0.0f, 0.0f, 0.0f}),
     coords(this, 0xB29999_rgb, 0x99B299_rgb, 0x9999B2_rgb),
-    num_threads(cl.rasterizer_threads()),
+    num_threads(cl.render_threads()),
     threads(this, num_threads) {
 }
 
