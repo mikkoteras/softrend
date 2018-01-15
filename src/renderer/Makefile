@@ -31,7 +31,6 @@ SOURCES=animation_clock.cpp \
         surface_position.cpp \
         texture.cpp \
         triangle.cpp \
-        triangle_render_context.cpp \
         util.cpp \
         window.cpp
 
