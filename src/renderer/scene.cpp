@@ -347,7 +347,7 @@ void scene::prepare_triangles_for_render_threaded(unsigned thread_index) {
 
 void scene::render_triangles_threaded(unsigned thread_index) {
     // render opaque triangles using backward painter's algorithm
-    for (unsigned i = 0; i < num_visible_triangles; ++i) {
+    for (unsigned i = 1; i <= num_visible_triangles; ++i) {
         triangle &t = triangles[triangle_order[num_visible_triangles - i].triangle_index];
 
         if (!t.has_transparency())
