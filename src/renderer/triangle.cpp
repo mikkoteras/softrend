@@ -5,7 +5,6 @@
 #include "light_list.h"
 #include "material.h"
 #include "scene.h"
-#include "triangle_render_context.h"
 #include "math/linear_transforms.h"
 #include "math/math_util.h"
 #include "math/matrix.h"
@@ -31,8 +30,6 @@ triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsig
 
     for (int i = 0; i < 3; ++i)
         vertex[i] = &edge_endpoint[i];
-
-    //std::cout << "ctor 1, vertex addresses " << vertex[0] << " "  << vertex[1] << " " << vertex[2] << std::endl;
 }
 
 triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsigned ni2, unsigned ni3,
@@ -47,8 +44,6 @@ triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsig
 
     for (int i = 0; i < 3; ++i)
         vertex[i] = &edge_endpoint[i];
-
-    //std::cout << "ctor 2, vertex addresses " << vertex[0] << " "  << vertex[1] << " " << vertex[2] << std::endl;
 }
 
 triangle::triangle(const triangle &rhs) {
@@ -63,8 +58,6 @@ triangle::triangle(const triangle &rhs) {
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
-
-    //std::cout << "ctor 3, vertex addresses " << vertex[0] << " "  << vertex[1] << " " << vertex[2] << std::endl;
 }
 
 triangle::triangle(triangle &&rhs) {
@@ -79,8 +72,6 @@ triangle::triangle(triangle &&rhs) {
     has_distinct_normals = rhs.has_distinct_normals;
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
-
-    //std::cout << "ctor 4, vertex addresses " << vertex[0] << " "  << vertex[1] << " " << vertex[2] << std::endl;
 }
 
 const triangle &triangle::operator=(const triangle &rhs) {
@@ -95,8 +86,6 @@ const triangle &triangle::operator=(const triangle &rhs) {
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
 
-    //std::cout << "op= 1, vertex addresses " << vertex[0] << " "  << vertex[1] << " " << vertex[2] << std::endl;
-    
     return *this;
 }
 
@@ -112,8 +101,6 @@ triangle &triangle::operator=(triangle &&rhs) {
     has_uv_coordinates = rhs.has_uv_coordinates;
     shading_limit = rhs.shading_limit;
 
-    //std::cout << "op= 2, vertex addresses " << vertex[0] << " "  << vertex[1] << " " << vertex[2] << std::endl;
-    
     return *this;
 }
 
@@ -751,12 +738,10 @@ void triangle::prepare_halftriangles() {
     int bot_y = vertex[2]->view_position.y();
 
     halftriangle_height[0] = mid_y - top_y;
+    halftriangle_height[1] = bot_y - mid_y;
     long_edge_delta.compute_delta<full>(*vertex[0], *vertex[2], bot_y - top_y);
-    
-    if (halftriangle_height == 0) {
-        long_edge_midpoint = *vertex[0];
-    }
-    else {
+
+    if (halftriangle_height[0] > 0) {
         float top_half_height = halftriangle_height[0];
         short_edge_delta[0].compute_delta<full>(*vertex[0], *vertex[1], top_half_height);
 
@@ -775,26 +760,25 @@ void triangle::prepare_halftriangles() {
 
         halftriangle_height[0] -= 1; // Don't draw the middle line so it won't get drawn twice.
     }
+    else
+        long_edge_midpoint = *vertex[0];
 
-    halftriangle_height[1] = bot_y - mid_y;
+    if (halftriangle_height[1] > 0) {
+        float bot_half_height = halftriangle_height[1];
+        short_edge_delta[1].compute_delta<full>(*vertex[1], *vertex[2], bot_half_height);
 
-    if (halftriangle_height == 0)
-        return; // no scanlines to draw
-
-    float bot_half_height = halftriangle_height[1];
-    short_edge_delta[1].compute_delta<full>(*vertex[1], *vertex[2], bot_half_height);
-
-    if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
-        left_edge_top[1] = &long_edge_midpoint;
-        left_edge_delta[1] = &long_edge_delta;
-        right_edge_top[1] = vertex[1];
-        right_edge_delta[1] = &short_edge_delta[1];
-    }
-    else {
-        left_edge_top[1] = vertex[1];
-        left_edge_delta[1] = &short_edge_delta[1];
-        right_edge_top[1] = &long_edge_midpoint;
-        right_edge_delta[1] = &long_edge_delta;
+        if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
+            left_edge_top[1] = &long_edge_midpoint;
+            left_edge_delta[1] = &long_edge_delta;
+            right_edge_top[1] = vertex[1];
+            right_edge_delta[1] = &short_edge_delta[1];
+        }
+        else {
+            left_edge_top[1] = vertex[1];
+            left_edge_delta[1] = &short_edge_delta[1];
+            right_edge_top[1] = &long_edge_midpoint;
+            right_edge_delta[1] = &long_edge_delta;
+        }
     }
 }
 
