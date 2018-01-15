@@ -5,11 +5,11 @@ template<typename parent_class> thread_pool<parent_class>::thread_pool(parent_cl
     thread_busy(num_workers, false) {
 
     for (unsigned i = 0; i < num_workers; ++i)
-        threads.push_back(thread(&thread_pool::loop, this, i));
+        threads.push_back(std::thread(&thread_pool::loop, this, i));
 }
 
 template<typename parent_class> thread_pool<parent_class>::~thread_pool() {
-    unique_lock<mutex> lock(work_mutex);
+    std::unique_lock<std::mutex> lock(work_mutex);
     stopping = true;
     threads_activated.notify_all();
     lock.unlock();
@@ -21,7 +21,7 @@ template<typename parent_class> thread_pool<parent_class>::~thread_pool() {
 }
 
 template<typename parent_class> void thread_pool<parent_class>::execute(void(parent_class::*func)(unsigned thread_index)) {
-    unique_lock<mutex> lock(work_mutex);
+    std::unique_lock<std::mutex> lock(work_mutex);
     work_function = func;
     num_threads_busy = static_cast<unsigned>(threads.size());
 
@@ -34,7 +34,7 @@ template<typename parent_class> void thread_pool<parent_class>::execute(void(par
 }
 
 template<typename parent_class> void thread_pool<parent_class>::loop(unsigned thread_index) {
-    unique_lock<mutex> lock(work_mutex);
+    std::unique_lock<std::mutex> lock(work_mutex);
 
     while (!stopping) {
         if (!thread_busy[thread_index])
