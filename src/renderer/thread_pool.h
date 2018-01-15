@@ -21,7 +21,7 @@ private:
 
 #if THREAD_POOL_REUSE_THREADS
     void loop(unsigned thread_index);
-    
+
     std::mutex work_mutex;
     std::condition_variable threads_activated;
     std::condition_variable threads_completed;

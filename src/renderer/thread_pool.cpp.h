@@ -28,7 +28,7 @@
         std::unique_lock<std::mutex> lock(work_mutex);
         work_function = func;
         num_threads_busy = static_cast<unsigned>(threads.size());
-        
+
         for (unsigned i = 0; i < thread_busy.size(); ++i)
             thread_busy[i] = true;
 
