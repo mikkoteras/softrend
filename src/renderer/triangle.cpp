@@ -31,8 +31,8 @@ triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsig
 triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsigned ni2, unsigned ni3,
                    const material *mat) :
     vertex_index{vi1, vi2, vi3},
-    vertex_uv{vector2f(), vector2f(), vector2f()},
     normal_index{ni1, ni2, ni3},
+    vertex_uv{vector2f(), vector2f(), vector2f()},
     mat(mat),
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(false),
@@ -42,8 +42,8 @@ triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsig
 triangle::triangle(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -55,8 +55,8 @@ triangle::triangle(const triangle &rhs) {
 triangle::triangle(triangle &&rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -68,8 +68,8 @@ triangle::triangle(triangle &&rhs) {
 const triangle &triangle::operator=(const triangle &rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
@@ -82,8 +82,8 @@ const triangle &triangle::operator=(const triangle &rhs) {
 triangle &triangle::operator=(triangle &&rhs) {
     for (int i = 0; i < 3; ++i) {
         vertex_index[i] = rhs.vertex_index[i];
-        vertex_uv[i] = rhs.vertex_uv[i];
         normal_index[i] = rhs.normal_index[i];
+        vertex_uv[i] = rhs.vertex_uv[i];
     }
 
     mat = rhs.mat;
