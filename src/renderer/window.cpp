@@ -1,18 +1,21 @@
 #include "window.h"
 #include "benchmark.h"
+#include "command_line.h"
 #include "framebuffer.h"
 #include "pipeline_context.h"
 #include "scene.h"
 #include <iostream>
 #include <string>
-#include <thread>
 #include <vector>
 
 using namespace std;
 
-window::window(int w, int h) :
-    width(w),
-    height(h) {
+window::window(const command_line &cl, scene &sc) :
+    width(cl.width()),
+    height(cl.height()),
+    displayed_scene(&sc),
+    threads(this, concurrent_stages),
+    contexts(4, nullptr) {
 
     if (!init_sdl()) {
         deinit_sdl();
@@ -24,59 +27,48 @@ window::~window() {
     deinit_sdl();
 }
 
-int window::run(scene &sc) {
-    sc.start();
+int window::run() {
+    displayed_scene->start();
     bool quit = false;
-    benchmark &mark = sc.get_benchmark();
-    pipeline_context *context[concurrent_stages] = {nullptr, nullptr, nullptr, nullptr};
-    thread threads[concurrent_stages - 1];
-    
-    while (!quit && !sc.stopped()) {
-        threads[0] = thread([&]() {
-            if (!context[0])
-                context[0] = new pipeline_context(width, height);
 
-            context[0]->frame_stats = mark.frame_starting();
-            clear_framebuffer(context[0]->frame, context[0]->frame_stats);
-        });
-
-        threads[1] = thread([&]() {
-            if (pipeline_context *cxt = context[1])
-                update_scene(sc, cxt->frame, cxt->frame_stats);
-        });
-
-        threads[2] = thread([&]() {
-            if (pipeline_context *cxt = context[2])
-                convert_framebuffer(cxt->frame, cxt->frame_stats);
-        });
-
-        if (pipeline_context *cxt = context[3]) {
-            render_framebuffer(sc, cxt->frame, cxt->frame_stats);
-            mark.frame_finished(cxt->frame_stats);
-        }
-
-        // wait for all stages to clear
-        for (int i = 0; i < concurrent_stages - 1; ++i)
-            threads[i].join();
-
-        quit = read_user_input(sc);
+    while (!quit && !displayed_scene->stopped()) {
+        threads.execute(&window::run_threaded);
+        rotate_pipeline_contexts();
+        quit = read_user_input(*displayed_scene);
 
         if (quit)
-            sc.stop();
-
-        // rotate contexts to move each pipeline stage forward        
-        pipeline_context *swap = context[concurrent_stages - 1];
-
-        for (int i = concurrent_stages - 1; i > 0; --i)
-            context[i] = context[i - 1];
-
-        context[0] = swap;
+            displayed_scene->stop();
     }
 
     for (int i = 0; i < concurrent_stages; ++i)
-        delete context[i];
+        delete contexts[i];
 
     return 0;
+}
+
+void window::run_threaded(unsigned thread_index) {
+    // sort of a dumb way to do different things in different threads, but why not?
+    if (thread_index == 0) {
+        if (!contexts[0])
+            contexts[0] = new pipeline_context(width, height);
+
+        contexts[0]->frame_stats = displayed_scene->get_benchmark().frame_starting();
+        clear_framebuffer(contexts[0]->frame, contexts[0]->frame_stats);
+    }
+    else if (thread_index == 1) {
+        if (pipeline_context *cxt = contexts[1])
+            update_scene(*displayed_scene, cxt->frame, cxt->frame_stats);
+    }
+    else if (thread_index == 2) {
+        if (pipeline_context *cxt = contexts[2])
+            convert_framebuffer(cxt->frame, cxt->frame_stats);
+    }
+    else if (thread_index == 3) {
+        if (pipeline_context *cxt = contexts[3]) {
+            render_framebuffer(*displayed_scene, cxt->frame, cxt->frame_stats);
+            displayed_scene->get_benchmark().frame_finished(cxt->frame_stats);
+        }
+    }
 }
 
 void window::clear_framebuffer(framebuffer &fb, benchmark_frame &frame_stats) {
@@ -164,6 +156,16 @@ bool window::read_user_input(scene &s) {
         s.mouse_wheel_event(mouse_horz_wheel_tally, mouse_vert_wheel_tally);
 
     return quit;
+}
+
+void window::rotate_pipeline_contexts() {
+    // rotate contexts to move each pipeline stage forward        
+    pipeline_context *swap = contexts[concurrent_stages - 1];
+
+    for (unsigned i = 1; i < concurrent_stages; ++i)
+        contexts[concurrent_stages - i] = contexts[concurrent_stages - i - 1];
+
+    contexts[0] = swap;
 }
 
 bool window::init_sdl() {
