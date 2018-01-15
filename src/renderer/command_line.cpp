@@ -1,6 +1,7 @@
 #include "command_line.h"
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 using namespace std;
 
@@ -91,10 +92,10 @@ void command_line::parse(const std::vector<std::string> &args) {
         }
         
         if (render_threads_opt < 0) {
-            render_threads_opt = 2;
+            render_threads_opt = max(std::thread::hardware_concurrency(), 1u);
 
             if (verbose())
-                cout << "Defaulting to " << render_threads_opt << " render threads. " << endl;
+                cout << "Defaulting to " << render_threads_opt << " render thread(s). " << endl;
         }
 
         if (width_opt < 0 && height_opt < 0) { // size not specified, use default
