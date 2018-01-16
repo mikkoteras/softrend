@@ -1,4 +1,5 @@
 #include "command_line.h"
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <thread>
