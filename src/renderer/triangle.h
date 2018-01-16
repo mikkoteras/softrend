@@ -41,7 +41,7 @@ private:
     void render_flat_phong(const scene_render_context &scene_context, unsigned thread_index) const;
 
 private:
-    bool triangle_winds_clockwise() const;
+    bool triangle_winds_clockwise(const math::vector3f *view_coordinate_data) const;
 
     void render_colored_flat_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
     void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
@@ -61,9 +61,6 @@ private:
     shading_model_t compute_shading_limit();
 
 private:
-    surface_position &vtx(int i);
-    const surface_position &vtx(int i) const;
-    void prepare_edges(); // sort by y
     void prepare_halftriangles();
     int compute_y_skip(int y, size_t thread_index, size_t num_threads) const;
     
@@ -78,11 +75,10 @@ private: // constant data
     shading_model_t shading_limit;
 
 private: // render data
-    surface_position edge_endpoint[3];
+    surface_position vertex[3];
     surface_position long_edge_midpoint;
     surface_position short_edge_delta[2], long_edge_delta;
 
-    surface_position *vertex[3]; // this enables fast vertex swapping during compute
     surface_position *left_edge_top[2], *right_edge_top[2];
     surface_position *left_edge_delta[2], *right_edge_delta[2];
     int halftriangle_height[2];

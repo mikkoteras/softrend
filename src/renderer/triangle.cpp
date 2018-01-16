@@ -27,9 +27,6 @@ triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsig
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(true),
     shading_limit(compute_shading_limit()) {
-
-    for (int i = 0; i < 3; ++i)
-        vertex[i] = &edge_endpoint[i];
 }
 
 triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsigned ni2, unsigned ni3,
@@ -41,9 +38,6 @@ triangle::triangle(unsigned vi1, unsigned vi2, unsigned vi3, unsigned ni1, unsig
     has_distinct_normals(ni1 != ni2 || ni1 != ni3),
     has_uv_coordinates(false),
     shading_limit(compute_shading_limit()) {
-
-    for (int i = 0; i < 3; ++i)
-        vertex[i] = &edge_endpoint[i];
 }
 
 triangle::triangle(const triangle &rhs) {
@@ -51,7 +45,6 @@ triangle::triangle(const triangle &rhs) {
         vertex_index[i] = rhs.vertex_index[i];
         normal_index[i] = rhs.normal_index[i];
         vertex_uv[i] = rhs.vertex_uv[i];
-        vertex[i] = &edge_endpoint[i];
     }
 
     mat = rhs.mat;
@@ -65,7 +58,6 @@ triangle::triangle(triangle &&rhs) {
         vertex_index[i] = rhs.vertex_index[i];
         normal_index[i] = rhs.normal_index[i];
         vertex_uv[i] = rhs.vertex_uv[i];
-        vertex[i] = &edge_endpoint[i];
     }
         
     mat = rhs.mat;
@@ -117,40 +109,56 @@ bool triangle::has_transparency() const {
 
 void triangle::prepare_for_render(const scene_render_context &scene_context) {
     const vector3f *view_coord = scene_context.parent_scene->view_coordinate_data();
-    
-    for (int i = 0; i < 3; ++i)
-        vtx(i).view_position = view_coord[vertex_index[i]];
 
-    skip_render = triangle_winds_clockwise() ||
-                  scene_context.parent_scene->visible_volume().clip(vtx(0).view_position, vtx(1).view_position, vtx(2).view_position);
+    skip_render = triangle_winds_clockwise(view_coord) ||
+                  scene_context.parent_scene->visible_volume().clip(
+                      view_coord[vertex_index[0]],
+                      view_coord[vertex_index[1]],
+                      view_coord[vertex_index[2]]);
 
     if (skip_render)
         return;
+    
+    int sorted_vertex_index[3] = { 0, 1, 2 }; // vertex indices in view y-order
+    static const int lhs[3] = { 0, 1, 0 }; // compare pair
+    static const int rhs[3] = { 1, 2, 1 }; // during sort
 
+    // sort indices
+    for (int i = 0; i < 3; ++i) {
+        const vector3f &v1 = view_coord[vertex_index[sorted_vertex_index[lhs[i]]]];
+        const vector3f &v2 = view_coord[vertex_index[sorted_vertex_index[rhs[i]]]];
+
+        if (v1.y() > v2.y()) {
+            int swap = sorted_vertex_index[lhs[i]];
+            sorted_vertex_index[lhs[i]] = sorted_vertex_index[rhs[i]];
+            sorted_vertex_index[rhs[i]] = swap;
+        }
+    }
+    
     const vector3f *world_coord = scene_context.parent_scene->world_coordinate_data();
     const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
     surface_midpoint = vector3f{0.0f, 0.0f, 0.0f};
 
     for (int i = 0; i < 3; ++i) {
-        surface_position &vtxi = vtx(i);
-        vtxi.world_position = world_coord[vertex_index[i]];
-        vtxi.normal = world_normal[normal_index[i]];
-        vtxi.uv = vertex_uv[i];
-        surface_midpoint += vtxi.world_position;
+        int si = sorted_vertex_index[i];
+        int vi = vertex_index[si];
+        int ni = normal_index[si];
+        vertex[i].view_position = view_coord[vi];
+        vertex[i].world_position = world_coord[vi];
+        vertex[i].normal = world_normal[ni];
+        vertex[i].uv = vertex_uv[i];
+        surface_midpoint += world_coord[vi];
     }
 
     surface_midpoint /= 3.0f;
 
     if (shading_limit >= gouraud && scene_context.parent_scene->get_shading_model() == gouraud)
-        for (int i = 0; i < 3; ++i) {
-            surface_position &vtxi = vtx(i);
-            vtxi.shade = mat->shade(vtxi.world_position,
-                                    vtxi.normal,
-                                    (scene_context.eye - vtxi.world_position).unit(),
+        for (int i = 0; i < 3; ++i)
+            vertex[i].shade = mat->shade(vertex[i].world_position,
+                                    vertex[i].normal,
+                                    (scene_context.eye - vertex[i].world_position).unit(),
                                     *scene_context.light_sources);
-        }
 
-    prepare_edges();
     prepare_halftriangles();
 }
 
@@ -219,19 +227,18 @@ void triangle::render_flat_phong(const scene_render_context &scene_context, unsi
     }
 }
 
-bool triangle::triangle_winds_clockwise() const {
+bool triangle::triangle_winds_clockwise(const vector3f *view_coordinate_data) const {
     float x[3], y[3];
     
     for (int i = 0; i < 3; ++i) {
-        const vector3f &v = vtx(i).view_position;
-        x[i] = v.x();
-        y[i] = v.y();
+        x[i] = view_coordinate_data[vertex_index[i]].x();
+        y[i] = view_coordinate_data[vertex_index[i]].y();
     }
 
     float sum = (x[1] - x[0]) * (y[1] + y[0]) +
                 (x[2] - x[1]) * (y[2] + y[1]) +
                 (x[0] - x[2]) * (y[0] + y[2]);
-    
+
     return sum < 0.0f;
 }
 
@@ -696,60 +703,24 @@ shading_model_t triangle::compute_shading_limit() {
         return phong;
 }
 
-surface_position &triangle::vtx(int i) {
-    return *vertex[i];
-}
-
-const surface_position &triangle::vtx(int i) const {
-    return *vertex[i];
-}
-
-void triangle::prepare_edges() {
-    // round the view x/y positions to avoid gradient rounding artifacts
-    // TODO could this be done during transformation already?
-
-    for (int i = 0; i < 3; ++i) {
-        edge_endpoint[i].view_position.x() = roundf(edge_endpoint[i].view_position.x());
-        edge_endpoint[i].view_position.y() = roundf(edge_endpoint[i].view_position.y());
-    }
-
-    if (vtx(0).view_position.y() > vtx(1).view_position.y()) {
-        surface_position *tmp = vertex[0];
-        vertex[0] = vertex[1];
-        vertex[1] = tmp;
-    }
-
-    if (vtx(1).view_position.y() > vtx(2).view_position.y()) {
-        surface_position *tmp = vertex[1];
-        vertex[1] = vertex[2];
-        vertex[2] = tmp;
-
-        if (vtx(0).view_position.y() > vtx(1).view_position.y()) {
-            surface_position *tmp = vertex[0];
-            vertex[0] = vertex[1];
-            vertex[1] = tmp;
-        }
-    }
-}
-
 void triangle::prepare_halftriangles() {
-    int top_y = vertex[0]->view_position.y();
-    int mid_y = vertex[1]->view_position.y();
-    int bot_y = vertex[2]->view_position.y();
+    int top_y = vertex[0].view_position.y();
+    int mid_y = vertex[1].view_position.y();
+    int bot_y = vertex[2].view_position.y();
 
     halftriangle_height[0] = mid_y - top_y;
     halftriangle_height[1] = bot_y - mid_y;
-    long_edge_delta.compute_delta<full>(*vertex[0], *vertex[2], bot_y - top_y);
+    long_edge_delta.compute_delta<full>(vertex[0], vertex[2], bot_y - top_y);
 
     if (halftriangle_height[0] > 0) {
         float top_half_height = halftriangle_height[0];
-        short_edge_delta[0].compute_delta<full>(*vertex[0], *vertex[1], top_half_height);
+        short_edge_delta[0].compute_delta<full>(vertex[0], vertex[1], top_half_height);
 
-        left_edge_top[0] = right_edge_top[0] = vertex[0];
-        long_edge_midpoint = *vertex[0];
+        left_edge_top[0] = right_edge_top[0] = &vertex[0];
+        long_edge_midpoint = vertex[0];
         long_edge_midpoint.add<full>(top_half_height, long_edge_delta);
     
-        if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
+        if (long_edge_midpoint.view_position.x() <= vertex[1].view_position.x()) { // sort r/l
             left_edge_delta[0] = &long_edge_delta;
             right_edge_delta[0] = &short_edge_delta[0];
         }
@@ -761,20 +732,20 @@ void triangle::prepare_halftriangles() {
         halftriangle_height[0] -= 1; // Don't draw the middle line so it won't get drawn twice.
     }
     else
-        long_edge_midpoint = *vertex[0];
+        long_edge_midpoint = vertex[0];
 
     if (halftriangle_height[1] > 0) {
         float bot_half_height = halftriangle_height[1];
-        short_edge_delta[1].compute_delta<full>(*vertex[1], *vertex[2], bot_half_height);
+        short_edge_delta[1].compute_delta<full>(vertex[1], vertex[2], bot_half_height);
 
-        if (long_edge_midpoint.view_position.x() <= vertex[1]->view_position.x()) { // sort r/l
+        if (long_edge_midpoint.view_position.x() <= vertex[1].view_position.x()) { // sort r/l
             left_edge_top[1] = &long_edge_midpoint;
             left_edge_delta[1] = &long_edge_delta;
-            right_edge_top[1] = vertex[1];
+            right_edge_top[1] = &vertex[1];
             right_edge_delta[1] = &short_edge_delta[1];
         }
         else {
-            left_edge_top[1] = vertex[1];
+            left_edge_top[1] = &vertex[1];
             left_edge_delta[1] = &short_edge_delta[1];
             right_edge_top[1] = &long_edge_midpoint;
             right_edge_delta[1] = &long_edge_delta;
