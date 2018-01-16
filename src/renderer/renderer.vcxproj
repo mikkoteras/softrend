@@ -189,7 +189,6 @@
     <ClCompile Include="surface_position.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="triangle.cpp" />
-    <ClCompile Include="triangle_render_context.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
@@ -229,7 +228,6 @@
     <ClInclude Include="thread_pool.cpp.h" />
     <ClInclude Include="thread_pool.h" />
     <ClInclude Include="triangle.h" />
-    <ClInclude Include="triangle_render_context.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="window.h" />
