@@ -753,9 +753,15 @@ void triangle::prepare_halftriangles() {
     }
 }
 
-int triangle::compute_y_skip(int y, size_t thread_index, size_t num_threads) const {
+// Return the minimum number of scanlines to skip downward given starting
+// scanline y and the thread index and count, such that the resulting scanline
+// y + result is nonnegative and (y + result) % num_threads == thread_index.
+int triangle::compute_y_skip(int y, unsigned thread_index, unsigned num_threads) const {
+    int ti = static_cast<int>(thread_index);
+    int nt = static_cast<int>(num_threads);
+
     if (y < 0)
-        return thread_index - y;
+        return ti - y;
     else
-        return ((thread_index - (y % num_threads)) + num_threads) % num_threads;
+        return ((ti - (y % nt)) + nt) % nt;
 }

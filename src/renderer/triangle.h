@@ -62,7 +62,7 @@ private:
 
 private:
     void prepare_halftriangles();
-    int compute_y_skip(int y, size_t thread_index, size_t num_threads) const;
+    int compute_y_skip(int y, unsigned thread_index, unsigned num_threads) const;
     
 private: // constant data
     unsigned vertex_index[3]; // indices to parent mesh's vertex data

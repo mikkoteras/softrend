@@ -8,7 +8,7 @@
 class benchmark_frame;
 class command_line;
 class framebuffer;
-class pipeline_context;
+struct pipeline_context;
 class scene;
 
 class window_exception {};
