@@ -1,7 +1,8 @@
 Missing features
 ================
 
-* Gouraud is almost certainly broken.
+* Textures seem to flip depending on which vertex is topmost.
+* Gouraud is almost certainly broken, could be related to texture flip.
 * Add classes to encapsulate the solid color v. mapped color decision.
 * Fix line plotting bugs:
     - z-lines near the horizon are botched.
