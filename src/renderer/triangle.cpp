@@ -150,7 +150,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
         vertex[i].uv = vertex_uv[i];
 
         surface_midpoint += vertex[i].world_position / (i + 1);
-        surface_normal += vertex[i].normal / (i + 1);
+        surface_normal += vertex[i].normal;
     }
 
     if (shading_limit >= gouraud && scene_context.parent_scene->get_shading_model() == gouraud)
@@ -160,6 +160,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
                                          (scene_context.eye - vertex[i].world_position).unit(),
                                          *scene_context.light_sources);
 
+    surface_normal /= 3.0f;
     prepare_halftriangles();
 }
 

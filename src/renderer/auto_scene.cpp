@@ -122,4 +122,12 @@ void auto_scene::compose() {
     y_rotation += delta_t * y_rotation_per_second;
     z_rotation += delta_t * z_rotation_per_second;
     object.set_rotation(x_rotation, y_rotation, z_rotation);
+
+    int full_seconds = (int)t;
+
+    if (full_seconds % 2 == 0)
+        set_shading_model(phong);
+    else
+        set_shading_model(gouraud);
+    
 }
