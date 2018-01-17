@@ -715,7 +715,7 @@ void triangle::prepare_halftriangles() {
 
     if (halftriangle_height[0] > 0) {
         float top_half_height = halftriangle_height[0];
-        short_edge_delta[0].compute_delta<full>(vertex[0], vertex[1], top_half_height);
+        short_edge_delta[0].compute_delta<full>(vertex[0], vertex[1], halftriangle_height[0]);
 
         left_edge_top[0] = right_edge_top[0] = &vertex[0];
         long_edge_midpoint = vertex[0];
@@ -736,8 +736,7 @@ void triangle::prepare_halftriangles() {
         long_edge_midpoint = vertex[0];
 
     if (halftriangle_height[1] > 0) {
-        float bot_half_height = halftriangle_height[1];
-        short_edge_delta[1].compute_delta<full>(vertex[1], vertex[2], bot_half_height);
+        short_edge_delta[1].compute_delta<full>(vertex[1], vertex[2], halftriangle_height[1]);
 
         if (long_edge_midpoint.view_position.x() <= vertex[1].view_position.x()) { // sort r/l
             left_edge_top[1] = &long_edge_midpoint;
