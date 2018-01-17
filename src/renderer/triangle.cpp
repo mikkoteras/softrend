@@ -145,7 +145,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
         vertex[i].view_position = view_coord[vi];
         vertex[i].world_position = world_coord[vi];
         vertex[i].normal = world_normal[ni];
-        vertex[i].uv = vertex_uv[i];
+        vertex[i].uv = vertex_uv[si];
 
         surface_midpoint += vertex[i].world_position / (i + 1);
         surface_normal += vertex[i].normal;
