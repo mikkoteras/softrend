@@ -138,6 +138,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
     const vector3f *world_coord = scene_context.parent_scene->world_coordinate_data();
     const vector3f *world_normal = scene_context.parent_scene->world_normal_data();
     surface_midpoint = vector3f{0.0f, 0.0f, 0.0f};
+    surface_normal = vector3f{0.0f, 0.0f, 0.0f};
 
     for (int i = 0; i < 3; ++i) {
         int si = sorted_vertex_index[i];
@@ -147,17 +148,17 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
         vertex[i].world_position = world_coord[vi];
         vertex[i].normal = world_normal[ni];
         vertex[i].uv = vertex_uv[i];
-        surface_midpoint += world_coord[vi];
-    }
 
-    surface_midpoint /= 3.0f;
+        surface_midpoint += vertex[i].world_position / (i + 1);
+        surface_normal += vertex[i].normal / (i + 1);
+    }
 
     if (shading_limit >= gouraud && scene_context.parent_scene->get_shading_model() == gouraud)
         for (int i = 0; i < 3; ++i)
             vertex[i].shade = mat->shade(vertex[i].world_position,
-                                    vertex[i].normal,
-                                    (scene_context.eye - vertex[i].world_position).unit(),
-                                    *scene_context.light_sources);
+                                         vertex[i].normal,
+                                         (scene_context.eye - vertex[i].world_position).unit(),
+                                         *scene_context.light_sources);
 
     prepare_halftriangles();
 }
@@ -577,7 +578,7 @@ void triangle::render_textured_smooth_phong_halftriangle(const scene_render_cont
         right.add<mode>(scene_context.num_threads, *right_edge_delta[triangle_half]);
     }
 }
-
+#include <iostream>
 void triangle::render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const {
     static const combined_interpolation_mode_t mode = textured_flat_phong;
     
