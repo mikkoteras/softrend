@@ -234,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TODO" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\math\math.vcxproj">
