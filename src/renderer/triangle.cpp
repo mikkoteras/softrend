@@ -12,8 +12,6 @@
 
 using namespace math;
 
-#include <iostream>
-
 triangle::triangle() {
 }
 
@@ -161,6 +159,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
                                          *scene_context.light_sources);
 
     surface_normal /= 3.0f;
+    surface_normal.normalize();
     prepare_halftriangles();
 }
 
