@@ -143,6 +143,8 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
         int vi = vertex_index[si];
         int ni = normal_index[si];
         vertex[i].view_position = view_coord[vi];
+        vertex[i].view_position.x() = roundf(vertex[i].view_position.x()); // TODO separate x, y, z and interpolate them
+        vertex[i].view_position.y() = roundf(vertex[i].view_position.y());
         vertex[i].world_position = world_coord[vi];
         vertex[i].normal = world_normal[ni];
         vertex[i].uv = vertex_uv[si];
