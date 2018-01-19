@@ -3,6 +3,8 @@
 #include "diffuse_material.h"
 #include "light.h"
 #include "light_list.h"
+#include "scene.h"
+#include "scene_render_context.h"
 #include "specular_material.h"
 #include "texture.h"
 #include "math/vector.h"
@@ -27,20 +29,15 @@ material *material::create(illumination_model_t illum) {
         throw unsupported_material_exception();
 }
 
-template<> color4 material::shade<colored_flat>(const surface_position &point, const scene_render_context &scene) const {
-    return shade_flat(point, scene);
-}
-
-template<> color4 material::shade<textured_flat>(const surface_position &point, const scene_render_context &scene) const {
-    return shade_flat(point, scene);
-}
-
-template<> color4 material::shade<colored_gouraud>(const surface_position &point, const scene_render_context &scene) const {
-    return shade_gouraud(point, scene);
-}
-
-template<> color4 material::shade<textured_gouraud>(const surface_position &point, const scene_render_context &scene) const {
-    return shade_gouraud(point, scene);
+color4 material::shade(const surface_position &point, const scene_render_context &scene) const {
+    shading_model_t shading = scene.parent_scene->get_shading_model();
+    
+    if (shading == phong)
+        return shade_phong(point, scene);
+    else if (shading == flat)
+        return shade_flat(point, scene);
+    else
+        return shade_gouraud(point, scene);
 }
 
 color4 material::diffuse_texture_map(const vector2f &uv) const {

@@ -43,7 +43,7 @@ void triangle::render_halftriangle(const scene_render_context &scene_context,
 
         for (; x <= max_x; ++x) {
             if (scene_context.target->depth_at(x, y) < pixel.view_position.z()) {
-                color4 shade = mat->shade<mode>(pixel, scene_context);
+                color4 shade = mat->shade(pixel, scene_context);
                 scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(), shade);
             }
 

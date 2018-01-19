@@ -20,7 +20,6 @@ public:
 
     static material *create(illumination_model_t illumination_model);
 
-    template<combined_interpolation_mode_t mode>
     color4 shade(const surface_position &point, const scene_render_context &scene) const;
 
     virtual color4 shade_flat(const surface_position &point, const scene_render_context &scene) const = 0;
@@ -89,7 +88,5 @@ private:
 
     bool transparency = false;
 };
-
-#include "material.cpp.h"
 
 #endif
