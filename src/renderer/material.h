@@ -26,16 +26,6 @@ public:
     virtual color4 shade_gouraud(const surface_position &point, const scene_render_context &scene) const = 0;
     virtual color4 shade_phong(const surface_position &point, const scene_render_context &scene) const = 0;
     
-    virtual color4 shade(const math::vector3f &surface_point, // with texture
-                         const math::vector3f &surface_normal_unit,
-                         const math::vector3f &point_to_eye_unit,
-                         const math::vector2f &uv_coordinates,
-                         const light_list &light_sources) const = 0;
-    virtual color4 shade(const math::vector3f &surface_point, // without texture
-                         const math::vector3f &surface_normal_unit,
-                         const math::vector3f &point_to_eye_unit,
-                         const light_list &light_sources) const = 0;
-    color4 diffuse_texture_map(const math::vector2f &uv_coordinates) const; // diffuse map color only
     bool is_textured() const;
     bool is_colored() const;
     bool has_transparency() const;

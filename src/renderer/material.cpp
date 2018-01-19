@@ -40,10 +40,6 @@ color4 material::shade(const surface_position &point, const scene_render_context
         return shade_gouraud(point, scene);
 }
 
-color4 material::diffuse_texture_map(const vector2f &uv) const {
-    return color4(diffuse_map->at(uv), get_dissolve());
-}
-
 bool material::is_textured() const {
     return ambient_map || diffuse_map || specular_map || emissive_map;
 }
