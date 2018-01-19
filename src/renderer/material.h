@@ -3,6 +3,8 @@
 
 #include "color3.h"
 #include "color4.h"
+#include "scene_render_context.h"
+#include "surface_position.h"
 #include "types.h"
 #include "math/vector.h"
 
@@ -17,6 +19,8 @@ public:
     ~material();
 
     static material *create(illumination_model_t illumination_model);
+
+    virtual color4 shade(const surface_position &point, const scene_render_context &scene) const = 0;
 
     virtual color4 shade(const math::vector3f &surface_point, // with texture
                          const math::vector3f &surface_normal_unit,

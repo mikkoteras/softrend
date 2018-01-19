@@ -7,6 +7,10 @@ constant_color_material::constant_color_material() :
 constant_color_material::~constant_color_material() {
 }
 
+color4 constant_color_material::shade(const surface_position &point, const scene_render_context &scene) const {
+    return color4(diffuse_color_at(point.uv), get_dissolve());
+}
+
 color4 constant_color_material::shade(const math::vector3f&,
                                       const math::vector3f&,
                                       const math::vector3f&,
