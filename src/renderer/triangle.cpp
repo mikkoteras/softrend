@@ -161,14 +161,14 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
         }
 
         surface.normal.normalize();
-        surface.shade = mat->shade_phong(surface, scene_context);
+        surface.shade = mat->shade(surface, scene_context, false);
 
         for (int i = 0; i < 3; ++i)
             vertex[i].shade = surface.shade;
     }
     else if (shading == gouraud)
         for (int i = 0; i < 3; ++i)
-            vertex[i].shade = mat->shade_phong(vertex[i], scene_context);
+            vertex[i].shade = mat->shade(vertex[i], scene_context, false);
 
     prepare_halftriangles();
 }

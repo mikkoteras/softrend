@@ -13,9 +13,7 @@ public:
     diffuse_material();
     ~diffuse_material();
 
-    color4 shade_flat(const surface_position &point, const scene_render_context &scene) const override;
-    color4 shade_gouraud(const surface_position &point, const scene_render_context &scene) const override;
-    color4 shade_phong(const surface_position &point, const scene_render_context &scene) const override;
+    color4 shade(const surface_position &point, const scene_render_context &scene, bool fast) const override;
 };
 
 #endif

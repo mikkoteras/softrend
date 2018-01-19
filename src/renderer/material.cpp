@@ -29,17 +29,6 @@ material *material::create(illumination_model_t illum) {
         throw unsupported_material_exception();
 }
 
-color4 material::shade(const surface_position &point, const scene_render_context &scene) const {
-    shading_model_t shading = scene.parent_scene->get_shading_model();
-    
-    if (shading == phong)
-        return shade_phong(point, scene);
-    else if (shading == flat)
-        return shade_flat(point, scene);
-    else
-        return shade_gouraud(point, scene);
-}
-
 bool material::is_textured() const {
     return ambient_map || diffuse_map || specular_map || emissive_map;
 }

@@ -4,8 +4,10 @@
 
 template<combined_interpolation_mode_t mode>
 void triangle::render_triangle(const scene_render_context &scene_context, unsigned thread_index) const {
-    render_halftriangle<mode>(scene_context, thread_index, 0);
-    render_halftriangle<mode>(scene_context, thread_index, 1);
+    if (scene_context.parent_scene->get_shading_model() == phong) {
+        render_halftriangle<mode>(scene_context, thread_index, 0);
+        render_halftriangle<mode>(scene_context, thread_index, 1);
+    }
 }
 
 template<combined_interpolation_mode_t mode>
@@ -13,6 +15,8 @@ void triangle::render_halftriangle(const scene_render_context &scene_context,
                                    unsigned thread_index, int triangle_half) const {
     if (halftriangle_height[triangle_half] <= 0)
         return;
+
+    bool fast_shading = scene_context.parent_scene->get_shading_model() != phong;
 
     surface_position left = *left_edge_top[triangle_half];
     surface_position right = *right_edge_top[triangle_half];
@@ -43,7 +47,7 @@ void triangle::render_halftriangle(const scene_render_context &scene_context,
 
         for (; x <= max_x; ++x) {
             if (scene_context.target->depth_at(x, y) < pixel.view_position.z()) {
-                color4 shade = mat->shade(pixel, scene_context);
+                color4 shade = mat->shade(pixel, scene_context, fast_shading);
                 scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(), shade);
             }
 
