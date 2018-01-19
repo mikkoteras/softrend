@@ -1,4 +1,6 @@
 #include "constant_color_material.h"
+#include "scene_render_context.h"
+#include "surface_position.h"
 
 constant_color_material::constant_color_material() :
     material(constant_color) {

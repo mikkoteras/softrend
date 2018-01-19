@@ -2,6 +2,8 @@
 #include "color3.h"
 #include "light.h"
 #include "light_list.h"
+#include "scene_render_context.h"
+#include "surface_position.h"
 #include "types.h"
 #include "math/vector.h"
 

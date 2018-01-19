@@ -1,10 +1,11 @@
 #ifndef SCENE_RENDER_CONTEXT_H
 #define SCENE_RENDER_CONTEXT_H
 
-#include "framebuffer.h"
-#include "light_list.h"
-#include "scene.h"
 #include "math/vector.h"
+
+class framebuffer;
+class light_list; 
+class scene;
 
 struct scene_render_context {
     framebuffer *target;

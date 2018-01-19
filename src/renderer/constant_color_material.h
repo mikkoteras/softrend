@@ -5,6 +5,7 @@
 #include "color4.h"
 
 struct scene_render_context;
+struct surface_position;
 
 // material.mtl: illum = 0
 class constant_color_material : public material {

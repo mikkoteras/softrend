@@ -3,12 +3,12 @@
 
 #include "color3.h"
 #include "color4.h"
-#include "scene_render_context.h"
-#include "surface_position.h"
 #include "types.h"
 #include "math/vector.h"
 
 class light_list;
+struct scene_render_context;
+struct surface_position;
 class texture;
 
 class unsupported_material_exception {};
