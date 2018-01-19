@@ -27,6 +27,22 @@ material *material::create(illumination_model_t illum) {
         throw unsupported_material_exception();
 }
 
+template<> color4 material::shade<colored_flat>(const surface_position &point, const scene_render_context &scene) const {
+    return shade_flat(point, scene);
+}
+
+template<> color4 material::shade<textured_flat>(const surface_position &point, const scene_render_context &scene) const {
+    return shade_flat(point, scene);
+}
+
+template<> color4 material::shade<colored_gouraud>(const surface_position &point, const scene_render_context &scene) const {
+    return shade_gouraud(point, scene);
+}
+
+template<> color4 material::shade<textured_gouraud>(const surface_position &point, const scene_render_context &scene) const {
+    return shade_gouraud(point, scene);
+}
+
 color4 material::diffuse_texture_map(const vector2f &uv) const {
     return color4(diffuse_map->at(uv), get_dissolve());
 }

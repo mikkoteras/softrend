@@ -18,7 +18,7 @@ auto_scene::auto_scene(const command_line &cl, object_position pos) :
     try {
         importer::load_wavefront_object(object, cl.object_filename(), materials(), cl.verbose());
         toggle_lights();
-        
+
         bounding_box box = object.local_bounding_box();
         float max_semiaxis = box.max_semiaxis();
 

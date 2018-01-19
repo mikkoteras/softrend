@@ -20,8 +20,13 @@ public:
 
     static material *create(illumination_model_t illumination_model);
 
-    virtual color4 shade(const surface_position &point, const scene_render_context &scene) const = 0;
+    template<combined_interpolation_mode_t mode>
+    color4 shade(const surface_position &point, const scene_render_context &scene) const;
 
+    virtual color4 shade_flat(const surface_position &point, const scene_render_context &scene) const = 0;
+    virtual color4 shade_gouraud(const surface_position &point, const scene_render_context &scene) const = 0;
+    virtual color4 shade_phong(const surface_position &point, const scene_render_context &scene) const = 0;
+    
     virtual color4 shade(const math::vector3f &surface_point, // with texture
                          const math::vector3f &surface_normal_unit,
                          const math::vector3f &point_to_eye_unit,
@@ -84,5 +89,7 @@ private:
 
     bool transparency = false;
 };
+
+#include "material.cpp.h"
 
 #endif

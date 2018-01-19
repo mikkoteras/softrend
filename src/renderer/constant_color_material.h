@@ -13,8 +13,6 @@ public:
     constant_color_material();
     ~constant_color_material();
 
-    color4 shade(const surface_position &point, const scene_render_context &scene) const override;
-
     color4 shade(const math::vector3f &surface_point,
                  const math::vector3f &surface_normal_unit,
                  const math::vector3f &point_to_eye_unit,
@@ -24,6 +22,9 @@ public:
                  const math::vector3f &surface_normal_unit,
                  const math::vector3f &point_to_eye_unit,
                  const light_list &light_sources) const override;
+    color4 shade_flat(const surface_position &point, const scene_render_context &scene) const override;
+    color4 shade_gouraud(const surface_position &point, const scene_render_context &scene) const override;
+    color4 shade_phong(const surface_position &point, const scene_render_context &scene) const override;
 };
 
 #endif

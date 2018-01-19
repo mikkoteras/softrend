@@ -34,31 +34,21 @@ public:
     void render(const scene_render_context &scene_context, unsigned thread_index) const;
 
 private:
-    void render_flat(const scene_render_context &scene_context, unsigned thread_index) const;
-    void render_gouraud(const scene_render_context &scene_context, unsigned thread_index) const;
-    void render_phong(const scene_render_context &scene_context, unsigned thread_index) const;
-    void render_smooth_phong(const scene_render_context &scene_context, unsigned thread_index) const;
-    void render_flat_phong(const scene_render_context &scene_context, unsigned thread_index) const;
+    template<combined_interpolation_mode_t mode>
+    void render_triangle(const scene_render_context &scene_context, unsigned thread_index) const;
+    
+    template<combined_interpolation_mode_t mode>
+    void render_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
 
 private:
     bool triangle_winds_clockwise(const math::vector3f *view_coordinate_data) const;
-
-    void render_colored_flat_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    void render_colored_gouraud_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    void render_colored_smooth_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    void render_colored_flat_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    
-    void render_textured_flat_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    void render_textured_gouraud_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    void render_textured_smooth_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-    void render_textured_flat_phong_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
 
 public:
     void visualize_normals(const scene_render_context &scene_context);
     void visualize_reflection_vectors(const scene_render_context &scene_context);
 
 private:
-    shading_model_t compute_shading_limit();
+    combined_interpolation_mode_t compute_interpolation_mode() const;
 
 private:
     void prepare_halftriangles();
@@ -70,9 +60,9 @@ private: // constant data
     math::vector2f vertex_uv[3];
     const material *mat;
 
+    bool is_textured;
     bool has_distinct_normals;
     bool has_uv_coordinates;
-    shading_model_t shading_limit;
 
 private: // render data
     surface_position vertex[3];
@@ -83,11 +73,9 @@ private: // render data
     surface_position *left_edge_delta[2], *right_edge_delta[2];
     int halftriangle_height[2];
 
-    math::vector3f surface_normal; // only used when not interpolating normals
-    math::vector3f surface_midpoint; // used with flat polys
-    color3 shade; // used with flat gouraud polys
-        
     bool skip_render;
 };
+
+#include "triangle.cpp.h"
 
 #endif
