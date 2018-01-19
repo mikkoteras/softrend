@@ -1,8 +1,6 @@
 Missing features
 ================
 
-* Bug: rounding errors on triangle edges have reappeared. See teapot.
-* Gouraud is almost certainly broken.
 * Add classes to encapsulate the solid color v. mapped color decision.
 * Fix line plotting bugs:
     - z-lines near the horizon are botched.
