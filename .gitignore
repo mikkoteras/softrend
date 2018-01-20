@@ -13,5 +13,12 @@ core.*
 src/renderer/moc_window.cpp
 src/renderer/moc_predefs.*
 src/renderer/.qmake.stash
-# Assets
-src/renderer/assets
+# Visual Studio
+.vs
+*.vcxproj.filters
+*.vcxproj.user
+packages
+bin64
+bind64
+src/math/x64
+src/renderer/x64
