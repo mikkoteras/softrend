@@ -4,10 +4,8 @@
 
 template<combined_interpolation_mode_t mode>
 void triangle::render_triangle(const scene_render_context &scene_context, unsigned thread_index) const {
-    if (scene_context.parent_scene->get_shading_model() == phong) {
-        render_halftriangle<mode>(scene_context, thread_index, 0);
-        render_halftriangle<mode>(scene_context, thread_index, 1);
-    }
+    render_halftriangle<mode>(scene_context, thread_index, 0);
+    render_halftriangle<mode>(scene_context, thread_index, 1);
 }
 
 template<combined_interpolation_mode_t mode>
