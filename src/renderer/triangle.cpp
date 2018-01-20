@@ -263,6 +263,21 @@ void triangle::prepare_halftriangles() {
     }
 }
 
+bool triangle::triangle_winds_clockwise(const vector3f *view_coordinate_data) const {
+    float x[3], y[3];
+
+    for (int i = 0; i < 3; ++i) {
+        x[i] = view_coordinate_data[vertex_index[i]].x();
+        y[i] = view_coordinate_data[vertex_index[i]].y();
+    }
+
+    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
+        (x[2] - x[1]) * (y[2] + y[1]) +
+        (x[0] - x[2]) * (y[0] + y[2]);
+
+    return sum < 0.0f;
+}
+
 // Return the minimum number of scanlines to skip downward given starting
 // scanline y and the thread index and count, such that the resulting scanline
 // y + result is nonnegative and (y + result) % num_threads == thread_index.
@@ -274,21 +289,6 @@ int triangle::compute_y_skip(int y, unsigned thread_index, unsigned num_threads)
         return ti - y;
     else
         return ((ti - (y % nt)) + nt) % nt;
-}
-
-bool triangle::triangle_winds_clockwise(const vector3f *view_coordinate_data) const {
-    float x[3], y[3];
-    
-    for (int i = 0; i < 3; ++i) {
-        x[i] = view_coordinate_data[vertex_index[i]].x();
-        y[i] = view_coordinate_data[vertex_index[i]].y();
-    }
-
-    float sum = (x[1] - x[0]) * (y[1] + y[0]) +
-                (x[2] - x[1]) * (y[2] + y[1]) +
-                (x[0] - x[2]) * (y[0] + y[2]);
-
-    return sum < 0.0f;
 }
 
 void triangle::visualize_normals(const scene_render_context &scene_context) {

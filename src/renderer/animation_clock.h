@@ -14,7 +14,6 @@ public:
 
 private:
     std::chrono::steady_clock::time_point start_time;
-
 };
 
 #endif

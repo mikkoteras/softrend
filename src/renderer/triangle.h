@@ -34,26 +34,21 @@ public:
     void render(const scene_render_context &scene_context, unsigned thread_index) const;
 
 private:
-    template<combined_interpolation_mode_t mode>
-    void render_triangle(const scene_render_context &scene_context, unsigned thread_index) const;
-    
-    template<combined_interpolation_mode_t mode>
-    void render_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
-
-private:
+    void prepare_halftriangles();
     bool triangle_winds_clockwise(const math::vector3f *view_coordinate_data) const;
+    int compute_y_skip(int y, unsigned thread_index, unsigned num_threads) const;
 
 public:
     void visualize_normals(const scene_render_context &scene_context);
     void visualize_reflection_vectors(const scene_render_context &scene_context);
 
 private:
-    combined_interpolation_mode_t compute_interpolation_mode() const;
+    template<combined_interpolation_mode_t mode>
+    void render_triangle(const scene_render_context &scene_context, unsigned thread_index) const;
 
-private:
-    void prepare_halftriangles();
-    int compute_y_skip(int y, unsigned thread_index, unsigned num_threads) const;
-    
+    template<combined_interpolation_mode_t mode>
+    void render_halftriangle(const scene_render_context &scene_context, unsigned thread_index, int triangle_half) const;
+
 private: // constant data
     unsigned vertex_index[3]; // indices to parent mesh's vertex data
     unsigned normal_index[3]; // indices to parent mesh's normal data
