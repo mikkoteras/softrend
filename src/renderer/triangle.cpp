@@ -116,7 +116,7 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
 
     if (skip_render)
         return;
-    
+
     int sorted_vertex_index[3] = { 0, 1, 2 }; // vertex indices in view y-order
     static const int lhs[3] = { 0, 1, 0 }; // compare pair
     static const int rhs[3] = { 1, 2, 1 }; // during sort
@@ -161,14 +161,14 @@ void triangle::prepare_for_render(const scene_render_context &scene_context) {
         }
 
         surface.normal.normalize();
-        surface.shade = mat->shade(surface, scene_context, false);
+        surface.shade = mat->shade_vertex(surface, scene_context);
 
         for (int i = 0; i < 3; ++i)
             vertex[i].shade = surface.shade;
     }
     else if (shading == gouraud)
         for (int i = 0; i < 3; ++i)
-            vertex[i].shade = mat->shade(vertex[i], scene_context, false);
+            vertex[i].shade = mat->shade_vertex(vertex[i], scene_context);
 
     prepare_halftriangles();
 }

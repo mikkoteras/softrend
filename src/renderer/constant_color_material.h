@@ -13,7 +13,9 @@ public:
     constant_color_material();
     ~constant_color_material();
 
-    color4 shade(const surface_position &point, const scene_render_context &scene, bool fast) const override;
+    color4 shade_pixel(const surface_position &point, const scene_render_context &scene) const override;
+    color3 shade_vertex(const surface_position &point, const scene_render_context &scene) const override;
+    color4 interpolate(const surface_position &point, const scene_render_context &scene) const override;
 };
 
 #endif

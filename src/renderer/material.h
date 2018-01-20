@@ -20,10 +20,9 @@ public:
 
     static material *create(illumination_model_t illumination_model);
 
-    // If fast is set, just return the texture map sum multiplied by
-    // point.shade. The caller must ensure it is either the surface
-    // (Lambert) shade of the interpolated (Gouraud) shade.
-    virtual color4 shade(const surface_position &point, const scene_render_context &scene, bool fast) const = 0;
+    virtual color4 shade_pixel(const surface_position &point, const scene_render_context &scene) const = 0;
+    virtual color3 shade_vertex(const surface_position &point, const scene_render_context &scene) const = 0;
+    virtual color4 interpolate(const surface_position &point, const scene_render_context &scene) const = 0;
     
     bool is_textured() const;
     bool is_colored() const;

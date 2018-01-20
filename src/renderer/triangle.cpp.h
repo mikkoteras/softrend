@@ -14,7 +14,7 @@ void triangle::render_halftriangle(const scene_render_context &scene_context,
     if (halftriangle_height[triangle_half] <= 0)
         return;
 
-    bool fast_shading = scene_context.parent_scene->get_shading_model() != phong;
+    shading_model_t shading = scene_context.parent_scene->get_shading_model();
 
     surface_position left = *left_edge_top[triangle_half];
     surface_position right = *right_edge_top[triangle_half];
@@ -43,14 +43,25 @@ void triangle::render_halftriangle(const scene_render_context &scene_context,
             x = 0;
         }
 
-        for (; x <= max_x; ++x) {
-            if (scene_context.target->depth_at(x, y) < pixel.view_position.z()) {
-                color4 shade = mat->shade(pixel, scene_context, fast_shading);
-                scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(), shade);
-            }
+        
+        if (shading == phong)
+            for (; x <= max_x; ++x) {
+                if (scene_context.target->depth_at(x, y) < pixel.view_position.z()) {
+                    color4 shade = mat->shade_pixel(pixel, scene_context);
+                    scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(), shade);
+                }
 
-            pixel.add<mode>(delta); // TODO: skip view_position, use z alone
-        }
+                pixel.add<mode>(delta); // TODO: skip view_position, use z alone
+            }
+        else // TODO: figure out a different way to do this in flat/gouraud
+            for (; x <= max_x; ++x) {
+                if (scene_context.target->depth_at(x, y) < pixel.view_position.z()) {
+                    color4 shade = mat->interpolate(pixel, scene_context);
+                    scene_context.target->set_pixel_overwriting_z_buffer(x, y, pixel.view_position.z(), shade);
+                }
+
+                pixel.add<mode>(delta); // TODO: skip view_position, use z alone
+            }
 
         left.add<mode>(scene_context.num_threads, *left_edge_delta[triangle_half]);
         right.add<mode>(scene_context.num_threads, *right_edge_delta[triangle_half]);
